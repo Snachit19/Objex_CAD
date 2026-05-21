@@ -2,40 +2,52 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Objex CAD | Login</title>
   <link rel="stylesheet" href="/css/style.css">
 </head>
-<body class="auth-body">
 
-  <section class="auth-shell">
-    <div class="brand-row">
-      <div class="logo-circle">O</div>
+<body class="login-page">
+
+  <section class="login-sidebar">
+
+    <div class="login-brand">
+      <div class="brand-logo">
+        <img src="/assets/logo.png" alt="Objex CAD Logo">
+      </div>
+
       <div>
-        <h1>Objex CAD</h1>
+        <h1>CAD 3D</h1>
         <p>Professional Design Studio</p>
       </div>
     </div>
 
-    <div class="auth-card">
+    <div class="quick-login-card">
       <h2>Quick Login</h2>
 
-      <div class="tabs">
-        <button class="active">Sign In</button>
-        <button>Register</button>
-      </div>
-
       <form>
-        <label>Email</label>
-        <input type="email" placeholder="you@example.com">
+        <label for="email">Email</label>
+        <input 
+          type="email" 
+          id="email" 
+          name="email" 
+          placeholder="you@example.com"
+        >
 
-        <label>Password</label>
-        <input type="password" placeholder="••••••••">
+        <label for="password">Password</label>
+        <input 
+          type="password" 
+          id="password" 
+          name="password" 
+          placeholder="••••••••"
+        >
 
-        <button type="button" class="primary-btn">Sign In</button>
+        <button type="button" class="sign-btn">
+          <span>↪</span> Sign In
+        </button>
       </form>
-
-      <p class="note">Authentication will be connected in a later commit.</p>
     </div>
+
   </section>
 
 </body>
