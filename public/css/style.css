@@ -123,3 +123,14 @@ form input {
   color: #9ca3af;
   font-size: 13px;
 }
+.dashboard-basic {
+  padding: 40px;
+}
+
+.dashboard-box {
+  background: #171923;
+  border: 1px solid #2d3245;
+  border-radius: 14px;
+  padding: 20px;
+  margin-top: 20px;
+}
