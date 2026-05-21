@@ -7,13 +7,45 @@
 </head>
 <body>
 
-  <main class="dashboard-basic">
-    <h1>Objex CAD Dashboard</h1>
-    <p>Welcome to your project dashboard.</p>
+  <header class="top-nav">
+    <input class="search-box" type="text" placeholder="Search projects, files...">
+
+    <div class="top-user">
+      <span class="top-icon">🔔</span>
+      <span class="top-icon">⚙</span>
+      <div class="user-avatar">O</div>
+      <span>John Doe</span>
+    </div>
+  </header>
+
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-logo-small">
+        <img src="/assets/logo.png" alt="Objex Logo">
+      </div>
+
+      <div>
+        <h2>CAD 3D</h2>
+        <p>Professional Design Studio</p>
+      </div>
+    </div>
+
+    <nav class="side-menu">
+      <a class="active">▦ Dashboard</a>
+      <a>▣ Projects <span>12</span></a>
+      <a>⚙ Settings</a>
+    </nav>
+
+    <div class="version">v2.0.4 • CAD 3D</div>
+  </aside>
+
+  <main class="dashboard-layout">
+    <h1>Dashboard</h1>
+    <p>Manage your CAD projects from one place.</p>
 
     <section class="dashboard-box">
       <h2>Recent Projects</h2>
-      <p>No projects added yet.</p>
+      <p>Your project list will appear here in the next commits.</p>
     </section>
   </main>
 
