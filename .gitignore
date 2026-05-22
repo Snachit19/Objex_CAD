@@ -2,22 +2,17 @@
 .env
 .env.local
 
-# Virtual environments
-venv/
+# Virtual environment
 .venv/
+venv/
 .env/
 
 # Python cache
 __pycache__/
 *.pyc
-*.pyo
-*.pyd
 
-# Mac system files
+# Mac files
 .DS_Store
 
 # VS Code
 .vscode/
-
-# Logs
-*.log
