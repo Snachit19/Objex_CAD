@@ -7,15 +7,95 @@
 </head>
 <body>
 
-  <main class="dashboard-basic">
-    <h1>Objex CAD Dashboard</h1>
-    <p>Welcome to your project dashboard.</p>
+ <main class="dashboard-layout">
 
-    <section class="dashboard-box">
-      <h2>Recent Projects</h2>
-      <p>No projects added yet.</p>
-    </section>
-  </main>
+  <section class="hero-preview">
+    <div class="preview-top">
+      <span>Perspective View</span>
+    </div>
+
+    <div class="fake-toolbar">
+      <span>✋</span>
+      <span>✥</span>
+      <span>↻</span>
+      <hr>
+      <span>◇</span>
+      <span>○</span>
+      <span>□</span>
+    </div>
+
+    <div class="shape-scene">
+      <div class="shape cube"></div>
+      <div class="shape sphere"></div>
+      <div class="shape cylinder"></div>
+      <div class="shape ring"></div>
+      <div class="shape pill"></div>
+    </div>
+
+    <div class="status-box">
+      <p>X: 0.00 | Y: 0.00 | Z: 0.00</p>
+      <p>Grid: 1.0m</p>
+      <strong>5 Objects Selected</strong>
+    </div>
+
+    <div class="zoom-bar">
+      <span>−</span>
+      <strong>100%</strong>
+      <span>＋</span>
+      <span>▦</span>
+      <span>◉</span>
+    </div>
+  </section>
+
+  <section class="dashboard-cards">
+    <div class="card">
+      <h3>Recent Projects</h3>
+      <p>Last updated today</p>
+
+      <div class="mock-project">
+        <strong>Website Redesign</strong>
+        <span>Active</span>
+      </div>
+
+      <div class="mock-project">
+        <strong>3D Product Model</strong>
+        <span>Review</span>
+      </div>
+
+      <div class="mock-project">
+        <strong>Mobile App UI</strong>
+        <span>Active</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Material Palette</h3>
+      <p>Quick colour access</p>
+
+      <div class="palette">
+        <span class="red"></span>
+        <span class="yellow"></span>
+        <span class="green"></span>
+        <span class="blue"></span>
+        <span class="purple"></span>
+        <span class="pink"></span>
+        <span class="indigo"></span>
+        <span class="teal"></span>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Export</h3>
+      <p>Download project</p>
+      <button class="export-btn">Export as FBX</button>
+
+      <h3 class="help-title">Help</h3>
+      <p>Need assistance?</p>
+      <button class="disabled-btn">View Tutorials</button>
+    </div>
+  </section>
+
+</main>
 
 </body>
 </html>

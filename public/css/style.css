@@ -163,3 +163,278 @@ input {
   padding: 20px;
   margin-top: 20px;
 }
+/* ================================
+   Dashboard Commit 3
+   Preview Area and Project Cards
+================================ */
+
+.hero-preview {
+  height: 600px;
+  background: radial-gradient(circle at center, #1d2440 0%, #0b1020 45%, #080b16 100%);
+  border: 1px solid #171a26;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.hero-preview::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(rgba(255,255,255,0.015) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.015) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+.preview-top {
+  position: absolute;
+  top: 24px;
+  right: 75px;
+  background: #070914;
+  border: 1px solid #232838;
+  padding: 12px 16px;
+  border-radius: 14px;
+  color: #d1d5db;
+}
+
+.fake-toolbar {
+  position: absolute;
+  left: 95px;
+  top: 230px;
+  width: 135px;
+  background: #050711;
+  border: 1px solid #242837;
+  border-radius: 16px;
+  padding: 12px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 15px;
+  color: #cbd5e1;
+  z-index: 2;
+}
+
+.fake-toolbar hr {
+  grid-column: 1 / 4;
+  width: 100%;
+  border: none;
+  border-top: 1px solid #242837;
+}
+
+.shape-scene {
+  width: 650px;
+  height: 370px;
+  position: relative;
+  z-index: 1;
+}
+
+.shape {
+  position: absolute;
+  filter: drop-shadow(0 0 25px currentColor);
+}
+
+.cube {
+  width: 120px;
+  height: 90px;
+  background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+  left: 120px;
+  top: 90px;
+  transform: skewY(-10deg);
+  color: #3b82f6;
+}
+
+.sphere {
+  width: 150px;
+  height: 150px;
+  background: radial-gradient(circle at 35% 35%, #ff8a8a, #ef233c);
+  border-radius: 50%;
+  left: 285px;
+  top: 135px;
+  color: #ef233c;
+}
+
+.cylinder {
+  width: 95px;
+  height: 115px;
+  background: linear-gradient(90deg, #16a34a, #22c55e);
+  left: 470px;
+  top: 120px;
+  color: #22c55e;
+}
+
+.cylinder::before {
+  content: "";
+  position: absolute;
+  top: -22px;
+  width: 95px;
+  height: 42px;
+  background: #22c55e;
+  border-radius: 50%;
+}
+
+.ring {
+  width: 105px;
+  height: 52px;
+  border: 15px solid #9333ea;
+  border-radius: 50px;
+  left: 215px;
+  top: 285px;
+  color: #9333ea;
+}
+
+.pill {
+  width: 92px;
+  height: 26px;
+  background: #d97706;
+  border-radius: 30px;
+  left: 395px;
+  top: 260px;
+  color: #d97706;
+}
+
+.status-box {
+  position: absolute;
+  left: 100px;
+  bottom: 90px;
+  background: rgba(5, 7, 17, 0.92);
+  border: 1px solid #252938;
+  border-radius: 14px;
+  padding: 13px 15px;
+  font-size: 13px;
+  color: #9ca3af;
+}
+
+.status-box p {
+  margin: 4px 0;
+}
+
+.status-box strong {
+  color: #3b82f6;
+}
+
+.zoom-bar {
+  position: absolute;
+  bottom: 80px;
+  background: rgba(5, 7, 17, 0.92);
+  border: 1px solid #252938;
+  border-radius: 14px;
+  padding: 10px 25px;
+  display: flex;
+  gap: 24px;
+  align-items: center;
+}
+
+.zoom-bar strong {
+  background: #171923;
+  padding: 6px 14px;
+  border-radius: 9px;
+}
+
+.dashboard-cards {
+  display: grid;
+  grid-template-columns: 1.15fr 1.15fr 1.1fr;
+  gap: 16px;
+  margin-top: 24px;
+}
+
+.card {
+  background: #151822;
+  border: 1px solid #2b3040;
+  border-radius: 16px;
+  padding: 18px;
+  min-height: 120px;
+}
+
+.card h3 {
+  margin: 0 0 5px;
+}
+
+.card p {
+  color: #9ca3af;
+  margin-top: 0;
+  font-size: 13px;
+}
+
+.mock-project {
+  background: #0d101a;
+  border: 1px solid #242837;
+  border-radius: 12px;
+  padding: 12px;
+  margin-bottom: 10px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.mock-project span {
+  background: #123c73;
+  color: #93c5fd;
+  border-radius: 999px;
+  padding: 3px 9px;
+  font-size: 12px;
+}
+
+.palette {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+}
+
+.palette span {
+  height: 56px;
+  border-radius: 12px;
+}
+
+.red {
+  background: #ef4444;
+}
+
+.yellow {
+  background: #f59e0b;
+}
+
+.green {
+  background: #10b981;
+}
+
+.blue {
+  background: #3b82f6;
+}
+
+.purple {
+  background: #8b5cf6;
+}
+
+.pink {
+  background: #ec4899;
+}
+
+.indigo {
+  background: #6366f1;
+}
+
+.teal {
+  background: #14b8a6;
+}
+
+.export-btn {
+  width: 100%;
+  padding: 11px;
+  border-radius: 10px;
+  background: #064e3b;
+  color: #22c55e;
+  border: 1px solid #047857;
+}
+
+.disabled-btn {
+  width: 100%;
+  padding: 11px;
+  border-radius: 10px;
+  background: #1f2937;
+  color: #d1d5db;
+  border: 1px solid #374151;
+}
+
+.help-title {
+  margin-top: 18px !important;
+}
