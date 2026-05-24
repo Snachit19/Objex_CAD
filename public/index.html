@@ -56,17 +56,35 @@
         <button type="button" class="sign-btn" id="login-btn">
           <span>↪</span> Sign In
         </button>
+        <p class="switch-link">Don't have an account? <a href="/register">Create Account</a></p>
       </form>
     </div>
  
   </section>
  
   <script>
+  function showMsg(message, type) {
+    const msgBox = document.getElementById("msg-box");
+
+    msgBox.textContent = message;
+    msgBox.style.display = "block";
+
+    if (type === "success") {
+      msgBox.style.background = "rgba(34, 197, 94, 0.12)";
+      msgBox.style.border = "1px solid rgba(34, 197, 94, 0.35)";
+      msgBox.style.color = "#4ade80";
+    } else {
+      msgBox.style.background = "rgba(239, 68, 68, 0.12)";
+      msgBox.style.border = "1px solid rgba(239, 68, 68, 0.35)";
+      msgBox.style.color = "#f87171";
+    }
+  }
+
   document.getElementById("login-btn").addEventListener("click", async () => {
-    const email    = document.getElementById("email").value.trim();
+    const email = document.getElementById("email").value.trim().toLowerCase();
     const password = document.getElementById("password").value;
-    const btn      = document.getElementById("login-btn");
-    const msgBox   = document.getElementById("msg-box");
+    const btn = document.getElementById("login-btn");
+    const msgBox = document.getElementById("msg-box");
 
     msgBox.style.display = "none";
 
@@ -76,20 +94,28 @@
     }
 
     btn.disabled = true;
-    btn.textContent = "Signing in…";
+    btn.textContent = "Signing in...";
 
     try {
       const response = await fetch("/api/login", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          email: email,
+          password: password
+        })
       });
 
       const data = await response.json();
 
-      if (data.success) {
-        showMsg("Login successful! Redirecting…", "success");
-        setTimeout(() => { window.location.href = "/dashboard"; }, 800);
+      if (response.ok && data.success) {
+        showMsg("Login successful. Redirecting...", "success");
+
+        setTimeout(() => {
+          window.location.href = "/dashboard";
+        }, 800);
       } else {
         showMsg(data.message || "Login failed.", "error");
         btn.disabled = false;

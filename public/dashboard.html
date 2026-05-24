@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Objex CAD | Dashboard</title>
   <link rel="stylesheet" href="/css/style.css">
 </head>
@@ -186,7 +187,7 @@
         // Show real name and avatar initial from session
         document.getElementById("display-name").textContent = data.name;
         document.getElementById("avatar-initial").textContent =
-          data.name.charAt(0).toUpperCase();
+        (data.name || "U").charAt(0).toUpperCase();
  
       } catch {
         window.location.href = "/";

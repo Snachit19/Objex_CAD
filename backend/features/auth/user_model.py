@@ -1,3 +1,9 @@
-from backend.config.db import db
+from backend.config.db import users_collection
 
-user_collection = db["users"]  
+
+def find_user_by_email(email):
+    return users_collection.find_one({"email": email})
+
+
+def create_user(user_data):
+    return users_collection.insert_one(user_data)

@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Objex CAD | Register</title>
   <link rel="stylesheet" href="/css/style.css">
-  <link rel="stylesheet" href="/css/style.css">
 </head>
 
 <body class="login-page">
@@ -96,7 +95,7 @@
           <span>✦</span> Sign Up
         </button>
 
-        <p class="switch-link">Already have an account? <a href="/index.html">Sign In</a></p>
+        <p class="switch-link">Already have an account? <a href="/">Sign In</a></p>
 
       </form>
     </div>
@@ -104,47 +103,83 @@
   </section>
 
   <script>
-    function togglePassword(inputId, btn) {
-      const input = document.getElementById(inputId);
-      const isText = input.type === 'text';
-      input.type = isText ? 'password' : 'text';
-      btn.style.opacity = isText ? '0.5' : '1';
+  function togglePassword(inputId, btn) {
+    const input = document.getElementById(inputId);
+    const isText = input.type === "text";
+
+    input.type = isText ? "password" : "text";
+    btn.style.opacity = isText ? "0.5" : "1";
+  }
+
+  async function handleRegister(e) {
+    e.preventDefault();
+
+    const errorEl = document.getElementById("error-msg");
+    const btn = document.getElementById("submit-btn");
+
+    const fullname = document.getElementById("fullname").value.trim();
+    const email = document.getElementById("reg-email").value.trim().toLowerCase();
+    const password = document.getElementById("reg-password").value;
+    const confirm = document.getElementById("confirm-password").value;
+
+    errorEl.style.display = "none";
+    errorEl.textContent = "";
+
+    if (!fullname || !email || !password || !confirm) {
+      errorEl.textContent = "Please fill in all fields.";
+      errorEl.style.display = "block";
+      return;
     }
 
-    function handleRegister(e) {
-      e.preventDefault();
-      const errorEl = document.getElementById('error-msg');
-      const btn = document.getElementById('submit-btn');
-      const password = document.getElementById('reg-password').value;
-      const confirm = document.getElementById('confirm-password').value;
+    if (password !== confirm) {
+      errorEl.textContent = "Passwords do not match.";
+      errorEl.style.display = "block";
+      return;
+    }
 
-      errorEl.style.display = 'none';
+    if (password.length < 6) {
+      errorEl.textContent = "Password must be at least 6 characters.";
+      errorEl.style.display = "block";
+      return;
+    }
 
-      if (password !== confirm) {
-        errorEl.textContent = 'Passwords do not match.';
-        errorEl.style.display = 'block';
-        return;
-      }
+    btn.textContent = "Creating account...";
+    btn.disabled = true;
 
-      if (password.length < 6) {
-        errorEl.textContent = 'Password must be at least 6 characters.';
-        errorEl.style.display = 'block';
-        return;
-      }
+    try {
+      const response = await fetch("/api/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          name: fullname,
+          email: email,
+          password: password
+        })
+      });
 
-      // Loading state
-      btn.textContent = 'Creating account…';
-      btn.disabled = true;
+      const result = await response.json();
 
-      // TODO: Replace with real API call
-      setTimeout(() => {
-        btn.textContent = '✦ Sign Up';
+      if (!response.ok || !result.success) {
+        errorEl.textContent = result.message || "Registration failed.";
+        errorEl.style.display = "block";
+        btn.textContent = "✦ Sign Up";
         btn.disabled = false;
-        // Redirect after success:
-        // window.location.href = '/dashboard.html';
-      }, 1500);
+        return;
+      }
+
+      alert("Account created successfully. Please sign in.");
+      window.location.href = "/";
+
+    } catch (error) {
+      errorEl.textContent = "Server error. Please try again.";
+      errorEl.style.display = "block";
+      btn.textContent = "✦ Sign Up";
+      btn.disabled = false;
     }
-  </script>
+  }
+</script>
 
 </body>
 </html>
