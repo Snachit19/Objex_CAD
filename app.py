@@ -15,7 +15,12 @@ CORS(app)
 app.secret_key = os.getenv("SECRET_KEY", "fallback-dev-key-change-this")
 
 # MongoDB connection
-client = MongoClient(os.getenv("MONGO_URI", "mongodb://localhost:27017/"))
+client = MongoClient(
+    os.getenv("MONGO_URI", "mongodb://localhost:27017/"),
+    serverSelectionTimeoutMS=3000,
+    connectTimeoutMS=3000,
+    tlsAllowInvalidCertificates=True
+)
 db = client[os.getenv("DB_NAME", "objex_cad")]
 user_collection = db["users"]
 
