@@ -683,3 +683,101 @@ input {
   padding: 80px 24px 24px;
   background: #080b16;
 }
+/* ================================
+   Register Page Styles
+================================ */
+
+.register-sidebar {
+  width: 490px;
+}
+
+.input-wrapper {
+  position: relative;
+  margin-bottom: 22px;
+}
+
+.input-wrapper input {
+  width: 100%;
+  margin-bottom: 0;
+  padding-left: 46px;
+  padding-right: 46px;
+}
+
+.input-icon {
+  position: absolute;
+  left: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #6b7280;
+  display: flex;
+  align-items: center;
+  pointer-events: none;
+}
+
+.toggle-pw {
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: #6b7280;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  padding: 0;
+  opacity: 0.5;
+  transition: opacity 0.2s;
+}
+
+.toggle-pw:hover {
+  opacity: 1;
+  color: #9ca3af;
+}
+
+.error-msg {
+  background: rgba(239, 68, 68, 0.12);
+  border: 1px solid rgba(239, 68, 68, 0.35);
+  color: #f87171;
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-size: 14px;
+  margin-bottom: 18px;
+}
+
+.sign-btn {
+  transition: opacity 0.2s, box-shadow 0.2s;
+}
+
+.sign-btn:hover:not(:disabled) {
+  opacity: 0.9;
+  box-shadow: 0 0 28px rgba(100, 80, 220, 0.45);
+}
+
+.sign-btn:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.switch-link {
+  text-align: center;
+  color: #6b7280;
+  font-size: 14px;
+  margin: 20px 0 0;
+}
+
+.switch-link a {
+  color: #818cf8;
+  text-decoration: none;
+  font-weight: 600;
+  transition: color 0.2s;
+}
+
+.switch-link a:hover {
+  color: #a5b4fc;
+}
+
+.quick-login-card input:focus {
+  border-color: #4f46e5;
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.18);
+}
