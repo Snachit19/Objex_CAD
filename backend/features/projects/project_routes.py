@@ -25,4 +25,3 @@ def create_project_route():
 @login_required
 def get_projects_route():
     return get_user_projects()
-W
