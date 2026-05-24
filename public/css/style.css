@@ -781,3 +781,107 @@ input {
   border-color: #4f46e5;
   box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.18);
 }
+
+/* ================================
+   Create Project Modal
+================================ */
+
+.create-project-btn {
+  height: 36px;
+  background: linear-gradient(90deg, #2563eb, #7c3aed);
+  color: #ffffff;
+  border: 1px solid #4f46e5;
+  border-radius: 12px;
+  padding: 0 16px;
+  font-size: 14px;
+  font-weight: 700;
+  margin-left: 14px;
+}
+
+.create-project-btn:hover {
+  opacity: 0.9;
+}
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.65);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+}
+
+.modal-card {
+  width: 430px;
+  background: #151822;
+  border: 1px solid #2b3040;
+  border-radius: 20px;
+  padding: 24px;
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.5);
+}
+
+.modal-card h2 {
+  margin: 0 0 8px;
+  font-size: 24px;
+}
+
+.modal-card p {
+  color: #9ca3af;
+  margin-top: 0;
+  margin-bottom: 22px;
+}
+
+.modal-card label {
+  display: block;
+  color: #9ca3af;
+  font-size: 14px;
+  margin-bottom: 8px;
+  font-weight: 700;
+}
+
+.modal-card input,
+.modal-card textarea {
+  width: 100%;
+  background: #080b16;
+  border: 1px solid #2b3040;
+  color: #ffffff;
+  border-radius: 12px;
+  padding: 12px 14px;
+  margin-bottom: 16px;
+  font-size: 14px;
+}
+
+.modal-card textarea {
+  min-height: 95px;
+  resize: none;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.cancel-btn {
+  background: #1f2937;
+  color: #d1d5db;
+  border: 1px solid #374151;
+  padding: 11px 16px;
+  border-radius: 10px;
+}
+
+.save-btn {
+  background: linear-gradient(90deg, #2563eb, #7c3aed);
+  color: #ffffff;
+  border: 1px solid #4f46e5;
+  padding: 11px 16px;
+  border-radius: 10px;
+  font-weight: 700;
+}
+
+.save-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}

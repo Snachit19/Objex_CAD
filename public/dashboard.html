@@ -10,7 +10,7 @@
  
   <header class="top-nav">
     <input class="search-box" type="text" placeholder="Search projects, files...">
- 
+    <button id="newProjectBtn" class="create-project-btn">+ New Project</button>
     <div class="top-user">
       <span class="top-icon">🔔</span>
       <span class="top-icon">⚙</span>
@@ -82,25 +82,17 @@
     </section>
  
     <section class="dashboard-cards">
-      <div class="card">
-        <h3>Recent Projects</h3>
-        <p>Last updated today</p>
- 
+    <div class="card">
+      <h3>Recent Projects</h3>
+      <p>Last updated today</p>
+
+      <div id="projectList">
         <div class="mock-project">
-          <strong>Website Redesign</strong>
-          <span>Active</span>
-        </div>
- 
-        <div class="mock-project">
-          <strong>3D Product Model</strong>
-          <span>Review</span>
-        </div>
- 
-        <div class="mock-project">
-          <strong>Mobile App UI</strong>
-          <span>Active</span>
+          <strong>No projects yet</strong>
+          <span>Create one</span>
         </div>
       </div>
+    </div>
  
       <div class="card">
         <h3>Material Palette</h3>
@@ -170,6 +162,29 @@
       <input type="text" value="Default" readonly>
     </div>
   </aside>
+
+  <div id="projectModal" class="modal-overlay">
+    <div class="modal-card">
+      <h2>Create New Project</h2>
+      <p>Start a new CAD design workspace.</p>
+
+      <label for="projectName">Project Name</label>
+      <input type="text" id="projectName" placeholder="Example: 3D Product Model">
+
+      <label for="projectDescription">Description</label>
+      <textarea id="projectDescription" placeholder="Short project description"></textarea>
+
+      <div id="projectError" class="error-msg" style="display:none;"></div>
+
+        <div class="modal-actions">
+          <button id="cancelProjectBtn" class="cancel-btn">Cancel</button>
+          <button id="saveProjectBtn" class="save-btn">Create Project</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="/js/dashboard/createProject.js"></script>
  
   <script>
     // On page load — check if user is logged in and load their name
