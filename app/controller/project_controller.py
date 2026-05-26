@@ -33,13 +33,13 @@ def create_new_project():
         "updated_at": datetime.utcnow()
     }
 
-    result = create_project(project_data)
+    project_id = create_project(project_data)
 
     return jsonify({
         "success": True,
         "message": "Project created successfully",
         "project": {
-            "id": str(result.inserted_id),
+            "id": project_id,
             "name": project_name,
             "description": description
         }
@@ -55,7 +55,7 @@ def get_user_projects():
 
     for project in projects:
         project_list.append({
-            "id": str(project["_id"]),
+            "id": project["id"],
             "name": project.get("name", "Untitled Project"),
             "description": project.get("description", ""),
             "created_at": str(project.get("created_at", ""))
