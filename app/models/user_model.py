@@ -1,4 +1,4 @@
-from backend.config.db import users_collection
+from database import users_collection
 
 
 def find_user_by_email(email):

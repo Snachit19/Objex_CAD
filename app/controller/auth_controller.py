@@ -1,0 +1,111 @@
+from flask import request, jsonify, session
+from werkzeug.security import generate_password_hash, check_password_hash
+from datetime import datetime
+
+from app.models.user_model import find_user_by_email, create_user
+from app.middleware.auth_middleware import login_required
+
+
+def register():
+    data = request.get_json()
+
+    if not data:
+        return jsonify({
+            "success": False,
+            "message": "No data provided"
+        }), 400
+
+    name = data.get("name") or data.get("fullname") or "User"
+    email = data.get("email", "").strip().lower()
+    password = data.get("password", "")
+
+    if not email or not password:
+        return jsonify({
+            "success": False,
+            "message": "Email and password are required"
+        }), 400
+
+    if len(password) < 6:
+        return jsonify({
+            "success": False,
+            "message": "Password must be at least 6 characters"
+        }), 400
+
+    existing_user = find_user_by_email(email)
+
+    if existing_user:
+        return jsonify({
+            "success": False,
+            "message": "Account already exists"
+        }), 409
+
+    hashed_password = generate_password_hash(password)
+
+    user_data = {
+        "name": name,
+        "email": email,
+        "password": hashed_password,
+        "created_at": datetime.utcnow()
+    }
+
+    create_user(user_data)
+
+    return jsonify({
+        "success": True,
+        "message": "Account created successfully"
+    }), 201
+
+
+def login():
+    data = request.get_json()
+
+    if not data:
+        return jsonify({
+            "success": False,
+            "message": "No data provided"
+        }), 400
+
+    email = data.get("email", "").strip().lower()
+    password = data.get("password", "")
+
+    if not email or not password:
+        return jsonify({
+            "success": False,
+            "message": "Email and password are required"
+        }), 400
+
+    user = find_user_by_email(email)
+
+    if not user or not check_password_hash(user["password"], password):
+        return jsonify({
+            "success": False,
+            "message": "Invalid email or password"
+        }), 401
+
+    session["user_email"] = user["email"]
+    session["user_name"] = user.get("name", "User")
+
+    return jsonify({
+        "success": True,
+        "message": "Logged in successfully",
+        "name": user.get("name", "User"),
+        "email": user["email"]
+    }), 200
+
+
+def logout():
+    session.clear()
+
+    return jsonify({
+        "success": True,
+        "message": "Logged out successfully"
+    }), 200
+
+
+@login_required
+def me():
+    return jsonify({
+        "success": True,
+        "email": session.get("user_email"),
+        "name": session.get("user_name")
+    }), 200

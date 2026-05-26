@@ -1,7 +1,7 @@
 from flask import request, jsonify, session
 from datetime import datetime
 
-from backend.features.projects.project_model import create_project, get_projects_by_user
+from app.models.project_model import create_project, get_projects_by_user
 
 
 def create_new_project():
