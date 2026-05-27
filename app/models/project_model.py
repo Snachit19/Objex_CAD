@@ -1,12 +1,11 @@
-from app.models.database import get_db_connection
+from app.models.database import Database
 import json
 
 
 def create_project(project_data):
-    connection = get_db_connection()
-    cursor = connection.cursor()
+    db = Database()
 
-    cursor.execute(
+    project_id = db.execute(
         """
         INSERT INTO projects 
         (name, description, owner_email, design_data, created_at, updated_at)
@@ -22,44 +21,29 @@ def create_project(project_data):
         )
     )
 
-    connection.commit()
-    project_id = cursor.lastrowid
-
-    cursor.close()
-    connection.close()
-
+    db.close()
     return project_id
 
 
 def get_projects_by_user(email):
-    connection = get_db_connection()
-    cursor = connection.cursor(dictionary=True)
+    db = Database()
 
-    cursor.execute(
+    projects = db.fetch_all(
         "SELECT * FROM projects WHERE owner_email = %s ORDER BY created_at DESC",
         (email,)
     )
 
-    projects = cursor.fetchall()
-
-    cursor.close()
-    connection.close()
-
+    db.close()
     return projects
 
 
 def find_project_by_id(project_id):
-    connection = get_db_connection()
-    cursor = connection.cursor(dictionary=True)
+    db = Database()
 
-    cursor.execute(
+    project = db.fetch_one(
         "SELECT * FROM projects WHERE id = %s",
         (project_id,)
     )
 
-    project = cursor.fetchone()
-
-    cursor.close()
-    connection.close()
-
+    db.close()
     return project

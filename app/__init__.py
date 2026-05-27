@@ -2,6 +2,7 @@ from flask import Flask
 from flask_cors import CORS
 from dotenv import load_dotenv
 import os
+from app.models.database import Database
 
 from app.routes.home_route import home_bp
 from app.routes.auth_route import auth_bp
@@ -20,6 +21,8 @@ def create_app():
     CORS(app)
 
     app.secret_key = os.getenv("JWT_SECRET", "fallback-dev-key-change-this")
+
+    Database.create_tables()
 
     app.register_blueprint(home_bp)
     app.register_blueprint(auth_bp)

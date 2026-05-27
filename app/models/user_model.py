@@ -1,28 +1,22 @@
-from app.models.database import get_db_connection
+from app.models.database import Database
 
 
 def find_user_by_email(email):
-    connection = get_db_connection()
-    cursor = connection.cursor(dictionary=True)
+    db = Database()
 
-    cursor.execute(
+    user = db.fetch_one(
         "SELECT * FROM users WHERE email = %s",
         (email,)
     )
 
-    user = cursor.fetchone()
-
-    cursor.close()
-    connection.close()
-
+    db.close()
     return user
 
 
 def create_user(user_data):
-    connection = get_db_connection()
-    cursor = connection.cursor()
+    db = Database()
 
-    cursor.execute(
+    user_id = db.execute(
         """
         INSERT INTO users (name, email, password, created_at)
         VALUES (%s, %s, %s, %s)
@@ -35,10 +29,5 @@ def create_user(user_data):
         )
     )
 
-    connection.commit()
-    user_id = cursor.lastrowid
-
-    cursor.close()
-    connection.close()
-
+    db.close()
     return user_id
