@@ -12,10 +12,16 @@ function openProjectModal() {
   projectNameInput.value = "";
   projectDescriptionInput.value = "";
   projectError.style.display = "none";
+  projectError.textContent = "";
 }
 
 function closeProjectModal() {
   projectModal.style.display = "none";
+}
+
+function showProjectError(message) {
+  projectError.textContent = message;
+  projectError.style.display = "block";
 }
 
 async function loadProjects() {
@@ -24,12 +30,13 @@ async function loadProjects() {
     const data = await response.json();
 
     if (!data.success) {
+      console.log("Could not load projects");
       return;
     }
 
     projectList.innerHTML = "";
 
-    if (data.projects.length === 0) {
+    if (!data.projects || data.projects.length === 0) {
       projectList.innerHTML = `
         <div class="mock-project">
           <strong>No projects yet</strong>
@@ -42,17 +49,22 @@ async function loadProjects() {
     data.projects.forEach((project) => {
       const item = document.createElement("div");
       item.className = "mock-project";
+      item.style.cursor = "pointer";
 
       item.innerHTML = `
         <strong>${project.name}</strong>
-        <span>Saved</span>
+        <span>Open</span>
       `;
+
+      item.addEventListener("click", () => {
+        window.location.href = `/cad/${project.id}`;
+      });
 
       projectList.appendChild(item);
     });
 
   } catch (error) {
-    console.log("Could not load projects", error);
+    console.log("Could not load projects:", error);
   }
 }
 
@@ -64,8 +76,7 @@ async function createProject() {
   projectError.textContent = "";
 
   if (!name) {
-    projectError.textContent = "Project name is required.";
-    projectError.style.display = "block";
+    showProjectError("Project name is required.");
     return;
   }
 
@@ -87,8 +98,7 @@ async function createProject() {
     const data = await response.json();
 
     if (!response.ok || !data.success) {
-      projectError.textContent = data.message || "Project creation failed.";
-      projectError.style.display = "block";
+      showProjectError(data.message || "Project creation failed.");
       saveProjectBtn.disabled = false;
       saveProjectBtn.textContent = "Create Project";
       return;
@@ -98,16 +108,30 @@ async function createProject() {
     await loadProjects();
 
   } catch (error) {
-    projectError.textContent = "Server error. Please try again.";
-    projectError.style.display = "block";
+    console.log("Create project error:", error);
+    showProjectError("Server error. Please try again.");
   }
 
   saveProjectBtn.disabled = false;
   saveProjectBtn.textContent = "Create Project";
 }
 
-newProjectBtn.addEventListener("click", openProjectModal);
-cancelProjectBtn.addEventListener("click", closeProjectModal);
-saveProjectBtn.addEventListener("click", createProject);
+if (newProjectBtn) {
+  newProjectBtn.addEventListener("click", openProjectModal);
+}
+
+if (cancelProjectBtn) {
+  cancelProjectBtn.addEventListener("click", closeProjectModal);
+}
+
+if (saveProjectBtn) {
+  saveProjectBtn.addEventListener("click", createProject);
+}
+
+window.addEventListener("click", (event) => {
+  if (event.target === projectModal) {
+    closeProjectModal();
+  }
+});
 
 loadProjects();

@@ -1,4 +1,5 @@
 from flask import Blueprint, render_template
+
 from app.middleware.auth_middleware import login_required
 
 
@@ -19,3 +20,9 @@ def register_page():
 @login_required
 def dashboard_page():
     return render_template("dashboard.html")
+
+
+@home_bp.route("/cad/<int:project_id>")
+@login_required
+def cad_page(project_id):
+    return render_template("cad.html", project_id=project_id)

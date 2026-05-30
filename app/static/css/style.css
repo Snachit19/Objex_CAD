@@ -885,3 +885,115 @@ input {
   opacity: 0.6;
   cursor: not-allowed;
 }
+/* ================================
+   CAD WORKSPACE PAGE
+================================ */
+
+.cad-page {
+  min-height: 100vh;
+  background: #090b15;
+  color: #ffffff;
+}
+
+.cad-topbar {
+  height: 72px;
+  background: #080a14;
+  border-bottom: 1px solid #171a26;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24px;
+}
+
+.cad-topbar h2 {
+  margin: 0;
+  font-size: 20px;
+}
+
+.cad-topbar p {
+  margin: 4px 0 0;
+  color: #9ca3af;
+  font-size: 13px;
+}
+
+.cad-actions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.back-dashboard-btn {
+  color: #e5e7eb;
+  background: #1f2937;
+  border: 1px solid #374151;
+  text-decoration: none;
+  padding: 10px 14px;
+  border-radius: 10px;
+}
+
+.cad-workspace {
+  height: calc(100vh - 72px);
+  display: grid;
+  grid-template-columns: 180px 1fr 280px;
+}
+
+.cad-toolbar {
+  background: #080a14;
+  border-right: 1px solid #171a26;
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.cad-toolbar button {
+  background: #151822;
+  color: #e5e7eb;
+  border: 1px solid #2b3040;
+  border-radius: 10px;
+  padding: 12px;
+  font-weight: 700;
+}
+
+.cad-toolbar button:hover {
+  border-color: #3b82f6;
+}
+
+.cad-canvas-area {
+  background:
+    linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px),
+    radial-gradient(circle at center, #1a1838 0%, #101322 48%, #090b15 100%);
+  background-size: 42px 42px, 42px 42px, cover;
+  display: grid;
+  place-items: center;
+}
+
+.cad-empty-state {
+  text-align: center;
+  color: #e5e7eb;
+}
+
+.cad-empty-state h1 {
+  font-size: 42px;
+  margin-bottom: 10px;
+}
+
+.cad-empty-state p {
+  color: #9ca3af;
+}
+
+.cad-inspector {
+  background: #080a14;
+  border-left: 1px solid #171a26;
+  padding: 20px;
+}
+
+.cad-inspector h3 {
+  margin-top: 0;
+}
+
+.cad-inspector p {
+  color: #cbd5e1;
+  font-size: 14px;
+}

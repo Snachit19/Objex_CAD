@@ -15,7 +15,7 @@ def create_project(project_data):
             project_data["name"],
             project_data["description"],
             project_data["owner_email"],
-            json.dumps(project_data["design_data"]),
+            json.dumps(project_data.get("design_data", [])),
             project_data["created_at"],
             project_data["updated_at"]
         )
@@ -29,7 +29,12 @@ def get_projects_by_user(email):
     db = Database()
 
     projects = db.fetch_all(
-        "SELECT * FROM projects WHERE owner_email = %s ORDER BY created_at DESC",
+        """
+        SELECT id, name, description, owner_email, created_at, updated_at
+        FROM projects
+        WHERE owner_email = %s
+        ORDER BY created_at DESC
+        """,
         (email,)
     )
 
@@ -37,13 +42,24 @@ def get_projects_by_user(email):
     return projects
 
 
-def find_project_by_id(project_id):
+def find_project_by_id(project_id, owner_email):
     db = Database()
 
     project = db.fetch_one(
-        "SELECT * FROM projects WHERE id = %s",
-        (project_id,)
+        """
+        SELECT id, name, description, owner_email, design_data, created_at, updated_at
+        FROM projects
+        WHERE id = %s AND owner_email = %s
+        """,
+        (project_id, owner_email)
     )
 
     db.close()
+
+    if project and project.get("design_data"):
+        try:
+            project["design_data"] = json.loads(project["design_data"])
+        except Exception:
+            project["design_data"] = []
+
     return project
