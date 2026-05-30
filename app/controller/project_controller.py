@@ -1,10 +1,22 @@
 from flask import request, jsonify, session
 from datetime import datetime
 
-from app.models.project_model import create_project, get_projects_by_user
+from app.models.project_model import (
+    create_project,
+    get_projects_by_user,
+    find_project_by_id
+)
 
 
 def create_new_project():
+    user_email = session.get("user_email")
+
+    if not user_email:
+        return jsonify({
+            "success": False,
+            "message": "User not logged in"
+        }), 401
+
     data = request.get_json()
 
     if not data:
@@ -21,8 +33,6 @@ def create_new_project():
             "success": False,
             "message": "Project name is required"
         }), 400
-
-    user_email = session.get("user_email")
 
     project_data = {
         "name": project_name,
@@ -49,19 +59,38 @@ def create_new_project():
 def get_user_projects():
     user_email = session.get("user_email")
 
+    if not user_email:
+        return jsonify({
+            "success": False,
+            "message": "User not logged in"
+        }), 401
+
     projects = get_projects_by_user(user_email)
-
-    project_list = []
-
-    for project in projects:
-        project_list.append({
-            "id": project["id"],
-            "name": project.get("name", "Untitled Project"),
-            "description": project.get("description", ""),
-            "created_at": str(project.get("created_at", ""))
-        })
 
     return jsonify({
         "success": True,
-        "projects": project_list
+        "projects": projects
+    }), 200
+
+
+def get_project_by_id(project_id):
+    user_email = session.get("user_email")
+
+    if not user_email:
+        return jsonify({
+            "success": False,
+            "message": "User not logged in"
+        }), 401
+
+    project = find_project_by_id(project_id, user_email)
+
+    if not project:
+        return jsonify({
+            "success": False,
+            "message": "Project not found"
+        }), 404
+
+    return jsonify({
+        "success": True,
+        "project": project
     }), 200

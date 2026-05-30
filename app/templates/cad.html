@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Objex CAD | Workspace</title>
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
+
+<body class="cad-page">
+
+  <header class="cad-topbar">
+    <div>
+      <h2 id="cadProjectName">Loading project...</h2>
+      <p id="cadProjectDescription">Please wait</p>
+    </div>
+
+    <div class="cad-actions">
+      <a href="/dashboard" class="back-dashboard-btn">← Dashboard</a>
+      <button class="save-btn">Save Design</button>
+    </div>
+  </header>
+
+  <main class="cad-workspace">
+    <aside class="cad-toolbar">
+      <button>Cube</button>
+      <button>Sphere</button>
+      <button>Cylinder</button>
+    </aside>
+
+    <section class="cad-canvas-area">
+      <div class="cad-empty-state">
+        <h1>CAD Workspace</h1>
+        <p id="cadStatusText">Opening saved project...</p>
+      </div>
+    </section>
+
+    <aside class="cad-inspector">
+      <h3>Project Details</h3>
+
+      <p><strong>ID:</strong> <span id="projectIdText">{{ project_id }}</span></p>
+      <p><strong>Name:</strong> <span id="projectNameText">Loading...</span></p>
+      <p><strong>Description:</strong> <span id="projectDescriptionText">Loading...</span></p>
+    </aside>
+  </main>
+
+  <script>
+    window.PROJECT_ID = "{{ project_id }}";
+  </script>
+
+  <script src="/static/js/cad/loadProject.js"></script>
+
+</body>
+</html>

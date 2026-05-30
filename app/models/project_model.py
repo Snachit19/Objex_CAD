@@ -16,7 +16,7 @@ def create_project(project_data):
             project_data["name"],
             project_data["description"],
             project_data["owner_email"],
-            json.dumps(project_data["design_data"]),
+            json.dumps(project_data.get("design_data", [])),
             project_data["created_at"],
             project_data["updated_at"]
         )
@@ -35,8 +35,18 @@ def get_projects_by_user(email):
     connection = get_db_connection()
     cursor = connection.cursor(dictionary=True)
 
+<<<<<<< Updated upstream
     cursor.execute(
         "SELECT * FROM projects WHERE owner_email = %s ORDER BY created_at DESC",
+=======
+    projects = db.fetch_all(
+        """
+        SELECT id, name, description, owner_email, created_at, updated_at
+        FROM projects
+        WHERE owner_email = %s
+        ORDER BY created_at DESC
+        """,
+>>>>>>> Stashed changes
         (email,)
     )
 
@@ -48,6 +58,7 @@ def get_projects_by_user(email):
     return projects
 
 
+<<<<<<< Updated upstream
 def find_project_by_id(project_id):
     connection = get_db_connection()
     cursor = connection.cursor(dictionary=True)
@@ -61,5 +72,26 @@ def find_project_by_id(project_id):
 
     cursor.close()
     connection.close()
+=======
+def find_project_by_id(project_id, owner_email):
+    db = Database()
+
+    project = db.fetch_one(
+        """
+        SELECT id, name, description, owner_email, design_data, created_at, updated_at
+        FROM projects
+        WHERE id = %s AND owner_email = %s
+        """,
+        (project_id, owner_email)
+    )
+
+    db.close()
+
+    if project and project.get("design_data"):
+        try:
+            project["design_data"] = json.loads(project["design_data"])
+        except Exception:
+            project["design_data"] = []
+>>>>>>> Stashed changes
 
     return project
