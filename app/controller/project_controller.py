@@ -25,17 +25,17 @@ def create_new_project():
             "message": "No data provided"
         }), 400
 
-    project_name = data.get("name", "").strip()
+    name = data.get("name", "").strip()
     description = data.get("description", "").strip()
 
-    if not project_name:
+    if not name:
         return jsonify({
             "success": False,
             "message": "Project name is required"
         }), 400
 
     project_data = {
-        "name": project_name,
+        "name": name,
         "description": description,
         "owner_email": user_email,
         "design_data": [],
@@ -50,7 +50,7 @@ def create_new_project():
         "message": "Project created successfully",
         "project": {
             "id": project_id,
-            "name": project_name,
+            "name": name,
             "description": description
         }
     }), 201

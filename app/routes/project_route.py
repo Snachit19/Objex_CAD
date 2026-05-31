@@ -7,6 +7,7 @@ from app.controller.project_controller import (
     get_project_by_id
 )
 
+
 projects_bp = Blueprint("projects", __name__)
 
 

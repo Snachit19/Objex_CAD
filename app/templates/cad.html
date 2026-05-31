@@ -4,145 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Objex CAD | Workspace</title>
-  <style>
-    * { box-sizing: border-box; }
-
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background: #070914;
-      color: #ffffff;
-    }
-
-    button, input { font-family: inherit; }
-    button { border: none; cursor: pointer; }
-    input { outline: none; }
-
-    /* ── CAD Page ── */
-    .cad-page { min-height: 100vh; background: #090b15; color: #ffffff; }
-
-    .cad-topbar {
-      height: 72px;
-      background: #080a14;
-      border-bottom: 1px solid #171a26;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 0 24px;
-    }
-    .cad-topbar h2 { margin: 0; font-size: 20px; }
-    .cad-topbar p  { margin: 4px 0 0; color: #9ca3af; font-size: 13px; }
-    .cad-actions { display: flex; gap: 12px; align-items: center; }
-
-    .back-dashboard-btn {
-      color: #e5e7eb;
-      background: #1f2937;
-      border: 1px solid #374151;
-      text-decoration: none;
-      padding: 10px 14px;
-      border-radius: 10px;
-    }
-
-    .save-btn {
-      background: linear-gradient(90deg, #2563eb, #7c3aed);
-      color: #ffffff;
-      border: 1px solid #4f46e5;
-      padding: 11px 16px;
-      border-radius: 10px;
-      font-weight: 700;
-    }
-
-    /* ── Toolbar ── */
-    .cad-toolbar {
-      height: 52px;
-      background: #080a14;
-      border-bottom: 1px solid #171a26;
-      display: flex;
-      align-items: center;
-      padding: 0 20px;
-      gap: 10px;
-    }
-
-    .dd-btn {
-      background: #151822;
-      color: #e5e7eb;
-      border: 1px solid #2b3040;
-      border-radius: 10px;
-      padding: 8px 18px;
-      font-size: 13px;
-      font-weight: 700;
-      cursor: pointer;
-    }
-    .dd-btn:hover { border-color: #3b82f6; background: #1e2a40; }
-
-    /* FIX: position fixed so it escapes the canvas stacking context */
-    .dd-menu {
-      display: none;
-      position: fixed;
-      background: #0f1220;
-      border: 1px solid #2b3040;
-      border-radius: 12px;
-      padding: 6px;
-      min-width: 160px;
-      z-index: 99999;
-      box-shadow: 0 16px 40px rgba(0,0,0,0.8);
-      flex-direction: column;
-      gap: 2px;
-    }
-    .dd-menu.open { display: flex; }
-    .dd-menu button {
-      background: transparent;
-      color: #cbd5e1;
-      border: none;
-      border-radius: 8px;
-      padding: 9px 14px;
-      font-size: 13px;
-      text-align: left;
-      cursor: pointer;
-      width: 100%;
-    }
-    .dd-menu button:hover { background: #1e2a40; color: #fff; }
-
-    /* ── Workspace ── */
-    .cad-workspace {
-      height: calc(100vh - 72px - 52px);
-      display: grid;
-      grid-template-columns: 1fr 280px;
-    }
-
-    .cad-canvas-area {
-      position: relative;
-      overflow: hidden;
-      background: #090b15;
-    }
-
-    #cadCanvas { display: block; width: 100%; height: 100%; }
-
-    .cad-inspector {
-      background: #080a14;
-      border-left: 1px solid #171a26;
-      padding: 20px;
-      overflow-y: auto;
-    }
-    .cad-inspector h3 { margin-top: 0; }
-    .cad-inspector p  { color: #cbd5e1; font-size: 14px; }
-
-    /* ── Tooltip ── */
-    #shapeTooltip {
-      position: fixed;
-      display: none;
-      pointer-events: none;
-      background: rgba(15, 18, 32, 0.95);
-      border: 1px solid #3b82f6;
-      color: #fff;
-      padding: 10px 14px;
-      border-radius: 10px;
-      font-size: 13px;
-      z-index: 999999;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-      white-space: nowrap;
-    }
-  </style>
+  <link rel="stylesheet" href="/static/css/style.css">
 </head>
 
 <body class="cad-page">
@@ -152,227 +14,59 @@
       <h2 id="cadProjectName">Objex CAD Workspace</h2>
       <p id="cadProjectDescription">3D Design Editor</p>
     </div>
+
     <div class="cad-actions">
       <a href="/dashboard" class="back-dashboard-btn">← Dashboard</a>
-      <button class="save-btn">Save Design</button>
+      <button id="saveDesignBtn" class="save-btn">Save Design</button>
     </div>
   </header>
 
-  <div class="cad-toolbar">
-    <button class="dd-btn" id="shapesBtn">＋ Add Shape ▾</button>
-  </div>
+<nav class="cad-toolbar">
+  <div class="shape-menu-wrapper">
 
-  <!-- Tooltip div declared BEFORE scripts so it exists when JS runs -->
-  <div id="shapeTooltip"></div>
+    <button id="addShapeBtn" class="add-shape-icon-btn" title="Add Shape" aria-label="Add Shape">
+      <img src="/static/assets/add-shape.svg" alt="Add Shape">
+      <span>▾</span>
+    </button>
 
-  <!-- Dropdown outside canvas so WebGL can't cover it -->
-  <div class="dd-menu" id="shapesMenu">
-    <button onclick="addShape('cube')">⬛ Cube</button>
-    <button onclick="addShape('sphere')">🔵 Sphere</button>
-    <button onclick="addShape('cylinder')">🟢 Cylinder</button>
-    <button onclick="addShape('cone')">🔺 Cone</button>
-    <button onclick="addShape('torus')">⭕ Torus</button>
-    <button onclick="addShape('pyramid')">△ Pyramid</button>
-    <!-- FIX: CapsuleGeometry doesn't exist in r128; replaced with CylinderGeometry -->
-    <button onclick="addShape('capsule')">💊 Capsule</button>
-    <button onclick="addShape('plane')">▬ Plane</button>
+    <div id="shapeMenuOptions" class="shape-menu-options">
+      <button type="button" data-shape="cube">⬛ Cube</button>
+      <button type="button" data-shape="sphere">⚪ Sphere</button>
+      <button type="button" data-shape="cylinder">▰ Cylinder</button>
+      <button type="button" data-shape="cone">🔺 Cone</button>
+      <button type="button" data-shape="torus">⭕ Torus</button>
+      <button type="button" data-shape="pyramid">△ Pyramid</button>
+      <button type="button" data-shape="plane">▬ Plane</button>
+    </div>
+
   </div>
+</nav>
 
   <main class="cad-workspace">
     <section class="cad-canvas-area">
       <canvas id="cadCanvas"></canvas>
+      <div id="shapeTooltip"></div>
     </section>
 
     <aside class="cad-inspector">
       <h3>Project Details</h3>
-      <p><strong>Name:</strong> Objex Workspace</p>
+      <p><strong>Name:</strong> <span id="projectNameText">Loading...</span></p>
+      <p><strong>Description:</strong> <span id="projectDescriptionText">Loading...</span></p>
+      <p><strong>Status:</strong> <span id="cadStatusText">Opening saved project...</span></p>
       <p><strong>Tip:</strong> Hover a shape to see its dimensions. Drag to orbit. Scroll to zoom.</p>
     </aside>
   </main>
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-  <script>
-    // ── Dropdown ──────────────────────────────────────────
-    const shapesBtn  = document.getElementById('shapesBtn');
-    const shapesMenu = document.getElementById('shapesMenu');
+ <script>
+  window.PROJECT_ID = Number("{{ project_id }}");
+</script>
 
-    shapesBtn.addEventListener('click', function(e) {
-      e.stopPropagation();
-      if (shapesMenu.classList.contains('open')) {
-        shapesMenu.classList.remove('open');
-        return;
-      }
-      const rect = shapesBtn.getBoundingClientRect();
-      shapesMenu.style.top  = (rect.bottom + 6) + 'px';
-      shapesMenu.style.left = rect.left + 'px';
-      shapesMenu.classList.add('open');
-    });
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
 
-    shapesMenu.addEventListener('click', function(e) {
-      e.stopPropagation();
-      shapesMenu.classList.remove('open');
-    });
-
-    document.addEventListener('click', function() {
-      shapesMenu.classList.remove('open');
-    });
-
-    // ── Three.js setup ────────────────────────────────────
-    const canvas   = document.getElementById('cadCanvas');
-    const tooltip  = document.getElementById('shapeTooltip');
-    const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
-    renderer.setPixelRatio(window.devicePixelRatio);
-
-    const scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x090b15);
-    scene.add(new THREE.GridHelper(30, 30, 0x2a2a3e, 0x1a1a2e));
-
-    const camera = new THREE.PerspectiveCamera(60, 1, 0.1, 1000);
-    camera.position.set(6, 6, 12);
-    camera.lookAt(0, 0, 0);
-
-    scene.add(new THREE.AmbientLight(0xffffff, 0.5));
-    const dirLight = new THREE.DirectionalLight(0xffffff, 0.9);
-    dirLight.position.set(10, 15, 10);
-    scene.add(dirLight);
-    const fillLight = new THREE.DirectionalLight(0x8888ff, 0.3);
-    fillLight.position.set(-10, 5, -10);
-    scene.add(fillLight);
-
-    function resizeRenderer() {
-      const area = canvas.parentElement;
-      renderer.setSize(area.clientWidth, area.clientHeight);
-      camera.aspect = area.clientWidth / area.clientHeight;
-      camera.updateProjectionMatrix();
-    }
-    resizeRenderer();
-    window.addEventListener('resize', resizeRenderer);
-
-    // ── Orbit controls ────────────────────────────────────
-    let isDragging = false, lastX = 0, lastY = 0;
-    let theta = 45, phi = 35, radius = 14;
-
-    canvas.addEventListener('mousedown', e => {
-      isDragging = true;
-      lastX = e.clientX;
-      lastY = e.clientY;
-    });
-    window.addEventListener('mouseup', () => isDragging = false);
-
-    canvas.addEventListener('wheel', e => {
-      radius = Math.max(3, Math.min(40, radius + e.deltaY * 0.02));
-    });
-
-    // ── Raycaster ─────────────────────────────────────────
-    const raycaster = new THREE.Raycaster();
-    const mouse     = new THREE.Vector2();
-
-    // FIX: Single unified mousemove listener handling orbit + raycaster + tooltip position
-    window.addEventListener('mousemove', function(e) {
-      // Orbit drag
-      if (isDragging) {
-        theta -= (e.clientX - lastX) * 0.4;
-        phi   -= (e.clientY - lastY) * 0.4;
-        phi = Math.max(5, Math.min(85, phi));
-        lastX = e.clientX;
-        lastY = e.clientY;
-      }
-
-      // Update raycaster mouse coords relative to canvas
-      const rect = canvas.getBoundingClientRect();
-      mouse.x = ((e.clientX - rect.left) / rect.width)  *  2 - 1;
-      mouse.y = ((e.clientY - rect.top)  / rect.height) * -2 + 1;
-
-      // Move tooltip to cursor
-      tooltip.style.left = (e.clientX + 15) + 'px';
-      tooltip.style.top  = (e.clientY + 15) + 'px';
-    });
-
-    // ── Shape helpers ─────────────────────────────────────
-    const colors = [0x3b82f6, 0xef4444, 0x22c55e, 0xa855f7, 0xf59e0b, 0x14b8a6, 0xec4899, 0xf97316];
-    let shapeCount = 0;
-
-    function getDimensions(type) {
-      switch (type) {
-        case 'cube':     return '1.5 × 1.5 × 1.5';
-        case 'sphere':   return 'Radius: 0.9';
-        case 'cylinder': return 'Radius: 0.7, Height: 1.8';
-        case 'cone':     return 'Radius: 0.9, Height: 2';
-        case 'torus':    return 'Major Radius: 0.8, Tube: 0.3';
-        case 'pyramid':  return 'Base: 2 × 2, Height: 1.8';
-        // FIX: capsule now uses cylinder geometry so dimensions match
-        case 'capsule':  return 'Radius: 0.5, Height: 1.2';
-        case 'plane':    return '2 × 2';
-        default:         return 'Unknown';
-      }
-    }
-
-    function addShape(type) {
-      const color = colors[shapeCount % colors.length];
-      const mat   = new THREE.MeshPhongMaterial({ color, shininess: 60 });
-      let geo;
-
-      switch (type) {
-        case 'cube':     geo = new THREE.BoxGeometry(1.5, 1.5, 1.5);           break;
-        case 'sphere':   geo = new THREE.SphereGeometry(0.9, 32, 32);           break;
-        case 'cylinder': geo = new THREE.CylinderGeometry(0.7, 0.7, 1.8, 32);  break;
-        case 'cone':     geo = new THREE.ConeGeometry(0.9, 2, 32);              break;
-        case 'torus':    geo = new THREE.TorusGeometry(0.8, 0.3, 16, 64);       break;
-        case 'pyramid':  geo = new THREE.ConeGeometry(1, 1.8, 4);               break;
-        // FIX: CapsuleGeometry was added in r142 and does not exist in r128.
-        // Using CylinderGeometry as a stand-in until Three.js is upgraded.
-        case 'capsule':  geo = new THREE.CylinderGeometry(0.5, 0.5, 1.2, 32);  break;
-        case 'plane':
-          geo = new THREE.PlaneGeometry(2, 2);
-          mat.side = THREE.DoubleSide;
-          break;
-      }
-
-      const mesh = new THREE.Mesh(geo, mat);
-      mesh.userData = { type, shapeId: shapeCount, dimensions: getDimensions(type) };
-
-      const col = shapeCount % 6;
-      const row = Math.floor(shapeCount / 6);
-      mesh.position.set(col * 2.5 - 6, 1, row * 2.5 - 3);
-
-      scene.add(mesh);
-      shapeCount++;
-    }
-
-    // ── Render loop ───────────────────────────────────────
-    function animate() {
-      requestAnimationFrame(animate);
-
-      // Update camera orbit
-      const t = theta * Math.PI / 180;
-      const p = phi   * Math.PI / 180;
-      camera.position.set(
-        radius * Math.sin(t) * Math.cos(p),
-        radius * Math.sin(p),
-        radius * Math.cos(t) * Math.cos(p)
-      );
-      camera.lookAt(0, 0, 0);
-
-      // Raycaster hover check
-      raycaster.setFromCamera(mouse, camera);
-      const intersects = raycaster.intersectObjects(scene.children);
-
-      let hovered = null;
-      for (const hit of intersects) {
-        if (hit.object.userData.type) { hovered = hit.object; break; }
-      }
-
-      if (hovered) {
-        tooltip.style.display = 'block';
-        tooltip.innerHTML = `<strong>${hovered.userData.type.toUpperCase()}</strong><br>${hovered.userData.dimensions}`;
-      } else {
-        tooltip.style.display = 'none';
-      }
-
-      renderer.render(scene, camera);
-    }
-    animate();
-  </script>
+<script src="/static/js/cad/loadProject.js"></script>
+<script src="/static/js/cad/sceneSetup.js"></script>
+<script src="/static/js/cad/addShape.js"></script>
 
 </body>
 </html>
