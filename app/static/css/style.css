@@ -137,7 +137,6 @@ input {
 
 /* ================================
    Dashboard Basic Page
-   Dashboard Commit 1 only
 ================================ */
 
 .dashboard-basic {
@@ -163,9 +162,9 @@ input {
   padding: 20px;
   margin-top: 20px;
 }
+
 /* ================================
    Dashboard Commit 3
-   Preview Area and Project Cards
 ================================ */
 
 .hero-preview {
@@ -305,13 +304,8 @@ input {
   color: #9ca3af;
 }
 
-.status-box p {
-  margin: 4px 0;
-}
-
-.status-box strong {
-  color: #3b82f6;
-}
+.status-box p { margin: 4px 0; }
+.status-box strong { color: #3b82f6; }
 
 .zoom-bar {
   position: absolute;
@@ -346,15 +340,8 @@ input {
   min-height: 120px;
 }
 
-.card h3 {
-  margin: 0 0 5px;
-}
-
-.card p {
-  color: #9ca3af;
-  margin-top: 0;
-  font-size: 13px;
-}
+.card h3 { margin: 0 0 5px; }
+.card p { color: #9ca3af; margin-top: 0; font-size: 13px; }
 
 .mock-project {
   background: #0d101a;
@@ -380,42 +367,16 @@ input {
   gap: 10px;
 }
 
-.palette span {
-  height: 56px;
-  border-radius: 12px;
-}
+.palette span { height: 56px; border-radius: 12px; }
 
-.red {
-  background: #ef4444;
-}
-
-.yellow {
-  background: #f59e0b;
-}
-
-.green {
-  background: #10b981;
-}
-
-.blue {
-  background: #3b82f6;
-}
-
-.purple {
-  background: #8b5cf6;
-}
-
-.pink {
-  background: #ec4899;
-}
-
-.indigo {
-  background: #6366f1;
-}
-
-.teal {
-  background: #14b8a6;
-}
+.red    { background: #ef4444; }
+.yellow { background: #f59e0b; }
+.green  { background: #10b981; }
+.blue   { background: #3b82f6; }
+.purple { background: #8b5cf6; }
+.pink   { background: #ec4899; }
+.indigo { background: #6366f1; }
+.teal   { background: #14b8a6; }
 
 .export-btn {
   width: 100%;
@@ -435,17 +396,13 @@ input {
   border: 1px solid #374151;
 }
 
-.help-title {
-  margin-top: 18px !important;
-}
+.help-title { margin-top: 18px !important; }
+
 /* ================================
    Dashboard Commit 4
-   Properties Panel and API Helper
 ================================ */
 
-.dashboard-layout {
-  margin-right: 300px;
-}
+.dashboard-layout { margin-right: 300px; }
 
 .properties-panel {
   position: fixed;
@@ -459,16 +416,8 @@ input {
   overflow-y: auto;
 }
 
-.properties-panel h2 {
-  margin: 0;
-  font-size: 18px;
-}
-
-.properties-panel > p {
-  color: #9ca3af;
-  margin-top: 4px;
-  font-size: 13px;
-}
+.properties-panel h2 { margin: 0; font-size: 18px; }
+.properties-panel > p { color: #9ca3af; margin-top: 4px; font-size: 13px; }
 
 .property-card {
   background: #151822;
@@ -478,17 +427,8 @@ input {
   margin-top: 16px;
 }
 
-.property-card h3 {
-  margin: 0 0 15px;
-  font-size: 15px;
-}
-
-.property-card label {
-  display: block;
-  color: #9ca3af;
-  margin: 12px 0 7px;
-  font-size: 13px;
-}
+.property-card h3 { margin: 0 0 15px; font-size: 15px; }
+.property-card label { display: block; color: #9ca3af; margin: 12px 0 7px; font-size: 13px; }
 
 .triple {
   display: grid;
@@ -505,21 +445,9 @@ input {
   border-radius: 8px;
   padding: 8px;
 }
-.logout-btn {
-  background: #1f2937;
-  color: #ffffff;
-  border: 1px solid #374151;
-  padding: 8px 12px;
-  border-radius: 10px;
-  font-size: 13px;
-}
 
-.logout-btn:hover {
-  background: #ef4444;
-  border-color: #ef4444;
-}
 /* ================================
-   Fix Dashboard Top Nav and Sidebar
+   Top Nav and Sidebar
 ================================ */
 
 .top-nav {
@@ -556,9 +484,7 @@ input {
   font-size: 14px;
 }
 
-.top-icon {
-  color: #9ca3af;
-}
+.top-icon { color: #9ca3af; }
 
 .user-avatar {
   width: 32px;
@@ -616,23 +542,10 @@ input {
   flex-shrink: 0;
 }
 
-.brand-logo-small img {
-  width: 46px;
-  height: 46px;
-  object-fit: contain;
-}
+.brand-logo-small img { width: 46px; height: 46px; object-fit: contain; }
 
-.sidebar-brand h2 {
-  margin: 0;
-  font-size: 20px;
-  letter-spacing: 1px;
-}
-
-.sidebar-brand p {
-  margin: 4px 0 0;
-  color: #9ca3af;
-  font-size: 12px;
-}
+.sidebar-brand h2 { margin: 0; font-size: 20px; letter-spacing: 1px; }
+.sidebar-brand p  { margin: 4px 0 0; color: #9ca3af; font-size: 12px; }
 
 .side-menu {
   margin-top: 28px;
@@ -650,7 +563,7 @@ input {
 }
 
 .side-menu a.active {
-  background: linear-gradient(90deg, rgba(37, 99, 235, 0.55), rgba(147, 51, 234, 0.55));
+  background: linear-gradient(90deg, rgba(37,99,235,0.55), rgba(147,51,234,0.55));
   border: 1px solid #4f46e5;
   color: #ffffff;
 }
@@ -683,25 +596,15 @@ input {
   padding: 80px 24px 24px;
   background: #080b16;
 }
+
 /* ================================
-   Register Page Styles
+   Register Page
 ================================ */
 
-.register-sidebar {
-  width: 490px;
-}
+.register-sidebar { width: 490px; }
 
-.input-wrapper {
-  position: relative;
-  margin-bottom: 22px;
-}
-
-.input-wrapper input {
-  width: 100%;
-  margin-bottom: 0;
-  padding-left: 46px;
-  padding-right: 46px;
-}
+.input-wrapper { position: relative; margin-bottom: 22px; }
+.input-wrapper input { width: 100%; margin-bottom: 0; padding-left: 46px; padding-right: 46px; }
 
 .input-icon {
   position: absolute;
@@ -730,10 +633,7 @@ input {
   transition: opacity 0.2s;
 }
 
-.toggle-pw:hover {
-  opacity: 1;
-  color: #9ca3af;
-}
+.toggle-pw:hover { opacity: 1; color: #9ca3af; }
 
 .error-msg {
   background: rgba(239, 68, 68, 0.12);
@@ -745,41 +645,17 @@ input {
   margin-bottom: 18px;
 }
 
-.sign-btn {
-  transition: opacity 0.2s, box-shadow 0.2s;
-}
+.sign-btn { transition: opacity 0.2s, box-shadow 0.2s; }
+.sign-btn:hover:not(:disabled) { opacity: 0.9; box-shadow: 0 0 28px rgba(100,80,220,0.45); }
+.sign-btn:disabled { opacity: 0.65; cursor: not-allowed; }
 
-.sign-btn:hover:not(:disabled) {
-  opacity: 0.9;
-  box-shadow: 0 0 28px rgba(100, 80, 220, 0.45);
-}
-
-.sign-btn:disabled {
-  opacity: 0.65;
-  cursor: not-allowed;
-}
-
-.switch-link {
-  text-align: center;
-  color: #6b7280;
-  font-size: 14px;
-  margin: 20px 0 0;
-}
-
-.switch-link a {
-  color: #818cf8;
-  text-decoration: none;
-  font-weight: 600;
-  transition: color 0.2s;
-}
-
-.switch-link a:hover {
-  color: #a5b4fc;
-}
+.switch-link { text-align: center; color: #6b7280; font-size: 14px; margin: 20px 0 0; }
+.switch-link a { color: #818cf8; text-decoration: none; font-weight: 600; transition: color 0.2s; }
+.switch-link a:hover { color: #a5b4fc; }
 
 .quick-login-card input:focus {
   border-color: #4f46e5;
-  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.18);
+  box-shadow: 0 0 0 3px rgba(79,70,229,0.18);
 }
 
 /* ================================
@@ -795,17 +671,14 @@ input {
   padding: 0 16px;
   font-size: 14px;
   font-weight: 700;
-  
 }
 
-.create-project-btn:hover {
-  opacity: 0.9;
-}
+.create-project-btn:hover { opacity: 0.9; }
 
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.65);
+  background: rgba(0,0,0,0.65);
   display: none;
   align-items: center;
   justify-content: center;
@@ -818,27 +691,12 @@ input {
   border: 1px solid #2b3040;
   border-radius: 20px;
   padding: 24px;
-  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 30px 80px rgba(0,0,0,0.5);
 }
 
-.modal-card h2 {
-  margin: 0 0 8px;
-  font-size: 24px;
-}
-
-.modal-card p {
-  color: #9ca3af;
-  margin-top: 0;
-  margin-bottom: 22px;
-}
-
-.modal-card label {
-  display: block;
-  color: #9ca3af;
-  font-size: 14px;
-  margin-bottom: 8px;
-  font-weight: 700;
-}
+.modal-card h2 { margin: 0 0 8px; font-size: 24px; }
+.modal-card p  { color: #9ca3af; margin-top: 0; margin-bottom: 22px; }
+.modal-card label { display: block; color: #9ca3af; font-size: 14px; margin-bottom: 8px; font-weight: 700; }
 
 .modal-card input,
 .modal-card textarea {
@@ -852,17 +710,9 @@ input {
   font-size: 14px;
 }
 
-.modal-card textarea {
-  min-height: 95px;
-  resize: none;
-}
+.modal-card textarea { min-height: 95px; resize: none; }
 
-.modal-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 12px;
-  margin-top: 8px;
-}
+.modal-actions { display: flex; justify-content: flex-end; gap: 12px; margin-top: 8px; }
 
 .cancel-btn {
   background: #1f2937;
@@ -881,10 +731,8 @@ input {
   font-weight: 700;
 }
 
-.save-btn:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
+.save-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
 /* ================================
    CAD WORKSPACE PAGE
 ================================ */
@@ -905,22 +753,10 @@ input {
   padding: 0 24px;
 }
 
-.cad-topbar h2 {
-  margin: 0;
-  font-size: 20px;
-}
+.cad-topbar h2 { margin: 0; font-size: 20px; }
+.cad-topbar p  { margin: 4px 0 0; color: #9ca3af; font-size: 13px; }
 
-.cad-topbar p {
-  margin: 4px 0 0;
-  color: #9ca3af;
-  font-size: 13px;
-}
-
-.cad-actions {
-  display: flex;
-  gap: 12px;
-  align-items: center;
-}
+.cad-actions { display: flex; gap: 12px; align-items: center; }
 
 .back-dashboard-btn {
   color: #e5e7eb;
@@ -931,19 +767,20 @@ input {
   border-radius: 10px;
 }
 
-.cad-workspace {
-  height: calc(100vh - 72px);
-  display: grid;
-  grid-template-columns: 180px 1fr 280px;
-}
+/* ================================
+   CAD TOOLBAR — top horizontal bar
+================================ */
 
 .cad-toolbar {
+  height: 52px;
   background: #080a14;
-  border-right: 1px solid #171a26;
-  padding: 18px;
+  border-bottom: 1px solid #171a26;
   display: flex;
-  flex-direction: column;
-  gap: 12px;
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+  padding: 0 20px;
+  overflow-x: auto;
 }
 
 .cad-toolbar button {
@@ -951,49 +788,123 @@ input {
   color: #e5e7eb;
   border: 1px solid #2b3040;
   border-radius: 10px;
-  padding: 12px;
+  padding: 7px 16px;
+  font-size: 13px;
   font-weight: 700;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .cad-toolbar button:hover {
   border-color: #3b82f6;
+  background: #1e2a40;
+}
+
+/* ================================
+   CAD WORKSPACE LAYOUT
+================================ */
+
+.cad-workspace {
+  height: calc(100vh - 72px - 52px);
+  display: grid;
+  grid-template-columns: 1fr 280px;
 }
 
 .cad-canvas-area {
-  background:
-    linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px),
-    radial-gradient(circle at center, #1a1838 0%, #101322 48%, #090b15 100%);
-  background-size: 42px 42px, 42px 42px, cover;
-  display: grid;
-  place-items: center;
+  position: relative;
+  overflow: hidden;
+  background: #090b15;
 }
 
-.cad-empty-state {
-  text-align: center;
-  color: #e5e7eb;
-}
-
-.cad-empty-state h1 {
-  font-size: 42px;
-  margin-bottom: 10px;
-}
-
-.cad-empty-state p {
-  color: #9ca3af;
+#cadCanvas {
+  display: block;
+  width: 100%;
+  height: 100%;
 }
 
 .cad-inspector {
   background: #080a14;
   border-left: 1px solid #171a26;
   padding: 20px;
+  overflow-y: auto;
 }
 
-.cad-inspector h3 {
-  margin-top: 0;
+.cad-inspector h3 { margin-top: 0; }
+.cad-inspector p  { color: #cbd5e1; font-size: 14px; }
+
+/* ================================
+   CAD TOOLBAR DROPDOWN
+================================ */
+
+.toolbar-dropdown {
+  position: relative;
 }
 
-.cad-inspector p {
+.toolbar-dropdown-btn {
+  background: #151822;
+  color: #e5e7eb;
+  border: 1px solid #2b3040;
+  border-radius: 10px;
+  padding: 7px 16px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.toolbar-dropdown-btn:hover {
+  border-color: #3b82f6;
+  background: #1e2a40;
+}
+
+.toolbar-dropdown-menu {
+  display: none;
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  background: #0f1220;
+  border: 1px solid #2b3040;
+  border-radius: 12px;
+  padding: 8px;
+  min-width: 160px;
+  z-index: 999;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+  flex-direction: column;
+  gap: 4px;
+}
+
+.toolbar-dropdown.open .toolbar-dropdown-menu {
+  display: flex;
+}
+
+.toolbar-dropdown-menu button {
+  background: transparent;
   color: #cbd5e1;
-  font-size: 14px;
+  border: none;
+  border-radius: 8px;
+  padding: 9px 14px;
+  font-size: 13px;
+  text-align: left;
+  cursor: pointer;
+  width: 100%;
+}
+
+.toolbar-dropdown-menu button:hover {
+  background: #1e2a40;
+  color: #ffffff;
+} 
+
+#shapeTooltip {
+  position: fixed;
+  display: none;
+  pointer-events: none;
+  background: rgba(15, 18, 32, 0.95);
+  border: 1px solid #3b82f6;
+  color: #fff;
+  padding: 10px 14px;
+  border-radius: 10px;
+  font-size: 13px;
+  z-index: 999999;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+  white-space: nowrap;
 }
