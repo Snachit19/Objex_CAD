@@ -942,3 +942,30 @@ input {
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
   white-space: nowrap;
 }
+/* ================================
+   SELECTED OBJECT PANEL
+================================ */
+
+.selected-object-panel {
+  margin-top: 22px;
+  background: #10131f;
+  border: 1px solid #2b3040;
+  border-radius: 16px;
+  padding: 16px;
+}
+
+.selected-object-panel h3 {
+  margin: 0 0 14px;
+  font-size: 17px;
+  color: #ffffff;
+}
+
+.selected-object-panel p {
+  margin: 10px 0;
+  color: #cbd5e1;
+  font-size: 14px;
+}
+
+.selected-object-panel span {
+  color: #93c5fd;
+}
