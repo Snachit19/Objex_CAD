@@ -68,5 +68,18 @@ class Database:
                 updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
             )
         """)
+        # Add design_data column if it does not already exist
+        try:
+            db.execute("""
+                ALTER TABLE projects
+                ADD COLUMN design_data LONGTEXT NULL
+            """)
+            print("design_data column added to projects table.")
+    
+        except Exception as error:
+            if "Duplicate column name" in str(error):
+                print("design_data column already exists.")
+            else:
+                print("Could not add design_data column:", error)
 
         db.close()
