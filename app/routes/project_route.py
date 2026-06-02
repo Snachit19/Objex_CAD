@@ -1,6 +1,6 @@
 from flask import Blueprint, jsonify
 
-
+from app.middleware.auth_middleware import login_required
 from app.controller.project_controller import (
     create_new_project,
     get_user_projects,
