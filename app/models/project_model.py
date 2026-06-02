@@ -56,11 +56,16 @@ def find_project_by_id(project_id, owner_email):
 
     db.close()
 
-    if project and project.get("design_data"):
+    if not project:
+        return None
+
+    if project.get("design_data"):
         try:
             project["design_data"] = json.loads(project["design_data"])
         except Exception:
             project["design_data"] = []
+    else:
+        project["design_data"] = []
 
     return project
 
