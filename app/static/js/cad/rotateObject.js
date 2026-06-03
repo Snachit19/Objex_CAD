@@ -218,3 +218,32 @@ function applyManualRotation() {
         "°"
     );
 }
+function initRotateObjectControls() {
+    connectRotateButton("rotateXPlusBtn", "x", 1);
+    connectRotateButton("rotateXMinusBtn", "x", -1);
+
+    connectRotateButton("rotateYPlusBtn", "y", 1);
+    connectRotateButton("rotateYMinusBtn", "y", -1);
+
+    connectRotateButton("rotateZPlusBtn", "z", 1);
+    connectRotateButton("rotateZMinusBtn", "z", -1);
+
+    const setRotationBtn = document.getElementById("setRotationBtn");
+
+    if (setRotationBtn) {
+        setRotationBtn.addEventListener("click", applyManualRotation);
+    }
+
+    window.addEventListener("cad:selectionChanged", function (event) {
+        if (event.detail && event.detail.object) {
+            updateRotateInputs(event.detail.object);
+        } else {
+            updateRotateInputs(null);
+        }
+    });
+}
+
+
+document.addEventListener("DOMContentLoaded", function () {
+    initRotateObjectControls();
+});
