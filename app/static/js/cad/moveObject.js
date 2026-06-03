@@ -150,3 +150,35 @@ function applyManualPosition() {
         z.toFixed(2)
     );
 }
+
+
+
+function initMoveObjectControls() {
+    connectMoveButton("moveForwardBtn", 0, 0, -1);
+    connectMoveButton("moveBackwardBtn", 0, 0, 1);
+    connectMoveButton("moveLeftBtn", -1, 0, 0);
+    connectMoveButton("moveRightBtn", 1, 0, 0);
+    connectMoveButton("moveUpBtn", 0, 1, 0);
+    connectMoveButton("moveDownBtn", 0, -1, 0);
+
+    const setPositionBtn = document.getElementById("setPositionBtn");
+
+    if (setPositionBtn) {
+        setPositionBtn.addEventListener("click", applyManualPosition);
+    }
+
+    window.addEventListener("cad:selectionChanged", function (event) {
+        if (event.detail && event.detail.object) {
+            updateMoveInputs(event.detail.object);
+        } else {
+            updateMoveInputs(null);
+        }
+    });
+}
+
+
+document.addEventListener("DOMContentLoaded", function () {
+    initMoveObjectControls();
+});
+
+
