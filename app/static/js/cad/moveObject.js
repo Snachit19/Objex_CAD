@@ -66,3 +66,45 @@ function refreshAfterMove(object) {
 
     updateMoveInputs(object);
 }
+
+
+
+function moveSelectedObject(dx, dy, dz) {
+    const object = getMoveSelectedObject();
+
+    if (!object) {
+        setMoveStatus("Please select an object before moving.");
+        return;
+    }
+
+    object.position.x = object.position.x + dx;
+    object.position.y = object.position.y + dy;
+    object.position.z = object.position.z + dz;
+
+    refreshAfterMove(object);
+
+    setMoveStatus(
+        object.name +
+        " moved to X: " +
+        object.position.x.toFixed(2) +
+        ", Y: " +
+        object.position.y.toFixed(2) +
+        ", Z: " +
+        object.position.z.toFixed(2)
+    );
+}
+
+
+function connectMoveButton(buttonId, dx, dy, dz) {
+    const button = document.getElementById(buttonId);
+
+    if (!button) {
+        return;
+    }
+
+    button.addEventListener("click", function () {
+        const step = getMoveStep();
+
+        moveSelectedObject(dx * step, dy * step, dz * step);
+    });
+}
