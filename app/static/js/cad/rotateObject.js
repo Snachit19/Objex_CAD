@@ -76,3 +76,100 @@ function refreshAfterRotate(object) {
 
     updateRotateInputs(object);
 }
+function rotateSelectedObject(axis, degreeAmount) {
+    const object = getRotateSelectedObject();
+
+    if (!object) {
+        setRotateStatus("Please select an object before rotating.");
+        return;
+    }
+
+    const radianAmount = degreeToRadian(degreeAmount);
+
+    if (axis === "x") {
+        object.rotation.x = object.rotation.x + radianAmount;
+    }
+
+    if (axis === "y") {
+        object.rotation.y = object.rotation.y + radianAmount;
+    }
+
+    if (axis === "z") {
+        object.rotation.z = object.rotation.z + radianAmount;
+    }
+
+    refreshAfterRotate(object);
+
+    setRotateStatus(
+        object.name +
+        " rotated to X: " +
+        radianToDegree(object.rotation.x).toFixed(0) +
+        "°, Y: " +
+        radianToDegree(object.rotation.y).toFixed(0) +
+        "°, Z: " +
+        radianToDegree(object.rotation.z).toFixed(0) +
+        "°"
+    );
+}
+
+
+function connectRotateButton(buttonId, axis, direction) {
+    const button = document.getElementById(buttonId);
+
+    if (!button) {
+        return;
+    }
+
+    button.addEventListener("click", function () {
+        const step = getRotateStep();
+        rotateSelectedObject(axis, step * direction);
+    });
+}function rotateSelectedObject(axis, degreeAmount) {
+    const object = getRotateSelectedObject();
+
+    if (!object) {
+        setRotateStatus("Please select an object before rotating.");
+        return;
+    }
+
+    const radianAmount = degreeToRadian(degreeAmount);
+
+    if (axis === "x") {
+        object.rotation.x = object.rotation.x + radianAmount;
+    }
+
+    if (axis === "y") {
+        object.rotation.y = object.rotation.y + radianAmount;
+    }
+
+    if (axis === "z") {
+        object.rotation.z = object.rotation.z + radianAmount;
+    }
+
+    refreshAfterRotate(object);
+
+    setRotateStatus(
+        object.name +
+        " rotated to X: " +
+        radianToDegree(object.rotation.x).toFixed(0) +
+        "°, Y: " +
+        radianToDegree(object.rotation.y).toFixed(0) +
+        "°, Z: " +
+        radianToDegree(object.rotation.z).toFixed(0) +
+        "°"
+    );
+}
+
+
+function connectRotateButton(buttonId, axis, direction) {
+    const button = document.getElementById(buttonId);
+
+    if (!button) {
+        return;
+    }
+
+    button.addEventListener("click", function () {
+        const step = getRotateStep();
+        rotateSelectedObject(axis, step * direction);
+    });
+}
