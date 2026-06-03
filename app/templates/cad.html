@@ -22,22 +22,32 @@
   </header>
 
   <nav class="cad-toolbar">
-    <div class="shape-menu-wrapper">
+    <div class="cad-tool-row">
 
-      <button id="addShapeBtn" class="add-shape-icon-btn" title="Add Shape" aria-label="Add Shape" type="button">
-        <img src="/static/assets/add-shape.svg" alt="Add Shape">
-        <span>▾</span>
+      <div class="shape-menu-wrapper">
+        <button id="addShapeBtn" class="cad-icon-tool-btn" title="Add Shape" aria-label="Add Shape" type="button">
+          <img src="/static/assets/add-shape.svg" alt="Add Shape">
+          <span class="tool-arrow">▾</span>
+        </button>
+
+        <div id="shapeMenuOptions" class="shape-menu-options">
+          <button type="button" data-shape="cube">⬛ Cube</button>
+          <button type="button" data-shape="sphere">⚪ Sphere</button>
+          <button type="button" data-shape="cylinder">▰ Cylinder</button>
+          <button type="button" data-shape="cone">🔺 Cone</button>
+          <button type="button" data-shape="torus">⭕ Torus</button>
+          <button type="button" data-shape="pyramid">△ Pyramid</button>
+          <button type="button" data-shape="plane">▬ Plane</button>
+        </div>
+      </div>
+
+      <button id="moveToolBtn" class="cad-icon-tool-btn" title="Move Object" aria-label="Move Object" type="button">
+        <img src="/static/assets/move-object.svg" alt="Move Object">
       </button>
 
-      <div id="shapeMenuOptions" class="shape-menu-options">
-        <button type="button" data-shape="cube">⬛ Cube</button>
-        <button type="button" data-shape="sphere">⚪ Sphere</button>
-        <button type="button" data-shape="cylinder">▰ Cylinder</button>
-        <button type="button" data-shape="cone">🔺 Cone</button>
-        <button type="button" data-shape="torus">⭕ Torus</button>
-        <button type="button" data-shape="pyramid">△ Pyramid</button>
-        <button type="button" data-shape="plane">▬ Plane</button>
-      </div>
+      <button id="rotateToolBtn" class="cad-icon-tool-btn" title="Rotate Object" aria-label="Rotate Object" type="button">
+        <img src="/static/assets/rotate-object.svg" alt="Rotate Object">
+      </button>
 
     </div>
   </nav>
@@ -65,7 +75,7 @@
         <p><strong>Scale:</strong> <span id="selectedObjectScale">None</span></p>
       </div>
 
-      <div class="object-edit-panel">
+      <div id="moveObjectPanel" class="object-edit-panel tool-panel-hidden">
         <div class="object-edit-header">
           <h3>Move Object</h3>
           <span class="object-edit-badge">Position</span>
@@ -101,7 +111,7 @@
         <p id="moveObjectHint" class="edit-hint">Select an object first, then move it.</p>
       </div>
 
-      <div class="object-edit-panel">
+      <div id="rotateObjectPanel" class="object-edit-panel tool-panel-hidden">
         <div class="object-edit-header">
           <h3>Rotate Object</h3>
           <span class="object-edit-badge">Rotation</span>
@@ -156,5 +166,62 @@
   <script src="/static/js/cad/loadProject.js"></script>
   <script src="/static/js/cad/saveDesign.js"></script>
 
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const moveToolBtn = document.getElementById("moveToolBtn");
+    const rotateToolBtn = document.getElementById("rotateToolBtn");
+
+    const movePanel = document.getElementById("moveObjectPanel");
+    const rotatePanel = document.getElementById("rotateObjectPanel");
+
+    function hideAllToolPanels() {
+      if (movePanel) {
+        movePanel.classList.add("tool-panel-hidden");
+        movePanel.classList.remove("active-edit-panel");
+      }
+
+      if (rotatePanel) {
+        rotatePanel.classList.add("tool-panel-hidden");
+        rotatePanel.classList.remove("active-edit-panel");
+      }
+
+      if (moveToolBtn) {
+        moveToolBtn.classList.remove("active-tool-btn");
+      }
+
+      if (rotateToolBtn) {
+        rotateToolBtn.classList.remove("active-tool-btn");
+      }
+    }
+
+    if (moveToolBtn && movePanel) {
+      moveToolBtn.addEventListener("click", function () {
+        const isAlreadyOpen = !movePanel.classList.contains("tool-panel-hidden");
+
+        hideAllToolPanels();
+
+        if (!isAlreadyOpen) {
+          movePanel.classList.remove("tool-panel-hidden");
+          movePanel.classList.add("active-edit-panel");
+          moveToolBtn.classList.add("active-tool-btn");
+        }
+      });
+    }
+
+    if (rotateToolBtn && rotatePanel) {
+      rotateToolBtn.addEventListener("click", function () {
+        const isAlreadyOpen = !rotatePanel.classList.contains("tool-panel-hidden");
+
+        hideAllToolPanels();
+
+        if (!isAlreadyOpen) {
+          rotatePanel.classList.remove("tool-panel-hidden");
+          rotatePanel.classList.add("active-edit-panel");
+          rotateToolBtn.classList.add("active-tool-btn");
+        }
+      });
+    }
+  });
+</script>
 </body>
 </html>
