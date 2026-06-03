@@ -108,3 +108,45 @@ function connectMoveButton(buttonId, dx, dy, dz) {
         moveSelectedObject(dx * step, dy * step, dz * step);
     });
 }
+
+
+function applyManualPosition() {
+    const object = getMoveSelectedObject();
+
+    if (!object) {
+        setMoveStatus("Please select an object before setting position.");
+        return;
+    }
+
+    const xInput = document.getElementById("moveXInput");
+    const yInput = document.getElementById("moveYInput");
+    const zInput = document.getElementById("moveZInput");
+
+    if (!xInput || !yInput || !zInput) {
+        setMoveStatus("Position input fields are missing.");
+        return;
+    }
+
+    const x = Number(xInput.value);
+    const y = Number(yInput.value);
+    const z = Number(zInput.value);
+
+    if (isNaN(x) || isNaN(y) || isNaN(z)) {
+        setMoveStatus("Please enter valid X, Y and Z values.");
+        return;
+    }
+
+    object.position.set(x, y, z);
+
+    refreshAfterMove(object);
+
+    setMoveStatus(
+        object.name +
+        " position set to X: " +
+        x.toFixed(2) +
+        ", Y: " +
+        y.toFixed(2) +
+        ", Z: " +
+        z.toFixed(2)
+    );
+}
