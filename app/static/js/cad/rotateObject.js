@@ -173,3 +173,48 @@ function connectRotateButton(buttonId, axis, direction) {
         rotateSelectedObject(axis, step * direction);
     });
 }
+function applyManualRotation() {
+    const object = getRotateSelectedObject();
+
+    if (!object) {
+        setRotateStatus("Please select an object before setting rotation.");
+        return;
+    }
+
+    const xInput = document.getElementById("rotateXInput");
+    const yInput = document.getElementById("rotateYInput");
+    const zInput = document.getElementById("rotateZInput");
+
+    if (!xInput || !yInput || !zInput) {
+        setRotateStatus("Rotation input fields are missing.");
+        return;
+    }
+
+    const xDegree = Number(xInput.value);
+    const yDegree = Number(yInput.value);
+    const zDegree = Number(zInput.value);
+
+    if (isNaN(xDegree) || isNaN(yDegree) || isNaN(zDegree)) {
+        setRotateStatus("Please enter valid X, Y and Z rotation values.");
+        return;
+    }
+
+    object.rotation.set(
+        degreeToRadian(xDegree),
+        degreeToRadian(yDegree),
+        degreeToRadian(zDegree)
+    );
+
+    refreshAfterRotate(object);
+
+    setRotateStatus(
+        object.name +
+        " rotation set to X: " +
+        xDegree.toFixed(0) +
+        "°, Y: " +
+        yDegree.toFixed(0) +
+        "°, Z: " +
+        zDegree.toFixed(0) +
+        "°"
+    );
+}
