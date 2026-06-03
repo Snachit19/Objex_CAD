@@ -969,3 +969,170 @@ input {
 .selected-object-panel span {
   color: #93c5fd;
 }
+/* ================================
+   Week 3 Object Editing Panels
+   Move Object + Rotate Object
+================================ */
+
+.object-edit-panel {
+  margin-top: 18px;
+  padding: 16px;
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-radius: 14px;
+  background: linear-gradient(
+    180deg,
+    rgba(17, 24, 39, 0.96),
+    rgba(15, 23, 42, 0.96)
+  );
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.28);
+}
+
+.object-edit-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.object-edit-header h3 {
+  margin: 0;
+  color: #f8fafc;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.object-edit-badge {
+  padding: 4px 8px;
+  border-radius: 999px;
+  background: rgba(124, 58, 237, 0.18);
+  color: #c4b5fd;
+  font-size: 11px;
+  font-weight: 700;
+  border: 1px solid rgba(124, 58, 237, 0.35);
+}
+
+.edit-label {
+  display: block;
+  margin-bottom: 6px;
+  color: #cbd5e1;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.edit-input {
+  width: 100%;
+  height: 34px;
+  padding: 7px 10px;
+  border-radius: 8px;
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  background: rgba(2, 6, 23, 0.9);
+  color: #f8fafc;
+  outline: none;
+  font-size: 13px;
+  box-sizing: border-box;
+}
+
+.edit-input:focus {
+  border-color: #7c3aed;
+  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.2);
+}
+
+.input-with-unit {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.input-with-unit .edit-input {
+  flex: 1;
+}
+
+.input-with-unit span {
+  color: #94a3b8;
+  font-size: 12px;
+}
+
+.edit-button-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.edit-button-grid button,
+.edit-primary-btn {
+  min-height: 34px;
+  border: 1px solid rgba(124, 58, 237, 0.38);
+  border-radius: 8px;
+  background: rgba(30, 41, 59, 0.92);
+  color: #e2e8f0;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: 0.18s ease;
+}
+
+.edit-button-grid button:hover,
+.edit-primary-btn:hover {
+  background: linear-gradient(135deg, #6d28d9, #7c3aed);
+  color: #ffffff;
+  transform: translateY(-1px);
+}
+
+.edit-button-grid button:active,
+.edit-primary-btn:active {
+  transform: translateY(0);
+}
+
+.edit-primary-btn {
+  width: 100%;
+  margin-top: 12px;
+  background: linear-gradient(135deg, #6d28d9, #7c3aed);
+  color: #ffffff;
+}
+
+.edit-subtitle {
+  margin: 14px 0 8px;
+  color: #f8fafc;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.axis-input-row {
+  display: grid;
+  grid-template-columns: 18px 1fr;
+  gap: 8px;
+  align-items: center;
+}
+
+.axis-input-row label {
+  color: #cbd5e1;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.edit-hint {
+  margin: 10px 0 0;
+  color: #94a3b8;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+/* Optional: make the inspector scroll smoothly if panels become long */
+.cad-inspector {
+  overflow-y: auto;
+  scrollbar-width: thin;
+}
+
+.cad-inspector::-webkit-scrollbar {
+  width: 6px;
+}
+
+.cad-inspector::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.35);
+  border-radius: 999px;
+}
+
+.cad-inspector::-webkit-scrollbar-track {
+  background: transparent;
+}

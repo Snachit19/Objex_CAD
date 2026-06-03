@@ -63,66 +63,83 @@
         <p><strong>Type:</strong> <span id="selectedObjectType">None</span></p>
         <p><strong>Position:</strong> <span id="selectedObjectPosition">None</span></p>
         <p><strong>Scale:</strong> <span id="selectedObjectScale">None</span></p>
-        <div class="move-object-panel">
-  <h3>Move Object</h3>
-
-  <p>
-    <strong>Move Step:</strong>
-    <input id="moveStepInput" type="number" value="0.5" min="0.1" step="0.1">
-  </p>
-
-  <div class="move-buttons">
-    <button id="moveForwardBtn" type="button">Forward</button>
-    <button id="moveBackwardBtn" type="button">Backward</button>
-    <button id="moveLeftBtn" type="button">Left</button>
-    <button id="moveRightBtn" type="button">Right</button>
-    <button id="moveUpBtn" type="button">Up</button>
-    <button id="moveDownBtn" type="button">Down</button>
-  </div>
-
-  <p><strong>Manual Position:</strong></p>
-
-  <p>
-    X: <input id="moveXInput" type="number" step="0.1">
-    Y: <input id="moveYInput" type="number" step="0.1">
-    Z: <input id="moveZInput" type="number" step="0.1">
-  </p>
-
-  <button id="setPositionBtn" type="button">Set Position</button>
-
-  <p id="moveObjectHint">Select an object first, then move it.</p>
-</div>
       </div>
-      <div class="rotate-object-panel">
-        <h3>Rotate Object</h3>
 
-        <p>
-          <strong>Rotate Step:</strong>
-          <input id="rotateStepInput" type="number" value="15" min="1" step="1">
-          degrees
-        </p>
-
-        <div class="rotate-buttons">
-            <button id="rotateXPlusBtn" type="button">Rotate X +</button>
-            <button id="rotateXMinusBtn" type="button">Rotate X -</button>
-            <button id="rotateYPlusBtn" type="button">Rotate Y +</button>
-            <button id="rotateYMinusBtn" type="button">Rotate Y -</button>
-            <button id="rotateZPlusBtn" type="button">Rotate Z +</button>
-            <button id="rotateZMinusBtn" type="button">Rotate Z -</button>
+      <div class="object-edit-panel">
+        <div class="object-edit-header">
+          <h3>Move Object</h3>
+          <span class="object-edit-badge">Position</span>
         </div>
 
-         <p><strong>Manual Rotation:</strong></p>
+        <label class="edit-label" for="moveStepInput">Move Step</label>
+        <input id="moveStepInput" class="edit-input" type="number" value="0.5" min="0.1" step="0.1">
 
-        <p>
-          X: <input id="rotateXInput" type="number" step="1">
-          Y: <input id="rotateYInput" type="number" step="1">
-          Z: <input id="rotateZInput" type="number" step="1">
-        </p>
+        <div class="edit-button-grid move-grid">
+          <button id="moveForwardBtn" type="button">Forward</button>
+          <button id="moveBackwardBtn" type="button">Backward</button>
+          <button id="moveLeftBtn" type="button">Left</button>
+          <button id="moveRightBtn" type="button">Right</button>
+          <button id="moveUpBtn" type="button">Up</button>
+          <button id="moveDownBtn" type="button">Down</button>
+        </div>
 
-        <button id="setRotationBtn" type="button">Set Rotation</button>
+        <p class="edit-subtitle">Manual Position</p>
 
-        <p id="rotateObjectHint">Select an object first, then rotate it.</p>
-    </div>
+        <div class="axis-input-row">
+          <label for="moveXInput">X</label>
+          <input id="moveXInput" class="edit-input" type="number" step="0.1">
+
+          <label for="moveYInput">Y</label>
+          <input id="moveYInput" class="edit-input" type="number" step="0.1">
+
+          <label for="moveZInput">Z</label>
+          <input id="moveZInput" class="edit-input" type="number" step="0.1">
+        </div>
+
+        <button id="setPositionBtn" class="edit-primary-btn" type="button">Set Position</button>
+
+        <p id="moveObjectHint" class="edit-hint">Select an object first, then move it.</p>
+      </div>
+
+      <div class="object-edit-panel">
+        <div class="object-edit-header">
+          <h3>Rotate Object</h3>
+          <span class="object-edit-badge">Rotation</span>
+        </div>
+
+        <label class="edit-label" for="rotateStepInput">Rotate Step</label>
+        <div class="input-with-unit">
+          <input id="rotateStepInput" class="edit-input" type="number" value="15" min="1" step="1">
+          <span>degrees</span>
+        </div>
+
+        <div class="edit-button-grid rotate-grid">
+          <button id="rotateXPlusBtn" type="button">X +</button>
+          <button id="rotateXMinusBtn" type="button">X -</button>
+          <button id="rotateYPlusBtn" type="button">Y +</button>
+          <button id="rotateYMinusBtn" type="button">Y -</button>
+          <button id="rotateZPlusBtn" type="button">Z +</button>
+          <button id="rotateZMinusBtn" type="button">Z -</button>
+        </div>
+
+        <p class="edit-subtitle">Manual Rotation</p>
+
+        <div class="axis-input-row">
+          <label for="rotateXInput">X</label>
+          <input id="rotateXInput" class="edit-input" type="number" step="1">
+
+          <label for="rotateYInput">Y</label>
+          <input id="rotateYInput" class="edit-input" type="number" step="1">
+
+          <label for="rotateZInput">Z</label>
+          <input id="rotateZInput" class="edit-input" type="number" step="1">
+        </div>
+
+        <button id="setRotationBtn" class="edit-primary-btn" type="button">Set Rotation</button>
+
+        <p id="rotateObjectHint" class="edit-hint">Select an object first, then rotate it.</p>
+      </div>
+
     </aside>
   </main>
 
