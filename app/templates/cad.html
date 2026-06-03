@@ -161,145 +161,70 @@
   <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
 
   <script src="/static/js/cad/sceneSetup.js"></script>
-<script>
-  window.PROJECT_ID = Number("{{ project_id }}");
-</script>
+  <script src="/static/js/cad/addShape.js"></script>
+  <script src="/static/js/cad/selectObject.js"></script>
+  <script src="/static/js/cad/loadProject.js"></script>
+  <script src="/static/js/cad/saveDesign.js"></script>
+  <script src="/static/js/cad/moveObject.js"></script>
+  <script src="/static/js/cad/rotateObject.js"></script>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const moveToolBtn = document.getElementById("moveToolBtn");
+      const rotateToolBtn = document.getElementById("rotateToolBtn");
 
-<script src="/static/js/cad/sceneSetup.js"></script>
-<script src="/static/js/cad/addShape.js"></script>
-<script src="/static/js/cad/selectObject.js"></script>
-<script src="/static/js/cad/loadProject.js"></script>
-<script src="/static/js/cad/saveDesign.js"></script>
-<script src="/static/js/cad/moveObject.js"></script>
-<script src="/static/js/cad/rotateObject.js"></script>
+      const movePanel = document.getElementById("moveObjectPanel");
+      const rotatePanel = document.getElementById("rotateObjectPanel");
 
-<script>
-  document.addEventListener("DOMContentLoaded", function () {
-    const moveToolBtn = document.getElementById("moveToolBtn");
-    const rotateToolBtn = document.getElementById("rotateToolBtn");
-
-    const movePanel = document.getElementById("moveObjectPanel");
-    const rotatePanel = document.getElementById("rotateObjectPanel");
-
-    function hideAllToolPanels() {
-      if (movePanel) {
-        movePanel.classList.add("tool-panel-hidden");
-        movePanel.classList.remove("active-edit-panel");
-      }
-
-      if (rotatePanel) {
-        rotatePanel.classList.add("tool-panel-hidden");
-        rotatePanel.classList.remove("active-edit-panel");
-      }
-
-      if (moveToolBtn) {
-        moveToolBtn.classList.remove("active-tool-btn");
-      }
-
-      if (rotateToolBtn) {
-        rotateToolBtn.classList.remove("active-tool-btn");
-      }
-    }
-
-    if (moveToolBtn && movePanel) {
-      moveToolBtn.addEventListener("click", function () {
-        const isAlreadyOpen = !movePanel.classList.contains("tool-panel-hidden");
-
-        hideAllToolPanels();
-
-        if (!isAlreadyOpen) {
-          movePanel.classList.remove("tool-panel-hidden");
-          movePanel.classList.add("active-edit-panel");
-          moveToolBtn.classList.add("active-tool-btn");
+      function hideAllToolPanels() {
+        if (movePanel) {
+          movePanel.classList.add("tool-panel-hidden");
+          movePanel.classList.remove("active-edit-panel");
         }
-      });
-    }
 
-    if (rotateToolBtn && rotatePanel) {
-      rotateToolBtn.addEventListener("click", function () {
-        const isAlreadyOpen = !rotatePanel.classList.contains("tool-panel-hidden");
-
-        hideAllToolPanels();
-
-        if (!isAlreadyOpen) {
-          rotatePanel.classList.remove("tool-panel-hidden");
-          rotatePanel.classList.add("active-edit-panel");
-          rotateToolBtn.classList.add("active-tool-btn");
+        if (rotatePanel) {
+          rotatePanel.classList.add("tool-panel-hidden");
+          rotatePanel.classList.remove("active-edit-panel");
         }
-      });
-    }
-  });
-</script>
 
-</body>
-</html>
-<script src="/static/js/cad/addShape.js"></script>
-<script src="/static/js/cad/selectObject.js"></script>
-<script src="/static/js/cad/loadProject.js"></script>
-<script src="/static/js/cad/saveDesign.js"></script>
-<script src="/static/js/cad/moveObject.js"></script>
-<script src="/static/js/cad/rotateObject.js"></script>
->>>>>>> Ayush
-
-<script>
-  document.addEventListener("DOMContentLoaded", function () {
-    const moveToolBtn = document.getElementById("moveToolBtn");
-    const rotateToolBtn = document.getElementById("rotateToolBtn");
-
-    const movePanel = document.getElementById("moveObjectPanel");
-    const rotatePanel = document.getElementById("rotateObjectPanel");
-
-    function hideAllToolPanels() {
-      if (movePanel) {
-        movePanel.classList.add("tool-panel-hidden");
-        movePanel.classList.remove("active-edit-panel");
-      }
-
-      if (rotatePanel) {
-        rotatePanel.classList.add("tool-panel-hidden");
-        rotatePanel.classList.remove("active-edit-panel");
-      }
-
-      if (moveToolBtn) {
-        moveToolBtn.classList.remove("active-tool-btn");
-      }
-
-      if (rotateToolBtn) {
-        rotateToolBtn.classList.remove("active-tool-btn");
-      }
-    }
-
-    if (moveToolBtn && movePanel) {
-      moveToolBtn.addEventListener("click", function () {
-        const isAlreadyOpen = !movePanel.classList.contains("tool-panel-hidden");
-
-        hideAllToolPanels();
-
-        if (!isAlreadyOpen) {
-          movePanel.classList.remove("tool-panel-hidden");
-          movePanel.classList.add("active-edit-panel");
-          moveToolBtn.classList.add("active-tool-btn");
+        if (moveToolBtn) {
+          moveToolBtn.classList.remove("active-tool-btn");
         }
-      });
-    }
 
-    if (rotateToolBtn && rotatePanel) {
-      rotateToolBtn.addEventListener("click", function () {
-        const isAlreadyOpen = !rotatePanel.classList.contains("tool-panel-hidden");
-
-        hideAllToolPanels();
-
-        if (!isAlreadyOpen) {
-          rotatePanel.classList.remove("tool-panel-hidden");
-          rotatePanel.classList.add("active-edit-panel");
-          rotateToolBtn.classList.add("active-tool-btn");
+        if (rotateToolBtn) {
+          rotateToolBtn.classList.remove("active-tool-btn");
         }
-      });
-    }
-  });
-</script>
+      }
+
+      if (moveToolBtn && movePanel) {
+        moveToolBtn.addEventListener("click", function () {
+          const isAlreadyOpen = !movePanel.classList.contains("tool-panel-hidden");
+
+          hideAllToolPanels();
+
+          if (!isAlreadyOpen) {
+            movePanel.classList.remove("tool-panel-hidden");
+            movePanel.classList.add("active-edit-panel");
+            moveToolBtn.classList.add("active-tool-btn");
+          }
+        });
+      }
+
+      if (rotateToolBtn && rotatePanel) {
+        rotateToolBtn.addEventListener("click", function () {
+          const isAlreadyOpen = !rotatePanel.classList.contains("tool-panel-hidden");
+
+          hideAllToolPanels();
+
+          if (!isAlreadyOpen) {
+            rotatePanel.classList.remove("tool-panel-hidden");
+            rotatePanel.classList.add("active-edit-panel");
+            rotateToolBtn.classList.add("active-tool-btn");
+          }
+        });
+      }
+    });
+  </script>
+
 </body>
 </html>
