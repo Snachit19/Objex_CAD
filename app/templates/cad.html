@@ -93,6 +93,36 @@
   <p id="moveObjectHint">Select an object first, then move it.</p>
 </div>
       </div>
+      <div class="rotate-object-panel">
+        <h3>Rotate Object</h3>
+
+        <p>
+          <strong>Rotate Step:</strong>
+          <input id="rotateStepInput" type="number" value="15" min="1" step="1">
+          degrees
+        </p>
+
+        <div class="rotate-buttons">
+            <button id="rotateXPlusBtn" type="button">Rotate X +</button>
+            <button id="rotateXMinusBtn" type="button">Rotate X -</button>
+            <button id="rotateYPlusBtn" type="button">Rotate Y +</button>
+            <button id="rotateYMinusBtn" type="button">Rotate Y -</button>
+            <button id="rotateZPlusBtn" type="button">Rotate Z +</button>
+            <button id="rotateZMinusBtn" type="button">Rotate Z -</button>
+        </div>
+
+         <p><strong>Manual Rotation:</strong></p>
+
+        <p>
+          X: <input id="rotateXInput" type="number" step="1">
+          Y: <input id="rotateYInput" type="number" step="1">
+          Z: <input id="rotateZInput" type="number" step="1">
+        </p>
+
+        <button id="setRotationBtn" type="button">Set Rotation</button>
+
+        <p id="rotateObjectHint">Select an object first, then rotate it.</p>
+    </div>
     </aside>
   </main>
 
