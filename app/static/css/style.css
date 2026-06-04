@@ -1256,3 +1256,43 @@ input {
   letter-spacing: 0.5px;
   font-family: Consolas, Monaco, monospace;
 }
+/* ================================
+   Resize Object Tool
+================================ */
+
+.resize-grid {
+  grid-template-columns: repeat(2, 1fr);
+}
+
+#resizeObjectPanel .object-edit-badge {
+  background: rgba(249, 115, 22, 0.18);
+  color: #fed7aa;
+  border: 1px solid rgba(249, 115, 22, 0.38);
+}
+
+#resizeObjectPanel.active-edit-panel {
+  border-color: rgba(249, 115, 22, 0.85) !important;
+  box-shadow:
+    0 0 0 3px rgba(249, 115, 22, 0.18),
+    0 12px 30px rgba(0, 0, 0, 0.28) !important;
+}
+
+#resizeToolBtn.active-tool-btn {
+  background: linear-gradient(135deg, #f59e0b, #f97316) !important;
+  border-color: rgba(253, 186, 116, 0.9) !important;
+}
+
+#resizeToolBtn:hover {
+  background: linear-gradient(135deg, #f59e0b, #f97316);
+}
+
+#resizeObjectPanel .edit-primary-btn {
+  background: linear-gradient(135deg, #f59e0b, #f97316);
+  border-color: rgba(253, 186, 116, 0.55);
+}
+
+#resizeObjectPanel .edit-primary-btn:hover,
+#resizeObjectPanel .edit-button-grid button:hover {
+  background: linear-gradient(135deg, #ea580c, #f97316);
+  color: #ffffff;
+}
