@@ -51,6 +51,11 @@
         <img src="/static/assets/rotate-object.svg" alt="Rotate Object">
       </button>
 
+      <button id="colourToolBtn" class="cad-icon-tool-btn" title="Change Object Colour"
+        aria-label="Change Object Colour" type="button">
+        <img src="/static/assets/colour-object.svg" alt="Change Object Colour">
+      </button>
+
     </div>
   </nav>
 
@@ -120,6 +125,7 @@
         </div>
 
         <label class="edit-label" for="rotateStepInput">Rotate Step</label>
+
         <div class="input-with-unit">
           <input id="rotateStepInput" class="edit-input" type="number" value="15" min="1" step="1">
           <span>degrees</span>
@@ -152,6 +158,24 @@
         <p id="rotateObjectHint" class="edit-hint">Select an object first, then rotate it.</p>
       </div>
 
+      <div id="colourObjectPanel" class="object-edit-panel tool-panel-hidden">
+        <div class="object-edit-header">
+          <h3>Change Object Colour</h3>
+          <span class="object-edit-badge">Colour</span>
+        </div>
+
+        <label class="edit-label" for="objectColourInput">Select Colour</label>
+        <input id="objectColourInput" class="edit-input colour-input" type="color" value="#ff0000">
+
+        <label class="edit-label hex-label" for="objectHexInput">Hex Colour Value</label>
+        <input id="objectHexInput" class="edit-input hex-input" type="text" value="#ff0000" maxlength="7"
+          placeholder="#ff0000">
+
+        <button id="applyColourBtn" class="edit-primary-btn" type="button">Apply Colour</button>
+
+        <p id="colourObjectHint" class="edit-hint">Select an object first, then choose or type a hex colour.</p>
+      </div>
+
     </aside>
   </main>
 
@@ -174,9 +198,11 @@
     document.addEventListener("DOMContentLoaded", function () {
       const moveToolBtn = document.getElementById("moveToolBtn");
       const rotateToolBtn = document.getElementById("rotateToolBtn");
+      const colourToolBtn = document.getElementById("colourToolBtn");
 
       const movePanel = document.getElementById("moveObjectPanel");
       const rotatePanel = document.getElementById("rotateObjectPanel");
+      const colourPanel = document.getElementById("colourObjectPanel");
 
       function hideAllToolPanels() {
         if (movePanel) {
@@ -189,12 +215,21 @@
           rotatePanel.classList.remove("active-edit-panel");
         }
 
+        if (colourPanel) {
+          colourPanel.classList.add("tool-panel-hidden");
+          colourPanel.classList.remove("active-edit-panel");
+        }
+
         if (moveToolBtn) {
           moveToolBtn.classList.remove("active-tool-btn");
         }
 
         if (rotateToolBtn) {
           rotateToolBtn.classList.remove("active-tool-btn");
+        }
+
+        if (colourToolBtn) {
+          colourToolBtn.classList.remove("active-tool-btn");
         }
       }
 
@@ -222,6 +257,20 @@
             rotatePanel.classList.remove("tool-panel-hidden");
             rotatePanel.classList.add("active-edit-panel");
             rotateToolBtn.classList.add("active-tool-btn");
+          }
+        });
+      }
+
+      if (colourToolBtn && colourPanel) {
+        colourToolBtn.addEventListener("click", function () {
+          const isAlreadyOpen = !colourPanel.classList.contains("tool-panel-hidden");
+
+          hideAllToolPanels();
+
+          if (!isAlreadyOpen) {
+            colourPanel.classList.remove("tool-panel-hidden");
+            colourPanel.classList.add("active-edit-panel");
+            colourToolBtn.classList.add("active-tool-btn");
           }
         });
       }
