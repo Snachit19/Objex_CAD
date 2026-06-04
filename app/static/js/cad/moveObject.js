@@ -1,3 +1,4 @@
+
 function getMoveSelectedObject() {
     if (typeof window.getSelectedCADObject === "function") {
         return window.getSelectedCADObject();
