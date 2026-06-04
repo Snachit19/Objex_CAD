@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -17,30 +18,46 @@
 
     <div class="cad-actions">
       <a href="/dashboard" class="back-dashboard-btn">← Dashboard</a>
-      <button id="saveDesignBtn" class="save-btn">Save Design</button>
+      <button id="saveDesignBtn" class="save-btn" type="button">Save Design</button>
     </div>
   </header>
 
-<nav class="cad-toolbar">
-  <div class="shape-menu-wrapper">
+  <nav class="cad-toolbar">
+    <div class="cad-tool-row">
 
-    <button id="addShapeBtn" class="add-shape-icon-btn" title="Add Shape" aria-label="Add Shape">
-      <img src="/static/assets/add-shape.svg" alt="Add Shape">
-      <span>▾</span>
-    </button>
+      <div class="shape-menu-wrapper">
+        <button id="addShapeBtn" class="cad-icon-tool-btn" title="Add Shape" aria-label="Add Shape" type="button">
+          <img src="/static/assets/add-shape.svg" alt="Add Shape">
+          <span class="tool-arrow">▾</span>
+        </button>
 
-    <div id="shapeMenuOptions" class="shape-menu-options">
-      <button type="button" data-shape="cube">⬛ Cube</button>
-      <button type="button" data-shape="sphere">⚪ Sphere</button>
-      <button type="button" data-shape="cylinder">▰ Cylinder</button>
-      <button type="button" data-shape="cone">🔺 Cone</button>
-      <button type="button" data-shape="torus">⭕ Torus</button>
-      <button type="button" data-shape="pyramid">△ Pyramid</button>
-      <button type="button" data-shape="plane">▬ Plane</button>
+        <div id="shapeMenuOptions" class="shape-menu-options">
+          <button type="button" data-shape="cube">⬛ Cube</button>
+          <button type="button" data-shape="sphere">⚪ Sphere</button>
+          <button type="button" data-shape="cylinder">▰ Cylinder</button>
+          <button type="button" data-shape="cone">🔺 Cone</button>
+          <button type="button" data-shape="torus">⭕ Torus</button>
+          <button type="button" data-shape="pyramid">△ Pyramid</button>
+          <button type="button" data-shape="plane">▬ Plane</button>
+        </div>
+      </div>
+
+      <button id="moveToolBtn" class="cad-icon-tool-btn" title="Move Object" aria-label="Move Object" type="button">
+        <img src="/static/assets/move-object.svg" alt="Move Object">
+      </button>
+
+      <button id="rotateToolBtn" class="cad-icon-tool-btn" title="Rotate Object" aria-label="Rotate Object"
+        type="button">
+        <img src="/static/assets/rotate-object.svg" alt="Rotate Object">
+      </button>
+
+      <button id="resizeToolBtn" class="cad-icon-tool-btn" title="Resize Object" aria-label="Resize Object"
+        type="button">
+        <img src="/static/assets/resize-object.svg" alt="Resize Object">
+      </button>
+
     </div>
-
-  </div>
-</nav>
+  </nav>
 
   <main class="cad-workspace">
     <section class="cad-canvas-area">
@@ -50,23 +67,237 @@
 
     <aside class="cad-inspector">
       <h3>Project Details</h3>
+
       <p><strong>Name:</strong> <span id="projectNameText">Loading...</span></p>
       <p><strong>Description:</strong> <span id="projectDescriptionText">Loading...</span></p>
       <p><strong>Status:</strong> <span id="cadStatusText">Opening saved project...</span></p>
       <p><strong>Tip:</strong> Hover a shape to see its dimensions. Drag to orbit. Scroll to zoom.</p>
+
+      <div class="selected-object-panel">
+        <h3>Selected Object</h3>
+
+        <p><strong>Name:</strong> <span id="selectedObjectName">None</span></p>
+        <p><strong>Type:</strong> <span id="selectedObjectType">None</span></p>
+        <p><strong>Position:</strong> <span id="selectedObjectPosition">None</span></p>
+        <p><strong>Scale:</strong> <span id="selectedObjectScale">None</span></p>
+      </div>
+
+      <div id="moveObjectPanel" class="object-edit-panel tool-panel-hidden">
+        <div class="object-edit-header">
+          <h3>Move Object</h3>
+          <span class="object-edit-badge">Position</span>
+        </div>
+
+        <label class="edit-label" for="moveStepInput">Move Step</label>
+        <input id="moveStepInput" class="edit-input" type="number" value="0.5" min="0.1" step="0.1">
+
+        <div class="edit-button-grid move-grid">
+          <button id="moveForwardBtn" type="button">Forward</button>
+          <button id="moveBackwardBtn" type="button">Backward</button>
+          <button id="moveLeftBtn" type="button">Left</button>
+          <button id="moveRightBtn" type="button">Right</button>
+          <button id="moveUpBtn" type="button">Up</button>
+          <button id="moveDownBtn" type="button">Down</button>
+        </div>
+
+        <p class="edit-subtitle">Manual Position</p>
+
+        <div class="axis-input-row">
+          <label for="moveXInput">X</label>
+          <input id="moveXInput" class="edit-input" type="number" step="0.1">
+
+          <label for="moveYInput">Y</label>
+          <input id="moveYInput" class="edit-input" type="number" step="0.1">
+
+          <label for="moveZInput">Z</label>
+          <input id="moveZInput" class="edit-input" type="number" step="0.1">
+        </div>
+
+        <button id="setPositionBtn" class="edit-primary-btn" type="button">Set Position</button>
+
+        <p id="moveObjectHint" class="edit-hint">Select an object first, then move it.</p>
+      </div>
+
+      <div id="rotateObjectPanel" class="object-edit-panel tool-panel-hidden">
+        <div class="object-edit-header">
+          <h3>Rotate Object</h3>
+          <span class="object-edit-badge">Rotation</span>
+        </div>
+
+        <label class="edit-label" for="rotateStepInput">Rotate Step</label>
+
+        <div class="input-with-unit">
+          <input id="rotateStepInput" class="edit-input" type="number" value="15" min="1" step="1">
+          <span>degrees</span>
+        </div>
+
+        <div class="edit-button-grid rotate-grid">
+          <button id="rotateXPlusBtn" type="button">X +</button>
+          <button id="rotateXMinusBtn" type="button">X -</button>
+          <button id="rotateYPlusBtn" type="button">Y +</button>
+          <button id="rotateYMinusBtn" type="button">Y -</button>
+          <button id="rotateZPlusBtn" type="button">Z +</button>
+          <button id="rotateZMinusBtn" type="button">Z -</button>
+        </div>
+
+        <p class="edit-subtitle">Manual Rotation</p>
+
+        <div class="axis-input-row">
+          <label for="rotateXInput">X</label>
+          <input id="rotateXInput" class="edit-input" type="number" step="1">
+
+          <label for="rotateYInput">Y</label>
+          <input id="rotateYInput" class="edit-input" type="number" step="1">
+
+          <label for="rotateZInput">Z</label>
+          <input id="rotateZInput" class="edit-input" type="number" step="1">
+        </div>
+
+        <button id="setRotationBtn" class="edit-primary-btn" type="button">Set Rotation</button>
+
+        <p id="rotateObjectHint" class="edit-hint">Select an object first, then rotate it.</p>
+      </div>
+
+      <div id="resizeObjectPanel" class="object-edit-panel tool-panel-hidden">
+        <div class="object-edit-header">
+          <h3>Resize Object</h3>
+          <span class="object-edit-badge">Scale</span>
+        </div>
+
+        <label class="edit-label" for="resizeStepInput">Resize Step</label>
+        <input id="resizeStepInput" class="edit-input" type="number" value="0.1" min="0.01" step="0.01">
+
+        <div class="edit-button-grid">
+          <button id="resizeXPlusBtn" type="button">X +</button>
+          <button id="resizeXMinusBtn" type="button">X -</button>
+          <button id="resizeYPlusBtn" type="button">Y +</button>
+          <button id="resizeYMinusBtn" type="button">Y -</button>
+          <button id="resizeZPlusBtn" type="button">Z +</button>
+          <button id="resizeZMinusBtn" type="button">Z -</button>
+          <button id="resizeAllPlusBtn" type="button">All +</button>
+          <button id="resizeAllMinusBtn" type="button">All -</button>
+        </div>
+
+        <p class="edit-subtitle">Manual Scale</p>
+
+        <div class="axis-input-row">
+          <label for="resizeXInput">X</label>
+          <input id="resizeXInput" class="edit-input" type="number" step="0.01" min="0.01">
+
+          <label for="resizeYInput">Y</label>
+          <input id="resizeYInput" class="edit-input" type="number" step="0.01" min="0.01">
+
+          <label for="resizeZInput">Z</label>
+          <input id="resizeZInput" class="edit-input" type="number" step="0.01" min="0.01">
+        </div>
+
+        <button id="setScaleBtn" class="edit-primary-btn" type="button">Set Scale</button>
+
+        <p id="resizeObjectHint" class="edit-hint">Select an object first, then resize it.</p>
+      </div>
+
     </aside>
   </main>
 
- <script>
-  window.PROJECT_ID = Number("{{ project_id }}");
-</script>
+  <script>
+    window.PROJECT_ID = Number("{{ project_id }}");
+  </script>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
 
-<script src="/static/js/cad/loadProject.js"></script>
-<script src="/static/js/cad/sceneSetup.js"></script>
-<script src="/static/js/cad/addShape.js"></script>
+  <script src="/static/js/cad/sceneSetup.js"></script>
+  <script src="/static/js/cad/addShape.js"></script>
+  <script src="/static/js/cad/selectObject.js"></script>
+  <script src="/static/js/cad/loadProject.js"></script>
+  <script src="/static/js/cad/saveDesign.js"></script>
+  <script src="/static/js/cad/moveObject.js"></script>
+  <script src="/static/js/cad/rotateObject.js"></script>
+  <script src="/static/js/cad/resizeObjects.js"></script>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const moveToolBtn = document.getElementById("moveToolBtn");
+      const rotateToolBtn = document.getElementById("rotateToolBtn");
+      const resizeToolBtn = document.getElementById("resizeToolBtn");
+
+      const movePanel = document.getElementById("moveObjectPanel");
+      const rotatePanel = document.getElementById("rotateObjectPanel");
+      const resizePanel = document.getElementById("resizeObjectPanel");
+
+      function hideAllToolPanels() {
+        if (movePanel) {
+          movePanel.classList.add("tool-panel-hidden");
+          movePanel.classList.remove("active-edit-panel");
+        }
+
+        if (rotatePanel) {
+          rotatePanel.classList.add("tool-panel-hidden");
+          rotatePanel.classList.remove("active-edit-panel");
+        }
+
+        if (resizePanel) {
+          resizePanel.classList.add("tool-panel-hidden");
+          resizePanel.classList.remove("active-edit-panel");
+        }
+
+        if (moveToolBtn) {
+          moveToolBtn.classList.remove("active-tool-btn");
+        }
+
+        if (rotateToolBtn) {
+          rotateToolBtn.classList.remove("active-tool-btn");
+        }
+
+        if (resizeToolBtn) {
+          resizeToolBtn.classList.remove("active-tool-btn");
+        }
+      }
+
+      if (moveToolBtn && movePanel) {
+        moveToolBtn.addEventListener("click", function () {
+          const isAlreadyOpen = !movePanel.classList.contains("tool-panel-hidden");
+
+          hideAllToolPanels();
+
+          if (!isAlreadyOpen) {
+            movePanel.classList.remove("tool-panel-hidden");
+            movePanel.classList.add("active-edit-panel");
+            moveToolBtn.classList.add("active-tool-btn");
+          }
+        });
+      }
+
+      if (rotateToolBtn && rotatePanel) {
+        rotateToolBtn.addEventListener("click", function () {
+          const isAlreadyOpen = !rotatePanel.classList.contains("tool-panel-hidden");
+
+          hideAllToolPanels();
+
+          if (!isAlreadyOpen) {
+            rotatePanel.classList.remove("tool-panel-hidden");
+            rotatePanel.classList.add("active-edit-panel");
+            rotateToolBtn.classList.add("active-tool-btn");
+          }
+        });
+      }
+
+      if (resizeToolBtn && resizePanel) {
+        resizeToolBtn.addEventListener("click", function () {
+          const isAlreadyOpen = !resizePanel.classList.contains("tool-panel-hidden");
+
+          hideAllToolPanels();
+
+          if (!isAlreadyOpen) {
+            resizePanel.classList.remove("tool-panel-hidden");
+            resizePanel.classList.add("active-edit-panel");
+            resizeToolBtn.classList.add("active-tool-btn");
+          }
+        });
+      }
+    });
+  </script>
 
 </body>
+
 </html>

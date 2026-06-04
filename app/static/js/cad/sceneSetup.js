@@ -6,6 +6,11 @@ let controls;
 function initCADScene() {
   const canvas = document.getElementById("cadCanvas");
 
+  if (!canvas) {
+    console.error("CAD canvas not found.");
+    return;
+  }
+
   scene = new THREE.Scene();
   scene.background = new THREE.Color(0x090b15);
 
@@ -60,7 +65,9 @@ function animateCADScene() {
     controls.update();
   }
 
-  renderer.render(scene, camera);
+  if (renderer && scene && camera) {
+    renderer.render(scene, camera);
+  }
 }
 
 function resizeCADScene() {
