@@ -4,9 +4,9 @@ from app.middleware.auth_middleware import login_required
 from app.controller.project_controller import (
     create_new_project,
     get_user_projects,
-    get_project_by_id
+    get_project_by_id,
+    save_project_design
 )
-
 
 projects_bp = Blueprint("projects", __name__)
 
@@ -42,3 +42,8 @@ def create_project_create_route():
 @login_required
 def get_single_project_route(project_id):
     return get_project_by_id(project_id)
+
+@projects_bp.route("/api/projects/<int:project_id>/save", methods=["POST", "PUT"])
+@login_required
+def save_project_design_route(project_id):
+    return save_project_design(project_id)

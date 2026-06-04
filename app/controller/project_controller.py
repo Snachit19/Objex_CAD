@@ -4,9 +4,9 @@ from datetime import datetime
 from app.models.project_model import (
     create_project,
     get_projects_by_user,
-    find_project_by_id
+    find_project_by_id,
+    update_project_design
 )
-
 
 def create_new_project():
     user_email = session.get("user_email")
@@ -93,4 +93,51 @@ def get_project_by_id(project_id):
     return jsonify({
         "success": True,
         "project": project
+    }), 200
+
+def save_project_design(project_id):
+    user_email = session.get("user_email")
+
+    if not user_email:
+        return jsonify({
+            "success": False,
+            "message": "User not logged in"
+        }), 401
+
+    data = request.get_json(silent=True)
+
+    if not data:
+        return jsonify({
+            "success": False,
+            "message": "No design data provided"
+        }), 400
+
+    design_data = data.get("design_data")
+
+    if design_data is None:
+        return jsonify({
+            "success": False,
+            "message": "design_data field is required"
+        }), 400
+
+    if not isinstance(design_data, list):
+        return jsonify({
+            "success": False,
+            "message": "design_data must be a list of CAD objects"
+        }), 400
+
+    project = find_project_by_id(project_id, user_email)
+
+    if not project:
+        return jsonify({
+            "success": False,
+            "message": "Project not found or access denied"
+        }), 404
+
+    update_project_design(project_id, user_email, design_data)
+
+    return jsonify({
+        "success": True,
+        "message": "Design saved successfully",
+        "object_count": len(design_data)
     }), 200
