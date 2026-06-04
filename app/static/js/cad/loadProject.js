@@ -120,6 +120,7 @@ function restoreSavedCADObjects() {
         object.userData.id = savedObject.id || object.userData.id || "";
         object.userData.type = savedObject.type || object.userData.type || "unknown";
         object.userData.selectable = true;
+        object.userData.color = savedObject.color || "#ffffff";
 
         if (savedObject.position) {
             object.position.set(
@@ -145,8 +146,18 @@ function restoreSavedCADObjects() {
             );
         }
 
-        if (savedObject.color && object.material && object.material.color) {
-            object.material.color.set(savedObject.color);
+        if (savedObject.color && object.material) {
+            if (Array.isArray(object.material)) {
+                object.material.forEach(function (material) {
+                    if (material && material.color) {
+                        material.color.set(savedObject.color);
+                        material.needsUpdate = true;
+                    }
+                });
+            } else if (object.material.color) {
+                object.material.color.set(savedObject.color);
+                object.material.needsUpdate = true;
+            }
         }
     });
 
@@ -155,7 +166,7 @@ function restoreSavedCADObjects() {
     setTextById(
         "cadStatusText",
         "Saved project opened successfully. Objects loaded: " +
-            loadedProjectDesignData.length
+        loadedProjectDesignData.length
     );
 }
 

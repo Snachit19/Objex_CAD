@@ -4,7 +4,9 @@ function getCADObjectsForSaving() {
     return objects.map(function (object) {
         let color = "#ffffff";
 
-        if (object.material && object.material.color) {
+        if (object.userData && object.userData.color) {
+            color = object.userData.color;
+        } else if (object.material && object.material.color) {
             color = "#" + object.material.color.getHexString();
         }
 
