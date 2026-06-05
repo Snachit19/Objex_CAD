@@ -53,6 +53,10 @@
         <img src="/static/assets/resize-object.svg" alt="Resize Object">
       </button>
 
+      <button id="duplicateToolBtn" class="cad-icon-tool-btn" title="Duplicate Object" aria-label="Duplicate Object" type="button">
+        <img src="/static/assets/duplicate-object.svg" alt="Duplicate Object">
+      </button>
+
       <button id="colourToolBtn" class="cad-icon-tool-btn" title="Change Object Colour" aria-label="Change Object Colour" type="button">
         <img src="/static/assets/colour-object.svg" alt="Change Object Colour">
       </button>
@@ -197,6 +201,20 @@
         <p id="resizeObjectHint" class="edit-hint">Select an object first, then resize it.</p>
       </div>
 
+      <div id="duplicateObjectPanel" class="object-edit-panel tool-panel-hidden">
+        <div class="object-edit-header">
+          <h3>Duplicate Object</h3>
+          <span class="object-edit-badge">Clone</span>
+        </div>
+
+        <label class="edit-label" for="duplicateOffsetInput">Duplicate Offset</label>
+        <input id="duplicateOffsetInput" class="edit-input" type="number" value="1" min="0.1" step="0.1">
+
+        <button id="duplicateObjectBtn" class="edit-primary-btn" type="button">Duplicate Selected Object</button>
+
+        <p id="duplicateObjectHint" class="edit-hint">Select an object first, then duplicate it.</p>
+      </div>
+
       <div id="colourObjectPanel" class="object-edit-panel tool-panel-hidden">
         <div class="object-edit-header">
           <h3>Change Object Colour</h3>
@@ -232,6 +250,7 @@
   <script src="/static/js/cad/moveObject.js"></script>
   <script src="/static/js/cad/rotateObject.js"></script>
   <script src="/static/js/cad/resizeObjects.js"></script>
+  <script src="/static/js/cad/duplicateObject.js"></script>
   <script src="/static/js/cad/colourObject.js"></script>
 
   <script>
@@ -239,11 +258,13 @@
       const moveToolBtn = document.getElementById("moveToolBtn");
       const rotateToolBtn = document.getElementById("rotateToolBtn");
       const resizeToolBtn = document.getElementById("resizeToolBtn");
+      const duplicateToolBtn = document.getElementById("duplicateToolBtn");
       const colourToolBtn = document.getElementById("colourToolBtn");
 
       const movePanel = document.getElementById("moveObjectPanel");
       const rotatePanel = document.getElementById("rotateObjectPanel");
       const resizePanel = document.getElementById("resizeObjectPanel");
+      const duplicatePanel = document.getElementById("duplicateObjectPanel");
       const colourPanel = document.getElementById("colourObjectPanel");
 
       function hideAllToolPanels() {
@@ -262,6 +283,11 @@
           resizePanel.classList.remove("active-edit-panel");
         }
 
+        if (duplicatePanel) {
+          duplicatePanel.classList.add("tool-panel-hidden");
+          duplicatePanel.classList.remove("active-edit-panel");
+        }
+
         if (colourPanel) {
           colourPanel.classList.add("tool-panel-hidden");
           colourPanel.classList.remove("active-edit-panel");
@@ -277,6 +303,10 @@
 
         if (resizeToolBtn) {
           resizeToolBtn.classList.remove("active-tool-btn");
+        }
+
+        if (duplicateToolBtn) {
+          duplicateToolBtn.classList.remove("active-tool-btn");
         }
 
         if (colourToolBtn) {
@@ -322,6 +352,20 @@
             resizePanel.classList.remove("tool-panel-hidden");
             resizePanel.classList.add("active-edit-panel");
             resizeToolBtn.classList.add("active-tool-btn");
+          }
+        });
+      }
+
+      if (duplicateToolBtn && duplicatePanel) {
+        duplicateToolBtn.addEventListener("click", function () {
+          const isAlreadyOpen = !duplicatePanel.classList.contains("tool-panel-hidden");
+
+          hideAllToolPanels();
+
+          if (!isAlreadyOpen) {
+            duplicatePanel.classList.remove("tool-panel-hidden");
+            duplicatePanel.classList.add("active-edit-panel");
+            duplicateToolBtn.classList.add("active-tool-btn");
           }
         });
       }
