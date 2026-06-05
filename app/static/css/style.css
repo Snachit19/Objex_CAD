@@ -1290,3 +1290,38 @@ input {
   background: linear-gradient(135deg, #ea580c, #f97316);
   color: #ffffff;
 }
+/* ================================
+   Duplicate Object Tool
+================================ */
+
+#duplicateObjectPanel .object-edit-badge {
+  background: rgba(34, 197, 94, 0.18);
+  color: #bbf7d0;
+  border: 1px solid rgba(34, 197, 94, 0.38);
+}
+
+#duplicateObjectPanel.active-edit-panel {
+  border-color: rgba(34, 197, 94, 0.85) !important;
+  box-shadow:
+    0 0 0 3px rgba(34, 197, 94, 0.18),
+    0 12px 30px rgba(0, 0, 0, 0.28) !important;
+}
+
+#duplicateToolBtn.active-tool-btn {
+  background: linear-gradient(135deg, #16a34a, #22c55e) !important;
+  border-color: rgba(134, 239, 172, 0.9) !important;
+}
+
+#duplicateToolBtn:hover {
+  background: linear-gradient(135deg, #16a34a, #22c55e);
+}
+
+#duplicateObjectPanel .edit-primary-btn {
+  background: linear-gradient(135deg, #16a34a, #22c55e);
+  border-color: rgba(134, 239, 172, 0.55);
+}
+
+#duplicateObjectPanel .edit-primary-btn:hover {
+  background: linear-gradient(135deg, #15803d, #22c55e);
+  color: #ffffff;
+}
