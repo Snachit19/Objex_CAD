@@ -133,6 +133,7 @@ input {
   font-size: 20px;
   font-weight: 700;
   background: linear-gradient(90deg, #3b82f6, #a020f0);
+  transition: opacity 0.2s, box-shadow 0.2s;
 }
 
 /* ================================
@@ -402,6 +403,8 @@ input {
    Dashboard Commit 4
 ================================ */
 
+.dashboard-layout { margin-right: 300px; }
+
 .properties-panel {
   position: fixed;
   top: 56px;
@@ -643,7 +646,6 @@ input {
   margin-bottom: 18px;
 }
 
-.sign-btn { transition: opacity 0.2s, box-shadow 0.2s; }
 .sign-btn:hover:not(:disabled) { opacity: 0.9; box-shadow: 0 0 28px rgba(100,80,220,0.45); }
 .sign-btn:disabled { opacity: 0.65; cursor: not-allowed; }
 
@@ -720,6 +722,19 @@ input {
   border-radius: 10px;
 }
 
+.save-btn {
+  background: linear-gradient(90deg, #2563eb, #7c3aed);
+  color: #ffffff;
+  border: 1px solid #4f46e5;
+  padding: 11px 16px;
+  border-radius: 10px;
+  font-weight: 700;
+}
+
+.save-btn:hover {
+  opacity: 0.9;
+}
+
 .save-btn:disabled { opacity: 0.6; cursor: not-allowed; }
 
 /* ================================
@@ -772,27 +787,59 @@ input {
   background: #253044;
 }
 
-.save-btn {
-  background: linear-gradient(90deg, #2563eb, #7c3aed);
-  color: #ffffff;
-  border: 1px solid #4f46e5;
-  padding: 11px 16px;
-  border-radius: 10px;
-  font-weight: 700;
-}
-
-.save-btn:hover {
-  opacity: 0.9;
-}
-
 /* ================================
    CAD TOOLBAR
 ================================ */
+
+.cad-toolbar {
+  height: 52px;
+  background: #080a14;
+  border-bottom: 1px solid #171a26;
+  display: flex;
+  align-items: center;
+  padding: 0 20px;
+  position: relative;
+  z-index: 99999;
+}
 
 .shape-menu-wrapper {
   position: relative;
   z-index: 99999;
 }
+
+.add-shape-icon-btn {
+  height: 40px;
+  min-width: 64px;
+  background: linear-gradient(145deg, #10131f, #151822);
+  border: 1px solid #2b3040;
+  border-radius: 13px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 0 12px;
+  box-shadow:
+    0 8px 24px rgba(0, 0, 0, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+.add-shape-icon-btn:hover {
+  border-color: #6366f1;
+  background: linear-gradient(145deg, #151822, #1f2433);
+  box-shadow: 0 0 20px rgba(99, 102, 241, 0.35);
+}
+
+.add-shape-icon-btn img {
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+}
+
+.add-shape-icon-btn span {
+  color: #cbd5e1;
+  font-size: 13px;
+}
+
 .shape-menu-options {
   display: none;
   position: fixed;
@@ -835,7 +882,7 @@ input {
 ================================ */
 
 .cad-workspace {
-  height: calc(100vh - 72px - 58px);
+  height: calc(100vh - 72px - 52px);
   display: grid;
   grid-template-columns: 1fr 280px;
 }
@@ -857,7 +904,6 @@ input {
   border-left: 1px solid #171a26;
   padding: 20px;
   overflow-y: auto;
-  scrollbar-width: thin;
 }
 
 .cad-inspector h3 {
@@ -915,8 +961,7 @@ input {
   color: #93c5fd;
 }
 /* ================================
-   Week 3 Object Editing Panels
-   Move Object + Rotate Object
+   Object Editing Panels
 ================================ */
 
 .object-edit-panel {
@@ -1063,7 +1108,12 @@ input {
   line-height: 1.4;
 }
 
-/* CAD inspector scrollbar */
+/* Optional: make the inspector scroll smoothly if panels become long */
+.cad-inspector {
+  overflow-y: auto;
+  scrollbar-width: thin;
+}
+
 .cad-inspector::-webkit-scrollbar {
   width: 6px;
 }
@@ -1076,17 +1126,17 @@ input {
 .cad-inspector::-webkit-scrollbar-track {
   background: transparent;
 }
-/* Fix CAD toolbar SVG icon size */
+/* ================================
+   CAD Toolbar Icon Buttons
+================================ */
 
 .cad-toolbar {
-  height: 58px;
   display: flex;
   align-items: center;
   padding: 10px 16px;
   border-bottom: 1px solid rgba(148, 163, 184, 0.14);
   background: rgba(2, 6, 23, 0.88);
-  position: relative;
-  z-index: 99999;
+  height: 58px;
   overflow: visible;
 }
 
@@ -1133,7 +1183,18 @@ input {
   color: #94a3b8;
   line-height: 1;
 }
-/* Hide and show object tool panels */
+
+/* Also control older Add Shape button image if old class still exists */
+.add-shape-icon-btn img {
+  width: 26px !important;
+  height: 26px !important;
+  max-width: 26px !important;
+  max-height: 26px !important;
+  object-fit: contain;
+}
+/* ================================
+   Hide and Show Object Tool Panels
+================================ */
 
 .tool-panel-hidden {
   display: none !important;
@@ -1228,68 +1289,4 @@ input {
 #resizeObjectPanel .edit-button-grid button:hover {
   background: linear-gradient(135deg, #ea580c, #f97316);
   color: #ffffff;
-}
-/* ================================
-   Change Object Colour Tool
-================================ */
-
-.colour-input {
-  width: 100%;
-  height: 42px;
-  padding: 4px;
-  border-radius: 8px;
-  border: 1px solid rgba(148, 163, 184, 0.35);
-  background: rgba(2, 6, 23, 0.9);
-  cursor: pointer;
-}
-
-.colour-input::-webkit-color-swatch-wrapper {
-  padding: 0;
-}
-
-.colour-input::-webkit-color-swatch {
-  border: none;
-  border-radius: 6px;
-}
-
-.colour-input::-moz-color-swatch {
-  border: none;
-  border-radius: 6px;
-}
-
-.hex-label {
-  margin-top: 12px;
-}
-
-.hex-input {
-  text-transform: lowercase;
-  letter-spacing: 0.5px;
-  font-family: Consolas, Monaco, monospace;
-}
-
-#colourObjectPanel .object-edit-badge {
-  background: rgba(236, 72, 153, 0.18);
-  color: #fbcfe8;
-  border: 1px solid rgba(236, 72, 153, 0.38);
-}
-
-#colourObjectPanel.active-edit-panel {
-  border-color: rgba(236, 72, 153, 0.85) !important;
-  box-shadow:
-    0 0 0 3px rgba(236, 72, 153, 0.18),
-    0 12px 30px rgba(0, 0, 0, 0.28) !important;
-}
-
-#colourToolBtn.active-tool-btn {
-  background: linear-gradient(135deg, #db2777, #9333ea) !important;
-  border-color: rgba(244, 114, 182, 0.9) !important;
-}
-
-#colourToolBtn:hover {
-  background: linear-gradient(135deg, #db2777, #9333ea);
-}
-
-#colourObjectPanel .edit-primary-btn {
-  background: linear-gradient(135deg, #db2777, #9333ea);
-  border-color: rgba(244, 114, 182, 0.55);
 }
