@@ -1229,3 +1229,67 @@ input {
   background: linear-gradient(135deg, #ea580c, #f97316);
   color: #ffffff;
 }
+/* ================================
+   Change Object Colour Tool
+================================ */
+
+.colour-input {
+  width: 100%;
+  height: 42px;
+  padding: 4px;
+  border-radius: 8px;
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  background: rgba(2, 6, 23, 0.9);
+  cursor: pointer;
+}
+
+.colour-input::-webkit-color-swatch-wrapper {
+  padding: 0;
+}
+
+.colour-input::-webkit-color-swatch {
+  border: none;
+  border-radius: 6px;
+}
+
+.colour-input::-moz-color-swatch {
+  border: none;
+  border-radius: 6px;
+}
+
+.hex-label {
+  margin-top: 12px;
+}
+
+.hex-input {
+  text-transform: lowercase;
+  letter-spacing: 0.5px;
+  font-family: Consolas, Monaco, monospace;
+}
+
+#colourObjectPanel .object-edit-badge {
+  background: rgba(236, 72, 153, 0.18);
+  color: #fbcfe8;
+  border: 1px solid rgba(236, 72, 153, 0.38);
+}
+
+#colourObjectPanel.active-edit-panel {
+  border-color: rgba(236, 72, 153, 0.85) !important;
+  box-shadow:
+    0 0 0 3px rgba(236, 72, 153, 0.18),
+    0 12px 30px rgba(0, 0, 0, 0.28) !important;
+}
+
+#colourToolBtn.active-tool-btn {
+  background: linear-gradient(135deg, #db2777, #9333ea) !important;
+  border-color: rgba(244, 114, 182, 0.9) !important;
+}
+
+#colourToolBtn:hover {
+  background: linear-gradient(135deg, #db2777, #9333ea);
+}
+
+#colourObjectPanel .edit-primary-btn {
+  background: linear-gradient(135deg, #db2777, #9333ea);
+  border-color: rgba(244, 114, 182, 0.55);
+}
