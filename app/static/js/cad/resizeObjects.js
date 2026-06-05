@@ -218,6 +218,9 @@ function initResizeObjectControls() {
         }
     });
 }
+document.addEventListener("DOMContentLoaded", function () {
+    initResizeObjectControls();
+});
 
 
 document.addEventListener("DOMContentLoaded", function () {
