@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -46,14 +45,16 @@
         <img src="/static/assets/move-object.svg" alt="Move Object">
       </button>
 
-      <button id="rotateToolBtn" class="cad-icon-tool-btn" title="Rotate Object" aria-label="Rotate Object"
-        type="button">
+      <button id="rotateToolBtn" class="cad-icon-tool-btn" title="Rotate Object" aria-label="Rotate Object" type="button">
         <img src="/static/assets/rotate-object.svg" alt="Rotate Object">
       </button>
 
-      <button id="resizeToolBtn" class="cad-icon-tool-btn" title="Resize Object" aria-label="Resize Object"
-        type="button">
-        <img src="/static/assets/resize-objects.png" alt="Resize Object">
+      <button id="resizeToolBtn" class="cad-icon-tool-btn" title="Resize Object" aria-label="Resize Object" type="button">
+        <img src="/static/assets/resize-object.svg" alt="Resize Object">
+      </button>
+
+      <button id="colourToolBtn" class="cad-icon-tool-btn" title="Change Object Colour" aria-label="Change Object Colour" type="button">
+        <img src="/static/assets/colour-object.svg" alt="Change Object Colour">
       </button>
 
     </div>
@@ -165,9 +166,9 @@
         </div>
 
         <label class="edit-label" for="resizeStepInput">Resize Step</label>
-        <input id="resizeStepInput" class="edit-input" type="number" value="0.1" min="0.01" step="0.01">
+        <input id="resizeStepInput" class="edit-input" type="number" value="0.1" min="0.1" step="0.1">
 
-        <div class="edit-button-grid">
+        <div class="edit-button-grid resize-grid">
           <button id="resizeXPlusBtn" type="button">X +</button>
           <button id="resizeXMinusBtn" type="button">X -</button>
           <button id="resizeYPlusBtn" type="button">Y +</button>
@@ -182,18 +183,35 @@
 
         <div class="axis-input-row">
           <label for="resizeXInput">X</label>
-          <input id="resizeXInput" class="edit-input" type="number" step="0.01" min="0.01">
+          <input id="resizeXInput" class="edit-input" type="number" step="0.1">
 
           <label for="resizeYInput">Y</label>
-          <input id="resizeYInput" class="edit-input" type="number" step="0.01" min="0.01">
+          <input id="resizeYInput" class="edit-input" type="number" step="0.1">
 
           <label for="resizeZInput">Z</label>
-          <input id="resizeZInput" class="edit-input" type="number" step="0.01" min="0.01">
+          <input id="resizeZInput" class="edit-input" type="number" step="0.1">
         </div>
 
         <button id="setScaleBtn" class="edit-primary-btn" type="button">Set Scale</button>
 
         <p id="resizeObjectHint" class="edit-hint">Select an object first, then resize it.</p>
+      </div>
+
+      <div id="colourObjectPanel" class="object-edit-panel tool-panel-hidden">
+        <div class="object-edit-header">
+          <h3>Change Object Colour</h3>
+          <span class="object-edit-badge">Colour</span>
+        </div>
+
+        <label class="edit-label" for="objectColourInput">Select Colour</label>
+        <input id="objectColourInput" class="edit-input colour-input" type="color" value="#ff0000">
+
+        <label class="edit-label hex-label" for="objectHexInput">Hex Colour Value</label>
+        <input id="objectHexInput" class="edit-input hex-input" type="text" value="#ff0000" maxlength="7" placeholder="#ff0000">
+
+        <button id="applyColourBtn" class="edit-primary-btn" type="button">Apply Colour</button>
+
+        <p id="colourObjectHint" class="edit-hint">Select an object first, then choose or type a hex colour.</p>
       </div>
 
     </aside>
@@ -214,39 +232,58 @@
   <script src="/static/js/cad/moveObject.js"></script>
   <script src="/static/js/cad/rotateObject.js"></script>
   <script src="/static/js/cad/resizeObjects.js"></script>
+  <script src="/static/js/cad/colourObject.js"></script>
 
   <script>
     document.addEventListener("DOMContentLoaded", function () {
-      // Declare all tool buttons
       const moveToolBtn = document.getElementById("moveToolBtn");
       const rotateToolBtn = document.getElementById("rotateToolBtn");
       const resizeToolBtn = document.getElementById("resizeToolBtn");
+      const colourToolBtn = document.getElementById("colourToolBtn");
 
-      // Declare all tool panels
       const movePanel = document.getElementById("moveObjectPanel");
       const rotatePanel = document.getElementById("rotateObjectPanel");
       const resizePanel = document.getElementById("resizeObjectPanel");
+      const colourPanel = document.getElementById("colourObjectPanel");
 
-      // Hide all tool panels and deactivate all buttons
       function hideAllToolPanels() {
-        const panels = [movePanel, rotatePanel, resizePanel];
-        const buttons = [moveToolBtn, rotateToolBtn, resizeToolBtn];
+        if (movePanel) {
+          movePanel.classList.add("tool-panel-hidden");
+          movePanel.classList.remove("active-edit-panel");
+        }
 
-        panels.forEach(panel => {
-          if (panel) {
-            panel.classList.add("tool-panel-hidden");
-            panel.classList.remove("active-edit-panel");
-          }
-        });
+        if (rotatePanel) {
+          rotatePanel.classList.add("tool-panel-hidden");
+          rotatePanel.classList.remove("active-edit-panel");
+        }
 
-        buttons.forEach(button => {
-          if (button) {
-            button.classList.remove("active-tool-btn");
-          }
-        });
+        if (resizePanel) {
+          resizePanel.classList.add("tool-panel-hidden");
+          resizePanel.classList.remove("active-edit-panel");
+        }
+
+        if (colourPanel) {
+          colourPanel.classList.add("tool-panel-hidden");
+          colourPanel.classList.remove("active-edit-panel");
+        }
+
+        if (moveToolBtn) {
+          moveToolBtn.classList.remove("active-tool-btn");
+        }
+
+        if (rotateToolBtn) {
+          rotateToolBtn.classList.remove("active-tool-btn");
+        }
+
+        if (resizeToolBtn) {
+          resizeToolBtn.classList.remove("active-tool-btn");
+        }
+
+        if (colourToolBtn) {
+          colourToolBtn.classList.remove("active-tool-btn");
+        }
       }
 
-      // Move tool button listener
       if (moveToolBtn && movePanel) {
         moveToolBtn.addEventListener("click", function () {
           const isAlreadyOpen = !movePanel.classList.contains("tool-panel-hidden");
@@ -261,7 +298,6 @@
         });
       }
 
-      // Rotate tool button listener
       if (rotateToolBtn && rotatePanel) {
         rotateToolBtn.addEventListener("click", function () {
           const isAlreadyOpen = !rotatePanel.classList.contains("tool-panel-hidden");
@@ -276,7 +312,6 @@
         });
       }
 
-      // Resize tool button listener
       if (resizeToolBtn && resizePanel) {
         resizeToolBtn.addEventListener("click", function () {
           const isAlreadyOpen = !resizePanel.classList.contains("tool-panel-hidden");
@@ -290,9 +325,22 @@
           }
         });
       }
+
+      if (colourToolBtn && colourPanel) {
+        colourToolBtn.addEventListener("click", function () {
+          const isAlreadyOpen = !colourPanel.classList.contains("tool-panel-hidden");
+
+          hideAllToolPanels();
+
+          if (!isAlreadyOpen) {
+            colourPanel.classList.remove("tool-panel-hidden");
+            colourPanel.classList.add("active-edit-panel");
+            colourToolBtn.classList.add("active-tool-btn");
+          }
+        });
+      }
     });
   </script>
 
 </body>
-
 </html>
