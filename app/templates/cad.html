@@ -61,6 +61,10 @@
         <img src="/static/assets/colour-object.svg" alt="Change Object Colour">
       </button>
 
+      <button id="deleteToolBtn" class="cad-icon-tool-btn" title="Delete Object" aria-label="Delete Object" type="button">
+        <img src="/static/assets/delete-object.svg" alt="Delete Object">
+      </button>
+
     </div>
   </nav>
 
@@ -85,6 +89,8 @@
         <p><strong>Type:</strong> <span id="selectedObjectType">None</span></p>
         <p><strong>Position:</strong> <span id="selectedObjectPosition">None</span></p>
         <p><strong>Scale:</strong> <span id="selectedObjectScale">None</span></p>
+
+        <button id="dashboardDeleteBtn" class="edit-primary-btn delete-confirm-btn" type="button" style="margin-top: 15px; display: none;">Delete Object</button>
       </div>
 
       <div id="moveObjectPanel" class="object-edit-panel tool-panel-hidden">
@@ -230,6 +236,19 @@
         <button id="applyColourBtn" class="edit-primary-btn" type="button">Apply Colour</button>
 
         <p id="colourObjectHint" class="edit-hint">Select an object first, then choose or type a hex colour.</p>
+      </div>
+
+      <div id="deleteObjectPanel" class="object-edit-panel tool-panel-hidden">
+        <div class="object-edit-header">
+          <h3>Delete Object</h3>
+          <span class="object-edit-badge danger-badge">Removal</span>
+        </div>
+
+        <p class="edit-description">Are you sure you want to delete the selected object? This action cannot be undone.</p>
+
+        <button id="deleteObjectBtn" class="edit-primary-btn delete-confirm-btn" type="button">Delete Selected Object</button>
+
+        <p id="deleteObjectHint" class="edit-hint">Select an object first, then delete it.</p>
       </div>
 
     </aside>
