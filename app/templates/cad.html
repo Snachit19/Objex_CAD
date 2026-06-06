@@ -271,6 +271,7 @@
   <script src="/static/js/cad/resizeObjects.js"></script>
   <script src="/static/js/cad/duplicateObject.js"></script>
   <script src="/static/js/cad/colourObject.js"></script>
+  <script src="/static/js/cad/deleteObject.js"></script>
 
   <script>
     document.addEventListener("DOMContentLoaded", function () {
@@ -279,12 +280,14 @@
       const resizeToolBtn = document.getElementById("resizeToolBtn");
       const duplicateToolBtn = document.getElementById("duplicateToolBtn");
       const colourToolBtn = document.getElementById("colourToolBtn");
+      const deleteToolBtn = document.getElementById("deleteToolBtn");
 
       const movePanel = document.getElementById("moveObjectPanel");
       const rotatePanel = document.getElementById("rotateObjectPanel");
       const resizePanel = document.getElementById("resizeObjectPanel");
       const duplicatePanel = document.getElementById("duplicateObjectPanel");
       const colourPanel = document.getElementById("colourObjectPanel");
+      const deletePanel = document.getElementById("deleteObjectPanel");
 
       function hideAllToolPanels() {
         if (movePanel) {
@@ -312,6 +315,11 @@
           colourPanel.classList.remove("active-edit-panel");
         }
 
+        if (deletePanel) {
+          deletePanel.classList.add("tool-panel-hidden");
+          deletePanel.classList.remove("active-edit-panel");
+        }
+
         if (moveToolBtn) {
           moveToolBtn.classList.remove("active-tool-btn");
         }
@@ -330,6 +338,10 @@
 
         if (colourToolBtn) {
           colourToolBtn.classList.remove("active-tool-btn");
+        }
+
+        if (deleteToolBtn) {
+          deleteToolBtn.classList.remove("active-tool-btn");
         }
       }
 
@@ -399,6 +411,20 @@
             colourPanel.classList.remove("tool-panel-hidden");
             colourPanel.classList.add("active-edit-panel");
             colourToolBtn.classList.add("active-tool-btn");
+          }
+        });
+      }
+
+      if (deleteToolBtn && deletePanel) {
+        deleteToolBtn.addEventListener("click", function () {
+          const isAlreadyOpen = !deletePanel.classList.contains("tool-panel-hidden");
+
+          hideAllToolPanels();
+
+          if (!isAlreadyOpen) {
+            deletePanel.classList.remove("tool-panel-hidden");
+            deletePanel.classList.add("active-edit-panel");
+            deleteToolBtn.classList.add("active-tool-btn");
           }
         });
       }
