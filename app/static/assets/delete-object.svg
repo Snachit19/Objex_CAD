@@ -1,0 +1,45 @@
+<svg width="1024" height="1024" viewBox="0 0 1024 1024" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <radialGradient id="glowRed" cx="50%" cy="52%" r="50%">
+      <stop offset="0%" stop-color="#FF5E5E" stop-opacity="0.55"/>
+      <stop offset="60%" stop-color="#FF2E2E" stop-opacity="0.18"/>
+      <stop offset="100%" stop-color="#101722" stop-opacity="0"/>
+    </radialGradient>
+
+    <linearGradient id="cubeLeft" x1="280" y1="480" x2="510" y2="760" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#3278FF"/>
+      <stop offset="1" stop-color="#205FDB"/>
+    </linearGradient>
+
+    <linearGradient id="cubeRight" x1="510" y1="420" x2="760" y2="760" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#6A5CFF"/>
+      <stop offset="1" stop-color="#4838D8"/>
+    </linearGradient>
+
+    <linearGradient id="cubeTop" x1="300" y1="350" x2="720" y2="500" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#76A1FF"/>
+      <stop offset="1" stop-color="#9288FF"/>
+    </linearGradient>
+
+    <linearGradient id="dangerBadge" x1="635" y1="145" x2="905" y2="415" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#EF4444"/>
+      <stop offset="0.55" stop-color="#B91C1C"/>
+      <stop offset="1" stop-color="#7C2D12"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="1024" height="1024" fill="#14191E"/>
+
+  <rect x="92" y="124" width="812" height="812" rx="220" fill="#101523" stroke="#2D3448" stroke-width="16"/>
+  <circle cx="502" cy="548" r="300" fill="url(#glowRed)"/>
+
+  <path d="M282 430L498 306L714 430L498 556L282 430Z" fill="url(#cubeTop)" opacity="0.4"/>
+  <path d="M282 430L498 556V794L282 670V430Z" fill="url(#cubeLeft)" opacity="0.4"/>
+  <path d="M714 430L498 556V794L714 670V430Z" fill="url(#cubeRight)" opacity="0.4"/>
+
+  <circle cx="742" cy="292" r="162" fill="#FCA5A5"/>
+  <circle cx="742" cy="292" r="136" fill="url(#dangerBadge)"/>
+  
+  <!-- Trash Icon Overlay -->
+  <path d="M700 240H784V256H800V272H684V256H700V240ZM708 288H776V360C776 368 768 376 760 376H724C716 376 708 368 708 360V288ZM720 304V352M742 304V352M764 304V352" stroke="white" stroke-width="8" stroke-linecap="round"/>
+</svg>

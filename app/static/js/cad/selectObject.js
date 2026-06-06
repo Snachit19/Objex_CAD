@@ -35,6 +35,7 @@ function updateSelectedObjectPanel(object) {
     const typeText = document.getElementById("selectedObjectType");
     const positionText = document.getElementById("selectedObjectPosition");
     const scaleText = document.getElementById("selectedObjectScale");
+    const dashboardDeleteBtn = document.getElementById("dashboardDeleteBtn");
 
     if (!nameText || !typeText || !positionText || !scaleText) {
         return;
@@ -45,7 +46,15 @@ function updateSelectedObjectPanel(object) {
         typeText.textContent = "None";
         positionText.textContent = "None";
         scaleText.textContent = "None";
+
+        if (dashboardDeleteBtn) {
+            dashboardDeleteBtn.style.display = "none";
+        }
         return;
+    }
+
+    if (dashboardDeleteBtn) {
+        dashboardDeleteBtn.style.display = "block";
     }
 
     nameText.textContent = object.name || "Unnamed Object";
