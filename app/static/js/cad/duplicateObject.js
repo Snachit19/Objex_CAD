@@ -165,4 +165,4 @@ window.duplicateSelectedObject = duplicateSelectedObject;
 
 document.addEventListener("DOMContentLoaded", function () {
     initDuplicateObjectControls();
-});
+});  

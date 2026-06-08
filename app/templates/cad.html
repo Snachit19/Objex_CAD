@@ -65,6 +65,10 @@
         <img src="/static/assets/grid-object.svg" alt="Show Grid">
       </button>
 
+      <button id="axesToolBtn" class="cad-icon-tool-btn" title="Show X, Y and Z Axes" aria-label="Show X, Y and Z Axes" type="button">
+        <img src="/static/assets/axes-object.svg" alt="Show X Y Z Axes">
+      </button>
+
     </div>
   </nav>
 
@@ -254,6 +258,23 @@
         <p id="gridObjectHint" class="edit-hint">Use this panel to show, hide, or update the workspace grid.</p>
       </div>
 
+      <div id="axesObjectPanel" class="object-edit-panel tool-panel-hidden">
+        <div class="object-edit-header">
+          <h3>Show X, Y and Z Axes</h3>
+          <span class="object-edit-badge">Axes</span>
+        </div>
+
+        <label class="edit-label" for="axesSizeInput">Axes Size</label>
+        <input id="axesSizeInput" class="edit-input" type="number" value="5" min="1" step="1">
+
+        <button id="toggleAxesBtn" class="edit-primary-btn" type="button">Hide Axes</button>
+        <button id="updateAxesBtn" class="edit-secondary-btn" type="button">Update Axes</button>
+
+        <p id="axesObjectHint" class="edit-hint">
+          Use this panel to show, hide, or resize the X, Y and Z axes in the CAD workspace.
+        </p>
+      </div>
+
     </aside>
   </main>
 
@@ -269,12 +290,15 @@
   <script src="/static/js/cad/selectObject.js"></script>
   <script src="/static/js/cad/loadProject.js"></script>
   <script src="/static/js/cad/saveDesign.js"></script>
+
   <script src="/static/js/cad/moveObject.js"></script>
   <script src="/static/js/cad/rotateObject.js"></script>
   <script src="/static/js/cad/resizeObjects.js"></script>
   <script src="/static/js/cad/duplicateObject.js"></script>
   <script src="/static/js/cad/colourObject.js"></script>
+
   <script src="/static/js/cad/showGrid.js"></script>
+  <script src="/static/js/cad/showAxes.js"></script>
 
   <script>
     document.addEventListener("DOMContentLoaded", function () {
@@ -284,6 +308,7 @@
       const duplicateToolBtn = document.getElementById("duplicateToolBtn");
       const colourToolBtn = document.getElementById("colourToolBtn");
       const gridToolBtn = document.getElementById("gridToolBtn");
+      const axesToolBtn = document.getElementById("axesToolBtn");
 
       const movePanel = document.getElementById("moveObjectPanel");
       const rotatePanel = document.getElementById("rotateObjectPanel");
@@ -291,61 +316,41 @@
       const duplicatePanel = document.getElementById("duplicateObjectPanel");
       const colourPanel = document.getElementById("colourObjectPanel");
       const gridPanel = document.getElementById("gridObjectPanel");
+      const axesPanel = document.getElementById("axesObjectPanel");
 
       function hideAllToolPanels() {
-        if (movePanel) {
-          movePanel.classList.add("tool-panel-hidden");
-          movePanel.classList.remove("active-edit-panel");
-        }
+        const panels = [
+          movePanel,
+          rotatePanel,
+          resizePanel,
+          duplicatePanel,
+          colourPanel,
+          gridPanel,
+          axesPanel
+        ];
 
-        if (rotatePanel) {
-          rotatePanel.classList.add("tool-panel-hidden");
-          rotatePanel.classList.remove("active-edit-panel");
-        }
+        const buttons = [
+          moveToolBtn,
+          rotateToolBtn,
+          resizeToolBtn,
+          duplicateToolBtn,
+          colourToolBtn,
+          gridToolBtn,
+          axesToolBtn
+        ];
 
-        if (resizePanel) {
-          resizePanel.classList.add("tool-panel-hidden");
-          resizePanel.classList.remove("active-edit-panel");
-        }
+        panels.forEach(function (panel) {
+          if (panel) {
+            panel.classList.add("tool-panel-hidden");
+            panel.classList.remove("active-edit-panel");
+          }
+        });
 
-        if (duplicatePanel) {
-          duplicatePanel.classList.add("tool-panel-hidden");
-          duplicatePanel.classList.remove("active-edit-panel");
-        }
-
-        if (colourPanel) {
-          colourPanel.classList.add("tool-panel-hidden");
-          colourPanel.classList.remove("active-edit-panel");
-        }
-
-        if (gridPanel) {
-          gridPanel.classList.add("tool-panel-hidden");
-          gridPanel.classList.remove("active-edit-panel");
-        }
-
-        if (moveToolBtn) {
-          moveToolBtn.classList.remove("active-tool-btn");
-        }
-
-        if (rotateToolBtn) {
-          rotateToolBtn.classList.remove("active-tool-btn");
-        }
-
-        if (resizeToolBtn) {
-          resizeToolBtn.classList.remove("active-tool-btn");
-        }
-
-        if (duplicateToolBtn) {
-          duplicateToolBtn.classList.remove("active-tool-btn");
-        }
-
-        if (colourToolBtn) {
-          colourToolBtn.classList.remove("active-tool-btn");
-        }
-
-        if (gridToolBtn) {
-          gridToolBtn.classList.remove("active-tool-btn");
-        }
+        buttons.forEach(function (button) {
+          if (button) {
+            button.classList.remove("active-tool-btn");
+          }
+        });
       }
 
       function connectToolButton(button, panel) {
@@ -372,6 +377,7 @@
       connectToolButton(duplicateToolBtn, duplicatePanel);
       connectToolButton(colourToolBtn, colourPanel);
       connectToolButton(gridToolBtn, gridPanel);
+      connectToolButton(axesToolBtn, axesPanel);
     });
   </script>
 
