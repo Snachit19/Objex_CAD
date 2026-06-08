@@ -61,8 +61,8 @@
         <img src="/static/assets/colour-object.svg" alt="Change Object Colour">
       </button>
 
-      <button id="deleteToolBtn" class="cad-icon-tool-btn" title="Delete Object" aria-label="Delete Object" type="button">
-        <img src="/static/assets/delete-object.svg" alt="Delete Object">
+      <button id="gridToolBtn" class="cad-icon-tool-btn" title="Show Grid" aria-label="Show Grid" type="button">
+        <img src="/static/assets/grid-object.svg" alt="Show Grid">
       </button>
 
     </div>
@@ -89,8 +89,6 @@
         <p><strong>Type:</strong> <span id="selectedObjectType">None</span></p>
         <p><strong>Position:</strong> <span id="selectedObjectPosition">None</span></p>
         <p><strong>Scale:</strong> <span id="selectedObjectScale">None</span></p>
-
-        <button id="dashboardDeleteBtn" class="edit-primary-btn delete-confirm-btn" type="button" style="margin-top: 15px; display: none;">Delete Object</button>
       </div>
 
       <div id="moveObjectPanel" class="object-edit-panel tool-panel-hidden">
@@ -238,17 +236,22 @@
         <p id="colourObjectHint" class="edit-hint">Select an object first, then choose or type a hex colour.</p>
       </div>
 
-      <div id="deleteObjectPanel" class="object-edit-panel tool-panel-hidden">
+      <div id="gridObjectPanel" class="object-edit-panel tool-panel-hidden">
         <div class="object-edit-header">
-          <h3>Delete Object</h3>
-          <span class="object-edit-badge danger-badge">Removal</span>
+          <h3>Show Grid</h3>
+          <span class="object-edit-badge">Grid</span>
         </div>
 
-        <p class="edit-description">Are you sure you want to delete the selected object? This action cannot be undone.</p>
+        <label class="edit-label" for="gridSizeInput">Grid Size</label>
+        <input id="gridSizeInput" class="edit-input" type="number" value="20" min="5" step="1">
 
-        <button id="deleteObjectBtn" class="edit-primary-btn delete-confirm-btn" type="button">Delete Selected Object</button>
+        <label class="edit-label grid-label" for="gridDivisionsInput">Grid Divisions</label>
+        <input id="gridDivisionsInput" class="edit-input" type="number" value="20" min="2" step="1">
 
-        <p id="deleteObjectHint" class="edit-hint">Select an object first, then delete it.</p>
+        <button id="toggleGridBtn" class="edit-primary-btn" type="button">Hide Grid</button>
+        <button id="updateGridBtn" class="edit-secondary-btn" type="button">Update Grid</button>
+
+        <p id="gridObjectHint" class="edit-hint">Use this panel to show, hide, or update the workspace grid.</p>
       </div>
 
     </aside>
@@ -271,7 +274,7 @@
   <script src="/static/js/cad/resizeObjects.js"></script>
   <script src="/static/js/cad/duplicateObject.js"></script>
   <script src="/static/js/cad/colourObject.js"></script>
-  <script src="/static/js/cad/deleteObject.js"></script>
+  <script src="/static/js/cad/showGrid.js"></script>
 
   <script>
     document.addEventListener("DOMContentLoaded", function () {
@@ -280,14 +283,14 @@
       const resizeToolBtn = document.getElementById("resizeToolBtn");
       const duplicateToolBtn = document.getElementById("duplicateToolBtn");
       const colourToolBtn = document.getElementById("colourToolBtn");
-      const deleteToolBtn = document.getElementById("deleteToolBtn");
+      const gridToolBtn = document.getElementById("gridToolBtn");
 
       const movePanel = document.getElementById("moveObjectPanel");
       const rotatePanel = document.getElementById("rotateObjectPanel");
       const resizePanel = document.getElementById("resizeObjectPanel");
       const duplicatePanel = document.getElementById("duplicateObjectPanel");
       const colourPanel = document.getElementById("colourObjectPanel");
-      const deletePanel = document.getElementById("deleteObjectPanel");
+      const gridPanel = document.getElementById("gridObjectPanel");
 
       function hideAllToolPanels() {
         if (movePanel) {
@@ -315,9 +318,9 @@
           colourPanel.classList.remove("active-edit-panel");
         }
 
-        if (deletePanel) {
-          deletePanel.classList.add("tool-panel-hidden");
-          deletePanel.classList.remove("active-edit-panel");
+        if (gridPanel) {
+          gridPanel.classList.add("tool-panel-hidden");
+          gridPanel.classList.remove("active-edit-panel");
         }
 
         if (moveToolBtn) {
@@ -340,94 +343,35 @@
           colourToolBtn.classList.remove("active-tool-btn");
         }
 
-        if (deleteToolBtn) {
-          deleteToolBtn.classList.remove("active-tool-btn");
+        if (gridToolBtn) {
+          gridToolBtn.classList.remove("active-tool-btn");
         }
       }
 
-      if (moveToolBtn && movePanel) {
-        moveToolBtn.addEventListener("click", function () {
-          const isAlreadyOpen = !movePanel.classList.contains("tool-panel-hidden");
+      function connectToolButton(button, panel) {
+        if (!button || !panel) {
+          return;
+        }
+
+        button.addEventListener("click", function () {
+          const isAlreadyOpen = !panel.classList.contains("tool-panel-hidden");
 
           hideAllToolPanels();
 
           if (!isAlreadyOpen) {
-            movePanel.classList.remove("tool-panel-hidden");
-            movePanel.classList.add("active-edit-panel");
-            moveToolBtn.classList.add("active-tool-btn");
+            panel.classList.remove("tool-panel-hidden");
+            panel.classList.add("active-edit-panel");
+            button.classList.add("active-tool-btn");
           }
         });
       }
 
-      if (rotateToolBtn && rotatePanel) {
-        rotateToolBtn.addEventListener("click", function () {
-          const isAlreadyOpen = !rotatePanel.classList.contains("tool-panel-hidden");
-
-          hideAllToolPanels();
-
-          if (!isAlreadyOpen) {
-            rotatePanel.classList.remove("tool-panel-hidden");
-            rotatePanel.classList.add("active-edit-panel");
-            rotateToolBtn.classList.add("active-tool-btn");
-          }
-        });
-      }
-
-      if (resizeToolBtn && resizePanel) {
-        resizeToolBtn.addEventListener("click", function () {
-          const isAlreadyOpen = !resizePanel.classList.contains("tool-panel-hidden");
-
-          hideAllToolPanels();
-
-          if (!isAlreadyOpen) {
-            resizePanel.classList.remove("tool-panel-hidden");
-            resizePanel.classList.add("active-edit-panel");
-            resizeToolBtn.classList.add("active-tool-btn");
-          }
-        });
-      }
-
-      if (duplicateToolBtn && duplicatePanel) {
-        duplicateToolBtn.addEventListener("click", function () {
-          const isAlreadyOpen = !duplicatePanel.classList.contains("tool-panel-hidden");
-
-          hideAllToolPanels();
-
-          if (!isAlreadyOpen) {
-            duplicatePanel.classList.remove("tool-panel-hidden");
-            duplicatePanel.classList.add("active-edit-panel");
-            duplicateToolBtn.classList.add("active-tool-btn");
-          }
-        });
-      }
-
-      if (colourToolBtn && colourPanel) {
-        colourToolBtn.addEventListener("click", function () {
-          const isAlreadyOpen = !colourPanel.classList.contains("tool-panel-hidden");
-
-          hideAllToolPanels();
-
-          if (!isAlreadyOpen) {
-            colourPanel.classList.remove("tool-panel-hidden");
-            colourPanel.classList.add("active-edit-panel");
-            colourToolBtn.classList.add("active-tool-btn");
-          }
-        });
-      }
-
-      if (deleteToolBtn && deletePanel) {
-        deleteToolBtn.addEventListener("click", function () {
-          const isAlreadyOpen = !deletePanel.classList.contains("tool-panel-hidden");
-
-          hideAllToolPanels();
-
-          if (!isAlreadyOpen) {
-            deletePanel.classList.remove("tool-panel-hidden");
-            deletePanel.classList.add("active-edit-panel");
-            deleteToolBtn.classList.add("active-tool-btn");
-          }
-        });
-      }
+      connectToolButton(moveToolBtn, movePanel);
+      connectToolButton(rotateToolBtn, rotatePanel);
+      connectToolButton(resizeToolBtn, resizePanel);
+      connectToolButton(duplicateToolBtn, duplicatePanel);
+      connectToolButton(colourToolBtn, colourPanel);
+      connectToolButton(gridToolBtn, gridPanel);
     });
   </script>
 

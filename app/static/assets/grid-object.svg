@@ -1,0 +1,58 @@
+<svg width="1024" height="1024" viewBox="0 0 1024 1024" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <radialGradient id="glow" cx="50%" cy="52%" r="50%">
+      <stop offset="0%" stop-color="#5EA8FF" stop-opacity="0.55"/>
+      <stop offset="60%" stop-color="#2E63FF" stop-opacity="0.18"/>
+      <stop offset="100%" stop-color="#101722" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="cubeLeft" x1="280" y1="480" x2="510" y2="760" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#3278FF"/>
+      <stop offset="1" stop-color="#205FDB"/>
+    </linearGradient>
+    <linearGradient id="cubeRight" x1="510" y1="420" x2="760" y2="760" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#6A5CFF"/>
+      <stop offset="1" stop-color="#4838D8"/>
+    </linearGradient>
+    <linearGradient id="cubeTop" x1="300" y1="350" x2="720" y2="500" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#76A1FF"/>
+      <stop offset="1" stop-color="#9288FF"/>
+    </linearGradient>
+    <linearGradient id="badge" x1="635" y1="145" x2="905" y2="415" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#06B6D4"/>
+      <stop offset="1" stop-color="#2563EB"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="1024" height="1024" fill="#14191E"/>
+  <g opacity="0.45">
+    <rect x="0" y="204" width="168" height="164" fill="#0E0E0E"/>
+    <rect x="166" y="38" width="164" height="164" fill="#0E0E0E"/>
+    <rect x="494" y="38" width="164" height="164" fill="#0E0E0E"/>
+    <rect x="824" y="38" width="164" height="164" fill="#0E0E0E"/>
+    <rect x="824" y="368" width="164" height="164" fill="#0E0E0E"/>
+    <rect x="824" y="698" width="164" height="164" fill="#0E0E0E"/>
+    <rect x="660" y="862" width="164" height="164" fill="#0E0E0E"/>
+    <rect x="330" y="862" width="164" height="164" fill="#0E0E0E"/>
+    <rect x="0" y="862" width="168" height="164" fill="#0E0E0E"/>
+    <rect x="0" y="532" width="168" height="164" fill="#0E0E0E"/>
+  </g>
+
+  <rect x="92" y="124" width="812" height="812" rx="220" fill="#101523" stroke="#2D3448" stroke-width="16"/>
+  <circle cx="502" cy="548" r="300" fill="url(#glow)"/>
+
+  <path d="M282 430L498 306L714 430L498 556L282 430Z" fill="url(#cubeTop)"/>
+  <path d="M282 430L498 556V794L282 670V430Z" fill="url(#cubeLeft)"/>
+  <path d="M714 430L498 556V794L714 670V430Z" fill="url(#cubeRight)"/>
+  <path d="M282 430L498 556L714 430" stroke="#B7C6FF" stroke-width="14" stroke-opacity="0.65"/>
+  <path d="M498 556V794" stroke="#8EA4FF" stroke-width="14" stroke-opacity="0.65"/>
+
+  <circle cx="742" cy="292" r="162" fill="#BAE6FD"/>
+  <circle cx="742" cy="292" r="136" fill="url(#badge)"/>
+
+  <path d="M640 222H844" stroke="white" stroke-width="24" stroke-linecap="round"/>
+  <path d="M640 292H844" stroke="white" stroke-width="24" stroke-linecap="round"/>
+  <path d="M640 362H844" stroke="white" stroke-width="24" stroke-linecap="round"/>
+  <path d="M672 190V394" stroke="white" stroke-width="24" stroke-linecap="round"/>
+  <path d="M742 190V394" stroke="white" stroke-width="24" stroke-linecap="round"/>
+  <path d="M812 190V394" stroke="white" stroke-width="24" stroke-linecap="round"/>
+</svg>

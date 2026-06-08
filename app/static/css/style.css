@@ -1368,3 +1368,57 @@ input {
   box-shadow: 0 4px 12px rgba(220, 38, 38, 0.35);
 }
 
+/* ================================
+   Show Grid Tool
+================================ */
+
+.grid-label {
+  margin-top: 12px;
+}
+
+.edit-secondary-btn {
+  width: 100%;
+  min-height: 34px;
+  margin-top: 8px;
+  border: 1px solid rgba(14, 165, 233, 0.38);
+  border-radius: 8px;
+  background: rgba(30, 41, 59, 0.92);
+  color: #e2e8f0;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: 0.18s ease;
+}
+
+.edit-secondary-btn:hover {
+  background: linear-gradient(135deg, #0284c7, #2563eb);
+  color: #ffffff;
+  transform: translateY(-1px);
+}
+
+#gridObjectPanel .object-edit-badge {
+  background: rgba(14, 165, 233, 0.18);
+  color: #bae6fd;
+  border: 1px solid rgba(14, 165, 233, 0.38);
+}
+
+#gridObjectPanel.active-edit-panel {
+  border-color: rgba(14, 165, 233, 0.85) !important;
+  box-shadow:
+    0 0 0 3px rgba(14, 165, 233, 0.18),
+    0 12px 30px rgba(0, 0, 0, 0.28) !important;
+}
+
+#gridToolBtn.active-tool-btn {
+  background: linear-gradient(135deg, #0284c7, #2563eb) !important;
+  border-color: rgba(125, 211, 252, 0.9) !important;
+}
+
+#gridToolBtn:hover {
+  background: linear-gradient(135deg, #0284c7, #2563eb);
+}
+
+#gridObjectPanel .edit-primary-btn {
+  background: linear-gradient(135deg, #0284c7, #2563eb);
+  border-color: rgba(125, 211, 252, 0.55);
+}
