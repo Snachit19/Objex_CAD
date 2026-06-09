@@ -57,6 +57,10 @@
         <img src="/static/assets/duplicate-object.svg" alt="Duplicate Object">
       </button>
 
+      <button id="deleteToolBtn" class="cad-icon-tool-btn" title="Delete Object" aria-label="Delete Object" type="button">
+        <img src="/static/assets/delete-object.svg" alt="Delete Object">
+      </button>
+
       <button id="colourToolBtn" class="cad-icon-tool-btn" title="Change Object Colour" aria-label="Change Object Colour" type="button">
         <img src="/static/assets/colour-object.svg" alt="Change Object Colour">
       </button>
@@ -223,6 +227,21 @@
         <p id="duplicateObjectHint" class="edit-hint">Select an object first, then duplicate it.</p>
       </div>
 
+      <div id="deleteObjectPanel" class="object-edit-panel tool-panel-hidden">
+        <div class="object-edit-header">
+          <h3>Delete Object</h3>
+          <span class="object-edit-badge">Delete</span>
+        </div>
+
+        <p class="edit-hint">
+          This will remove the selected object from the CAD workspace. Click Save Design after deleting to keep the change.
+        </p>
+
+        <button id="deleteObjectBtn" class="edit-danger-btn" type="button">Delete Selected Object</button>
+
+        <p id="deleteObjectHint" class="edit-hint">Select an object first, then delete it.</p>
+      </div>
+
       <div id="colourObjectPanel" class="object-edit-panel tool-panel-hidden">
         <div class="object-edit-header">
           <h3>Change Object Colour</h3>
@@ -295,6 +314,7 @@
   <script src="/static/js/cad/rotateObject.js"></script>
   <script src="/static/js/cad/resizeObjects.js"></script>
   <script src="/static/js/cad/duplicateObject.js"></script>
+  <script src="/static/js/cad/deleteObject.js"></script>
   <script src="/static/js/cad/colourObject.js"></script>
 
   <script src="/static/js/cad/showGrid.js"></script>
@@ -306,6 +326,7 @@
       const rotateToolBtn = document.getElementById("rotateToolBtn");
       const resizeToolBtn = document.getElementById("resizeToolBtn");
       const duplicateToolBtn = document.getElementById("duplicateToolBtn");
+      const deleteToolBtn = document.getElementById("deleteToolBtn");
       const colourToolBtn = document.getElementById("colourToolBtn");
       const gridToolBtn = document.getElementById("gridToolBtn");
       const axesToolBtn = document.getElementById("axesToolBtn");
@@ -314,6 +335,7 @@
       const rotatePanel = document.getElementById("rotateObjectPanel");
       const resizePanel = document.getElementById("resizeObjectPanel");
       const duplicatePanel = document.getElementById("duplicateObjectPanel");
+      const deletePanel = document.getElementById("deleteObjectPanel");
       const colourPanel = document.getElementById("colourObjectPanel");
       const gridPanel = document.getElementById("gridObjectPanel");
       const axesPanel = document.getElementById("axesObjectPanel");
@@ -324,6 +346,7 @@
           rotatePanel,
           resizePanel,
           duplicatePanel,
+          deletePanel,
           colourPanel,
           gridPanel,
           axesPanel
@@ -334,6 +357,7 @@
           rotateToolBtn,
           resizeToolBtn,
           duplicateToolBtn,
+          deleteToolBtn,
           colourToolBtn,
           gridToolBtn,
           axesToolBtn
@@ -375,6 +399,7 @@
       connectToolButton(rotateToolBtn, rotatePanel);
       connectToolButton(resizeToolBtn, resizePanel);
       connectToolButton(duplicateToolBtn, duplicatePanel);
+      connectToolButton(deleteToolBtn, deletePanel);
       connectToolButton(colourToolBtn, colourPanel);
       connectToolButton(gridToolBtn, gridPanel);
       connectToolButton(axesToolBtn, axesPanel);

@@ -1458,3 +1458,57 @@ input {
   background: linear-gradient(135deg, #1d4ed8, #16a34a);
   color: #ffffff;
 }
+/* ================================
+   Delete Object Tool
+================================ */
+
+#deleteObjectPanel .object-edit-badge {
+  background: rgba(239, 68, 68, 0.18);
+  color: #fecaca;
+  border: 1px solid rgba(239, 68, 68, 0.38);
+}
+
+#deleteObjectPanel.active-edit-panel {
+  border-color: rgba(239, 68, 68, 0.85) !important;
+  box-shadow:
+    0 0 0 3px rgba(239, 68, 68, 0.18),
+    0 12px 30px rgba(0, 0, 0, 0.28) !important;
+}
+
+#deleteToolBtn.active-tool-btn {
+  background: linear-gradient(135deg, #dc2626, #ef4444) !important;
+  border-color: rgba(252, 165, 165, 0.9) !important;
+}
+
+#deleteToolBtn:hover {
+  background: linear-gradient(135deg, #dc2626, #ef4444);
+}
+
+.edit-danger-btn {
+  width: 100%;
+  min-height: 36px;
+  margin-top: 12px;
+  border: 1px solid rgba(239, 68, 68, 0.55);
+  border-radius: 8px;
+  background: linear-gradient(135deg, #dc2626, #ef4444);
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: 0.18s ease;
+}
+
+.edit-danger-btn:hover {
+  background: linear-gradient(135deg, #b91c1c, #dc2626);
+  color: #ffffff;
+  transform: translateY(-1px);
+  box-shadow: 0 10px 24px rgba(239, 68, 68, 0.22);
+}
+
+.edit-danger-btn:active {
+  transform: translateY(0);
+}
+
+#deleteObjectPanel .edit-hint {
+  color: #fca5a5;
+}
