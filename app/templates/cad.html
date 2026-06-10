@@ -96,6 +96,10 @@
         <img src="/static/assets/pan-camera.svg" alt="Pan Camera">
       </button>
 
+      <button id="orbitToolBtn" class="cad-icon-tool-btn" title="Orbit Around 3D Model" aria-label="Orbit Around 3D Model" type="button">
+        <img src="/static/assets/orbit-camera.svg" alt="Orbit Around 3D Model">
+      </button>
+
     </div>
   </nav>
 
@@ -338,6 +342,40 @@
         </p>
       </div>
 
+      <div id="orbitCameraPanel" class="object-edit-panel tool-panel-hidden">
+        <div class="object-edit-header">
+          <h3>Orbit Around 3D Model</h3>
+          <span class="object-edit-badge">Orbit</span>
+        </div>
+
+        <label class="edit-label" for="orbitStepInput">Orbit Step</label>
+
+        <div class="input-with-unit">
+          <input id="orbitStepInput" class="edit-input" type="number" value="15" min="1" step="1">
+          <span>degrees</span>
+        </div>
+
+        <div class="orbit-camera-grid">
+          <span></span>
+          <button id="orbitUpBtn" type="button">Up</button>
+          <span></span>
+
+          <button id="orbitLeftBtn" type="button">Left</button>
+          <button id="resetOrbitBtn" type="button">Reset</button>
+          <button id="orbitRightBtn" type="button">Right</button>
+
+          <span></span>
+          <button id="orbitDownBtn" type="button">Down</button>
+          <span></span>
+        </div>
+
+        <button id="toggleAutoOrbitBtn" class="edit-secondary-btn" type="button">Start Auto Orbit</button>
+
+        <p id="orbitCameraHint" class="edit-hint">
+          Orbit moves the camera around the model without moving the object itself.
+        </p>
+      </div>
+
     </aside>
   </main>
 
@@ -365,6 +403,7 @@
   <script src="/static/js/cad/showAxes.js"></script>
   <script src="/static/js/cad/zoomView.js"></script>
   <script src="/static/js/cad/panCamera.js"></script>
+  <script src="/static/js/cad/orbitCamera.js"></script>
 
   <script>
     document.addEventListener("DOMContentLoaded", function () {
@@ -378,6 +417,7 @@
       const axesToolBtn = document.getElementById("axesToolBtn");
       const zoomToolBtn = document.getElementById("zoomToolBtn");
       const panToolBtn = document.getElementById("panToolBtn");
+      const orbitToolBtn = document.getElementById("orbitToolBtn");
 
       const movePanel = document.getElementById("moveObjectPanel");
       const rotatePanel = document.getElementById("rotateObjectPanel");
@@ -388,6 +428,7 @@
       const gridPanel = document.getElementById("gridObjectPanel");
       const axesPanel = document.getElementById("axesObjectPanel");
       const panCameraPanel = document.getElementById("panCameraPanel");
+      const orbitCameraPanel = document.getElementById("orbitCameraPanel");
 
       function hideAllToolPanels() {
         const panels = [
@@ -399,7 +440,8 @@
           colourPanel,
           gridPanel,
           axesPanel,
-          panCameraPanel
+          panCameraPanel,
+          orbitCameraPanel
         ];
 
         const buttons = [
@@ -412,7 +454,8 @@
           gridToolBtn,
           axesToolBtn,
           zoomToolBtn,
-          panToolBtn
+          panToolBtn,
+          orbitToolBtn
         ];
 
         panels.forEach(function (panel) {
@@ -464,6 +507,7 @@
       connectToolButton(gridToolBtn, gridPanel);
       connectToolButton(axesToolBtn, axesPanel);
       connectToolButton(panToolBtn, panCameraPanel);
+      connectToolButton(orbitToolBtn, orbitCameraPanel);
 
       const zoomMenuOptions = document.getElementById("zoomMenuOptions");
 

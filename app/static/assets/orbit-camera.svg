@@ -1,0 +1,50 @@
+<svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="orbitGradient" x1="12" y1="10" x2="52" y2="54" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#60A5FA"/>
+      <stop offset="100%" stop-color="#A855F7"/>
+    </linearGradient>
+
+    <filter id="orbitGlow" x="-25%" y="-25%" width="150%" height="150%">
+      <feDropShadow dx="0" dy="0" stdDeviation="2.5" flood-color="#7C3AED" flood-opacity="0.45"/>
+    </filter>
+  </defs>
+
+  <g filter="url(#orbitGlow)">
+    <circle cx="32" cy="32" r="9" fill="#E2E8F0" opacity="0.95"/>
+
+    <path
+      d="M15 35C15 23 25 14 37 16C43 17 48 20 51 25"
+      stroke="url(#orbitGradient)"
+      stroke-width="4"
+      stroke-linecap="round"
+      fill="none"
+    />
+
+    <path
+      d="M49 19L52 26L44 25"
+      stroke="url(#orbitGradient)"
+      stroke-width="4"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      fill="none"
+    />
+
+    <path
+      d="M49 29C50 41 40 50 28 48C22 47 17 44 14 39"
+      stroke="url(#orbitGradient)"
+      stroke-width="4"
+      stroke-linecap="round"
+      fill="none"
+    />
+
+    <path
+      d="M16 45L13 38L21 39"
+      stroke="url(#orbitGradient)"
+      stroke-width="4"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      fill="none"
+    />
+  </g>
+</svg>
