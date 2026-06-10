@@ -73,6 +73,29 @@
         <img src="/static/assets/axes-object.svg" alt="Show X Y Z Axes">
       </button>
 
+      <div class="zoom-menu-wrapper">
+        <button id="zoomToolBtn" class="cad-icon-tool-btn zoom-tool-btn" title="Zoom" aria-label="Zoom" type="button">
+          <img src="/static/assets/zoom-object.svg" alt="Zoom">
+          <span class="tool-arrow">▾</span>
+        </button>
+
+        <div id="zoomMenuOptions" class="zoom-menu-options">
+          <button id="zoomInBtn" type="button">
+            <img src="/static/assets/zoom-in.svg" alt="Zoom In">
+            <span>Zoom In</span>
+          </button>
+
+          <button id="zoomOutBtn" type="button">
+            <img src="/static/assets/zoom-out.svg" alt="Zoom Out">
+            <span>Zoom Out</span>
+          </button>
+        </div>
+      </div>
+
+      <button id="panToolBtn" class="cad-icon-tool-btn" title="Pan Camera" aria-label="Pan Camera" type="button">
+        <img src="/static/assets/pan-camera.svg" alt="Pan Camera">
+      </button>
+
     </div>
   </nav>
 
@@ -92,7 +115,6 @@
 
       <div class="selected-object-panel">
         <h3>Selected Object</h3>
-
         <p><strong>Name:</strong> <span id="selectedObjectName">None</span></p>
         <p><strong>Type:</strong> <span id="selectedObjectType">None</span></p>
         <p><strong>Position:</strong> <span id="selectedObjectPosition">None</span></p>
@@ -294,6 +316,34 @@
         </p>
       </div>
 
+      <div id="panCameraPanel" class="object-edit-panel tool-panel-hidden">
+        <div class="object-edit-header">
+          <h3>Pan Camera</h3>
+          <span class="object-edit-badge">Camera</span>
+        </div>
+
+        <label class="edit-label" for="panStepInput">Pan Step</label>
+        <input id="panStepInput" class="edit-input" type="number" value="0.5" min="0.1" step="0.1">
+
+        <div class="pan-camera-grid">
+          <span></span>
+          <button id="panUpBtn" type="button">Up</button>
+          <span></span>
+
+          <button id="panLeftBtn" type="button">Left</button>
+          <button id="resetPanBtn" type="button">Reset</button>
+          <button id="panRightBtn" type="button">Right</button>
+
+          <span></span>
+          <button id="panDownBtn" type="button">Down</button>
+          <span></span>
+        </div>
+
+        <p id="panCameraHint" class="edit-hint">
+          Use Pan Camera to move the view left, right, up, or down without moving any object.
+        </p>
+      </div>
+
     </aside>
   </main>
 
@@ -319,6 +369,8 @@
 
   <script src="/static/js/cad/showGrid.js"></script>
   <script src="/static/js/cad/showAxes.js"></script>
+  <script src="/static/js/cad/zoomView.js"></script>
+  <script src="/static/js/cad/panCamera.js"></script>
 
   <script>
     document.addEventListener("DOMContentLoaded", function () {
@@ -330,6 +382,8 @@
       const colourToolBtn = document.getElementById("colourToolBtn");
       const gridToolBtn = document.getElementById("gridToolBtn");
       const axesToolBtn = document.getElementById("axesToolBtn");
+      const zoomToolBtn = document.getElementById("zoomToolBtn");
+      const panToolBtn = document.getElementById("panToolBtn");
 
       const movePanel = document.getElementById("moveObjectPanel");
       const rotatePanel = document.getElementById("rotateObjectPanel");
@@ -339,6 +393,7 @@
       const colourPanel = document.getElementById("colourObjectPanel");
       const gridPanel = document.getElementById("gridObjectPanel");
       const axesPanel = document.getElementById("axesObjectPanel");
+      const panCameraPanel = document.getElementById("panCameraPanel");
 
       function hideAllToolPanels() {
         const panels = [
@@ -349,7 +404,8 @@
           deletePanel,
           colourPanel,
           gridPanel,
-          axesPanel
+          axesPanel,
+          panCameraPanel
         ];
 
         const buttons = [
@@ -360,7 +416,9 @@
           deleteToolBtn,
           colourToolBtn,
           gridToolBtn,
-          axesToolBtn
+          axesToolBtn,
+          zoomToolBtn,
+          panToolBtn
         ];
 
         panels.forEach(function (panel) {
@@ -377,6 +435,13 @@
         });
       }
 
+      function closeAllDropdownMenus() {
+        document.querySelectorAll(".shape-menu-options.show, .zoom-menu-options.show")
+          .forEach(function (menu) {
+            menu.classList.remove("show");
+          });
+      }
+
       function connectToolButton(button, panel) {
         if (!button || !panel) {
           return;
@@ -385,6 +450,7 @@
         button.addEventListener("click", function () {
           const isAlreadyOpen = !panel.classList.contains("tool-panel-hidden");
 
+          closeAllDropdownMenus();
           hideAllToolPanels();
 
           if (!isAlreadyOpen) {
@@ -403,6 +469,39 @@
       connectToolButton(colourToolBtn, colourPanel);
       connectToolButton(gridToolBtn, gridPanel);
       connectToolButton(axesToolBtn, axesPanel);
+      connectToolButton(panToolBtn, panCameraPanel);
+
+      const zoomMenuOptions = document.getElementById("zoomMenuOptions");
+
+      if (zoomToolBtn && zoomMenuOptions) {
+        zoomToolBtn.addEventListener("click", function (event) {
+          event.stopPropagation();
+
+          const isOpen = zoomMenuOptions.classList.contains("show");
+
+          closeAllDropdownMenus();
+          hideAllToolPanels();
+
+          if (!isOpen) {
+            zoomMenuOptions.classList.add("show");
+            zoomToolBtn.classList.add("active-tool-btn");
+          } else {
+            zoomToolBtn.classList.remove("active-tool-btn");
+          }
+        });
+
+        zoomMenuOptions.addEventListener("click", function (event) {
+          event.stopPropagation();
+        });
+
+        document.addEventListener("click", function () {
+          closeAllDropdownMenus();
+
+          if (zoomToolBtn) {
+            zoomToolBtn.classList.remove("active-tool-btn");
+          }
+        });
+      }
     });
   </script>
 

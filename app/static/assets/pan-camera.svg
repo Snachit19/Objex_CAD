@@ -1,0 +1,20 @@
+<svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="panGradient" x1="12" y1="10" x2="52" y2="54" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#60A5FA"/>
+      <stop offset="100%" stop-color="#A855F7"/>
+    </linearGradient>
+
+    <filter id="panGlow" x="-25%" y="-25%" width="150%" height="150%">
+      <feDropShadow dx="0" dy="0" stdDeviation="2.5" flood-color="#7C3AED" flood-opacity="0.45"/>
+    </filter>
+  </defs>
+
+  <g filter="url(#panGlow)">
+    <path
+      d="M32 8L24 16H29V29H16V24L8 32L16 40V35H29V48H24L32 56L40 48H35V35H48V40L56 32L48 24V29H35V16H40L32 8Z"
+      fill="url(#panGradient)"
+    />
+    <circle cx="32" cy="32" r="5" fill="#E2E8F0"/>
+  </g>
+</svg>
