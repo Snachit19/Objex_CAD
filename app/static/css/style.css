@@ -1,6 +1,44 @@
 /* ================================
-   Objex CAD - Global Style
+   Objex CAD - Clean Global Style
 ================================ */
+
+:root {
+  --bg-main: #070914;
+  --bg-page: #080b16;
+  --bg-panel: #151822;
+  --bg-panel-dark: #080a14;
+  --bg-card: #10131f;
+  --bg-input: #080b16;
+
+  --border-dark: #171a26;
+  --border-soft: #2b3040;
+  --border-muted: rgba(148, 163, 184, 0.35);
+
+  --text-main: #ffffff;
+  --text-soft: #cbd5e1;
+  --text-muted: #9ca3af;
+  --text-faint: #6b7280;
+
+  --blue: #2563eb;
+  --blue-light: #3b82f6;
+  --purple: #7c3aed;
+  --purple-dark: #6d28d9;
+  --green: #22c55e;
+  --red: #ef4444;
+  --orange: #f97316;
+  --sky: #0284c7;
+
+  --gradient-main: linear-gradient(90deg, #2563eb, #7c3aed);
+  --gradient-purple: linear-gradient(135deg, #6d28d9, #7c3aed);
+  --shadow-panel: 0 12px 30px rgba(0, 0, 0, 0.28);
+
+  --top-nav-height: 56px;
+  --cad-topbar-height: 72px;
+  --cad-toolbar-height: 58px;
+  --sidebar-width: 270px;
+  --properties-width: 300px;
+  --cad-inspector-width: 280px;
+}
 
 * {
   box-sizing: border-box;
@@ -9,12 +47,13 @@
 body {
   margin: 0;
   font-family: Arial, sans-serif;
-  background: #070914;
-  color: #ffffff;
+  background: var(--bg-main);
+  color: var(--text-main);
 }
 
 button,
-input {
+input,
+textarea {
   font-family: inherit;
 }
 
@@ -23,19 +62,24 @@ button {
   cursor: pointer;
 }
 
-input {
+input,
+textarea {
   outline: none;
 }
 
+a {
+  color: inherit;
+}
+
 /* ================================
-   Login Page Style
+   Login Page
 ================================ */
 
 .login-page {
   min-height: 100vh;
   background:
     radial-gradient(circle at 50% 45%, rgba(50, 60, 110, 0.25), transparent 35%),
-    #070914;
+    var(--bg-main);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -43,11 +87,15 @@ input {
 
 .login-sidebar {
   width: 470px;
-  background: #070914;
-  border: 1px solid #171a26;
+  background: var(--bg-main);
+  border: 1px solid var(--border-dark);
   border-radius: 24px;
   padding: 28px;
   box-shadow: 0 30px 90px rgba(0, 0, 0, 0.45);
+}
+
+.register-sidebar {
+  width: 490px;
 }
 
 .login-brand {
@@ -56,13 +104,13 @@ input {
   justify-content: center;
   gap: 20px;
   padding-bottom: 35px;
-  border-bottom: 1px solid #171a26;
+  border-bottom: 1px solid var(--border-dark);
 }
 
 .brand-logo {
   width: 82px;
   height: 82px;
-  background: #10131f;
+  background: var(--bg-card);
   border: 1px solid #1f2433;
   display: grid;
   place-items: center;
@@ -85,14 +133,14 @@ input {
 
 .login-brand p {
   margin: 8px 0 0;
-  color: #9ca3af;
+  color: var(--text-muted);
   font-size: 18px;
 }
 
 .quick-login-card {
   margin-top: 35px;
-  background: #151822;
-  border: 1px solid #2b3040;
+  background: var(--bg-panel);
+  border: 1px solid var(--border-soft);
   border-radius: 24px;
   padding: 34px 32px;
 }
@@ -109,7 +157,7 @@ input {
 }
 
 .quick-login-card label {
-  color: #9ca3af;
+  color: var(--text-muted);
   font-size: 18px;
   font-weight: 700;
   margin-bottom: 12px;
@@ -117,8 +165,8 @@ input {
 
 .quick-login-card input {
   height: 60px;
-  background: #080b16;
-  border: 1px solid #2b3040;
+  background: var(--bg-input);
+  border: 1px solid var(--border-soft);
   color: #e5e7eb;
   border-radius: 15px;
   padding: 0 20px;
@@ -126,24 +174,109 @@ input {
   margin-bottom: 24px;
 }
 
+.quick-login-card input:focus {
+  border-color: #4f46e5;
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.18);
+}
+
 .sign-btn {
   height: 64px;
   border-radius: 15px;
-  color: #ffffff;
+  color: var(--text-main);
   font-size: 20px;
   font-weight: 700;
   background: linear-gradient(90deg, #3b82f6, #a020f0);
   transition: opacity 0.2s, box-shadow 0.2s;
 }
 
+.sign-btn:hover:not(:disabled) {
+  opacity: 0.9;
+  box-shadow: 0 0 28px rgba(100, 80, 220, 0.45);
+}
+
+.sign-btn:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.input-wrapper {
+  position: relative;
+  margin-bottom: 22px;
+}
+
+.input-wrapper input {
+  width: 100%;
+  margin-bottom: 0;
+  padding-left: 46px;
+  padding-right: 46px;
+}
+
+.input-icon {
+  position: absolute;
+  left: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-faint);
+  display: flex;
+  align-items: center;
+  pointer-events: none;
+}
+
+.toggle-pw {
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  color: var(--text-faint);
+  display: flex;
+  align-items: center;
+  padding: 0;
+  opacity: 0.5;
+  transition: opacity 0.2s, color 0.2s;
+}
+
+.toggle-pw:hover {
+  opacity: 1;
+  color: var(--text-muted);
+}
+
+.error-msg {
+  background: rgba(239, 68, 68, 0.12);
+  border: 1px solid rgba(239, 68, 68, 0.35);
+  color: #f87171;
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-size: 14px;
+  margin-bottom: 18px;
+}
+
+.switch-link {
+  text-align: center;
+  color: var(--text-faint);
+  font-size: 14px;
+  margin: 20px 0 0;
+}
+
+.switch-link a {
+  color: #818cf8;
+  text-decoration: none;
+  font-weight: 600;
+  transition: color 0.2s;
+}
+
+.switch-link a:hover {
+  color: #a5b4fc;
+}
+
 /* ================================
-   Dashboard Basic Page
+   Basic Dashboard
 ================================ */
 
 .dashboard-basic {
   min-height: 100vh;
-  background: #080b16;
-  color: white;
+  background: var(--bg-page);
+  color: var(--text-main);
   padding: 40px;
 }
 
@@ -153,25 +286,189 @@ input {
 }
 
 .dashboard-basic p {
-  color: #9ca3af;
+  color: var(--text-muted);
 }
 
 .dashboard-box {
-  background: #151822;
-  border: 1px solid #2b3040;
+  background: var(--bg-panel);
+  border: 1px solid var(--border-soft);
   border-radius: 16px;
   padding: 20px;
   margin-top: 20px;
 }
 
 /* ================================
-   Dashboard Commit 3
+   Top Navigation and Sidebar
+================================ */
+
+.top-nav {
+  height: var(--top-nav-height);
+  background: var(--bg-panel-dark);
+  border-bottom: 1px solid var(--border-dark);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-left: 290px;
+  padding-right: 24px;
+  position: fixed;
+  inset: 0 0 auto 0;
+  z-index: 50;
+}
+
+.search-box {
+  width: 520px;
+  height: 36px;
+  background: #111421;
+  border: 1px solid var(--border-soft);
+  color: #d1d5db;
+  padding: 0 16px;
+  border-radius: 14px;
+}
+
+.top-user {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  color: #e5e7eb;
+  font-size: 14px;
+}
+
+.top-icon {
+  color: var(--text-muted);
+}
+
+.user-avatar {
+  width: 32px;
+  height: 32px;
+  background: linear-gradient(135deg, #3b82f6, #9333ea);
+  border-radius: 9px;
+  display: grid;
+  place-items: center;
+  font-weight: bold;
+}
+
+.logout-btn {
+  background: #1f2937;
+  color: var(--text-main);
+  border: 1px solid #374151;
+  padding: 8px 12px;
+  border-radius: 10px;
+  font-size: 13px;
+}
+
+.logout-btn:hover {
+  background: var(--red);
+  border-color: var(--red);
+}
+
+.sidebar {
+  position: fixed;
+  top: var(--top-nav-height);
+  left: 0;
+  width: var(--sidebar-width);
+  height: calc(100vh - var(--top-nav-height));
+  background: var(--bg-main);
+  border-right: 1px solid var(--border-dark);
+  padding: 24px 20px;
+  z-index: 40;
+}
+
+.sidebar-brand {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid var(--border-dark);
+}
+
+.brand-logo-small {
+  width: 52px;
+  height: 52px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-soft);
+  display: grid;
+  place-items: center;
+  border-radius: 10px;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.brand-logo-small img {
+  width: 46px;
+  height: 46px;
+  object-fit: contain;
+}
+
+.sidebar-brand h2 {
+  margin: 0;
+  font-size: 20px;
+  letter-spacing: 1px;
+}
+
+.sidebar-brand p {
+  margin: 4px 0 0;
+  color: var(--text-muted);
+  font-size: 12px;
+}
+
+.side-menu {
+  margin-top: 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.side-menu a {
+  color: var(--text-soft);
+  padding: 13px 15px;
+  border-radius: 12px;
+  font-size: 15px;
+  text-decoration: none;
+}
+
+.side-menu a.active {
+  background: linear-gradient(90deg, rgba(37, 99, 235, 0.55), rgba(147, 51, 234, 0.55));
+  border: 1px solid #4f46e5;
+  color: var(--text-main);
+}
+
+.side-menu span {
+  float: right;
+  background: #0f3b72;
+  color: #93c5fd;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 12px;
+}
+
+.version {
+  position: absolute;
+  bottom: 18px;
+  left: 0;
+  right: 0;
+  text-align: center;
+  color: var(--text-faint);
+  font-size: 12px;
+  border-top: 1px solid var(--border-dark);
+  padding-top: 18px;
+}
+
+.dashboard-layout {
+  margin-left: var(--sidebar-width);
+  margin-right: var(--properties-width);
+  min-height: 100vh;
+  padding: 80px 24px 24px;
+  background: var(--bg-page);
+}
+
+/* ================================
+   Dashboard Preview
 ================================ */
 
 .hero-preview {
   height: 600px;
   background: radial-gradient(circle at center, #1d2440 0%, #0b1020 45%, #080b16 100%);
-  border: 1px solid #171a26;
+  border: 1px solid var(--border-dark);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -183,8 +480,8 @@ input {
   position: absolute;
   inset: 0;
   background:
-    linear-gradient(rgba(255,255,255,0.015) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255,255,255,0.015) 1px, transparent 1px);
+    linear-gradient(rgba(255, 255, 255, 0.015) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.015) 1px, transparent 1px);
   background-size: 40px 40px;
 }
 
@@ -192,7 +489,7 @@ input {
   position: absolute;
   top: 24px;
   right: 75px;
-  background: #070914;
+  background: var(--bg-main);
   border: 1px solid #232838;
   padding: 12px 16px;
   border-radius: 14px;
@@ -211,7 +508,7 @@ input {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 15px;
-  color: #cbd5e1;
+  color: var(--text-soft);
   z-index: 2;
 }
 
@@ -293,27 +590,32 @@ input {
   color: #d97706;
 }
 
-.status-box {
-  position: absolute;
-  left: 100px;
-  bottom: 90px;
-  background: rgba(5, 7, 17, 0.92);
-  border: 1px solid #252938;
-  border-radius: 14px;
-  padding: 13px 15px;
-  font-size: 13px;
-  color: #9ca3af;
-}
-
-.status-box p { margin: 4px 0; }
-.status-box strong { color: #3b82f6; }
-
+.status-box,
 .zoom-bar {
   position: absolute;
-  bottom: 80px;
   background: rgba(5, 7, 17, 0.92);
   border: 1px solid #252938;
   border-radius: 14px;
+  color: var(--text-muted);
+}
+
+.status-box {
+  left: 100px;
+  bottom: 90px;
+  padding: 13px 15px;
+  font-size: 13px;
+}
+
+.status-box p {
+  margin: 4px 0;
+}
+
+.status-box strong {
+  color: var(--blue-light);
+}
+
+.zoom-bar {
+  bottom: 80px;
   padding: 10px 25px;
   display: flex;
   gap: 24px;
@@ -333,16 +635,27 @@ input {
   margin-top: 24px;
 }
 
-.card {
-  background: #151822;
-  border: 1px solid #2b3040;
+.card,
+.property-card {
+  background: var(--bg-panel);
+  border: 1px solid var(--border-soft);
   border-radius: 16px;
+}
+
+.card {
   padding: 18px;
   min-height: 120px;
 }
 
-.card h3 { margin: 0 0 5px; }
-.card p { color: #9ca3af; margin-top: 0; font-size: 13px; }
+.card h3 {
+  margin: 0 0 5px;
+}
+
+.card p {
+  color: var(--text-muted);
+  margin-top: 0;
+  font-size: 13px;
+}
 
 .mock-project {
   background: #0d101a;
@@ -368,68 +681,86 @@ input {
   gap: 10px;
 }
 
-.palette span { height: 56px; border-radius: 12px; }
+.palette span {
+  height: 56px;
+  border-radius: 12px;
+}
 
-.red    { background: #ef4444; }
+.red { background: #ef4444; }
 .yellow { background: #f59e0b; }
-.green  { background: #10b981; }
-.blue   { background: #3b82f6; }
+.green { background: #10b981; }
+.blue { background: #3b82f6; }
 .purple { background: #8b5cf6; }
-.pink   { background: #ec4899; }
+.pink { background: #ec4899; }
 .indigo { background: #6366f1; }
-.teal   { background: #14b8a6; }
+.teal { background: #14b8a6; }
 
-.export-btn {
+.export-btn,
+.disabled-btn {
   width: 100%;
   padding: 11px;
   border-radius: 10px;
+}
+
+.export-btn {
   background: #064e3b;
   color: #22c55e;
   border: 1px solid #047857;
 }
 
 .disabled-btn {
-  width: 100%;
-  padding: 11px;
-  border-radius: 10px;
   background: #1f2937;
   color: #d1d5db;
   border: 1px solid #374151;
 }
 
-.help-title { margin-top: 18px !important; }
+.help-title {
+  margin-top: 18px !important;
+}
 
 /* ================================
-   Dashboard Commit 4
+   Properties Panel
 ================================ */
-
-.dashboard-layout { margin-right: 300px; }
 
 .properties-panel {
   position: fixed;
-  top: 56px;
+  top: var(--top-nav-height);
   right: 0;
-  width: 300px;
-  height: calc(100vh - 56px);
-  background: #070914;
-  border-left: 1px solid #171a26;
+  width: var(--properties-width);
+  height: calc(100vh - var(--top-nav-height));
+  background: var(--bg-main);
+  border-left: 1px solid var(--border-dark);
   padding: 22px 16px;
   overflow-y: auto;
 }
 
-.properties-panel h2 { margin: 0; font-size: 18px; }
-.properties-panel > p { color: #9ca3af; margin-top: 4px; font-size: 13px; }
+.properties-panel h2 {
+  margin: 0;
+  font-size: 18px;
+}
+
+.properties-panel > p {
+  color: var(--text-muted);
+  margin-top: 4px;
+  font-size: 13px;
+}
 
 .property-card {
-  background: #151822;
-  border: 1px solid #2b3040;
-  border-radius: 16px;
   padding: 16px;
   margin-top: 16px;
 }
 
-.property-card h3 { margin: 0 0 15px; font-size: 15px; }
-.property-card label { display: block; color: #9ca3af; margin: 12px 0 7px; font-size: 13px; }
+.property-card h3 {
+  margin: 0 0 15px;
+  font-size: 15px;
+}
+
+.property-card label {
+  display: block;
+  color: var(--text-muted);
+  margin: 12px 0 7px;
+  font-size: 13px;
+}
 
 .triple {
   display: grid;
@@ -440,222 +771,11 @@ input {
 .triple input,
 .property-card input {
   width: 100%;
-  background: #080b16;
-  border: 1px solid #2b3040;
-  color: white;
+  background: var(--bg-input);
+  border: 1px solid var(--border-soft);
+  color: var(--text-main);
   border-radius: 8px;
   padding: 8px;
-}
-
-/* ================================
-   Top Nav and Sidebar
-================================ */
-
-.top-nav {
-  height: 56px;
-  background: #080a14;
-  border-bottom: 1px solid #171a26;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding-left: 290px;
-  padding-right: 24px;
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  z-index: 50;
-}
-
-.search-box {
-  width: 520px;
-  height: 36px;
-  background: #111421;
-  border: 1px solid #2b3040;
-  color: #d1d5db;
-  padding: 0 16px;
-  border-radius: 14px;
-}
-
-.top-user {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  color: #e5e7eb;
-  font-size: 14px;
-}
-
-.top-icon { color: #9ca3af; }
-
-.user-avatar {
-  width: 32px;
-  height: 32px;
-  background: linear-gradient(135deg, #3b82f6, #9333ea);
-  border-radius: 9px;
-  display: grid;
-  place-items: center;
-  font-weight: bold;
-}
-
-.logout-btn {
-  background: #1f2937;
-  color: #ffffff;
-  border: 1px solid #374151;
-  padding: 8px 12px;
-  border-radius: 10px;
-  font-size: 13px;
-}
-
-.logout-btn:hover {
-  background: #ef4444;
-  border-color: #ef4444;
-}
-
-.sidebar {
-  position: fixed;
-  top: 56px;
-  left: 0;
-  width: 270px;
-  height: calc(100vh - 56px);
-  background: #070914;
-  border-right: 1px solid #171a26;
-  padding: 24px 20px;
-  z-index: 40;
-}
-
-.sidebar-brand {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  padding-bottom: 24px;
-  border-bottom: 1px solid #171a26;
-}
-
-.brand-logo-small {
-  width: 52px;
-  height: 52px;
-  background: #10131f;
-  border: 1px solid #2b3040;
-  display: grid;
-  place-items: center;
-  border-radius: 10px;
-  overflow: hidden;
-  flex-shrink: 0;
-}
-
-.brand-logo-small img { width: 46px; height: 46px; object-fit: contain; }
-
-.sidebar-brand h2 { margin: 0; font-size: 20px; letter-spacing: 1px; }
-.sidebar-brand p  { margin: 4px 0 0; color: #9ca3af; font-size: 12px; }
-
-.side-menu {
-  margin-top: 28px;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.side-menu a {
-  color: #cbd5e1;
-  padding: 13px 15px;
-  border-radius: 12px;
-  font-size: 15px;
-  text-decoration: none;
-}
-
-.side-menu a.active {
-  background: linear-gradient(90deg, rgba(37,99,235,0.55), rgba(147,51,234,0.55));
-  border: 1px solid #4f46e5;
-  color: #ffffff;
-}
-
-.side-menu span {
-  float: right;
-  background: #0f3b72;
-  color: #93c5fd;
-  padding: 2px 8px;
-  border-radius: 999px;
-  font-size: 12px;
-}
-
-.version {
-  position: absolute;
-  bottom: 18px;
-  left: 0;
-  right: 0;
-  text-align: center;
-  color: #6b7280;
-  font-size: 12px;
-  border-top: 1px solid #171a26;
-  padding-top: 18px;
-}
-
-.dashboard-layout {
-  margin-left: 270px;
-  margin-right: 300px;
-  min-height: 100vh;
-  padding: 80px 24px 24px;
-  background: #080b16;
-}
-
-/* ================================
-   Register Page
-================================ */
-
-.register-sidebar { width: 490px; }
-
-.input-wrapper { position: relative; margin-bottom: 22px; }
-.input-wrapper input { width: 100%; margin-bottom: 0; padding-left: 46px; padding-right: 46px; }
-
-.input-icon {
-  position: absolute;
-  left: 15px;
-  top: 50%;
-  transform: translateY(-50%);
-  color: #6b7280;
-  display: flex;
-  align-items: center;
-  pointer-events: none;
-}
-
-.toggle-pw {
-  position: absolute;
-  right: 14px;
-  top: 50%;
-  transform: translateY(-50%);
-  background: none;
-  border: none;
-  color: #6b7280;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  padding: 0;
-  opacity: 0.5;
-  transition: opacity 0.2s;
-}
-
-.toggle-pw:hover { opacity: 1; color: #9ca3af; }
-
-.error-msg {
-  background: rgba(239, 68, 68, 0.12);
-  border: 1px solid rgba(239, 68, 68, 0.35);
-  color: #f87171;
-  border-radius: 10px;
-  padding: 10px 14px;
-  font-size: 14px;
-  margin-bottom: 18px;
-}
-
-.sign-btn:hover:not(:disabled) { opacity: 0.9; box-shadow: 0 0 28px rgba(100,80,220,0.45); }
-.sign-btn:disabled { opacity: 0.65; cursor: not-allowed; }
-
-.switch-link { text-align: center; color: #6b7280; font-size: 14px; margin: 20px 0 0; }
-.switch-link a { color: #818cf8; text-decoration: none; font-weight: 600; transition: color 0.2s; }
-.switch-link a:hover { color: #a5b4fc; }
-
-.quick-login-card input:focus {
-  border-color: #4f46e5;
-  box-shadow: 0 0 0 3px rgba(79,70,229,0.18);
 }
 
 /* ================================
@@ -664,8 +784,8 @@ input {
 
 .create-project-btn {
   height: 36px;
-  background: linear-gradient(90deg, #2563eb, #7c3aed);
-  color: #ffffff;
+  background: var(--gradient-main);
+  color: var(--text-main);
   border: 1px solid #4f46e5;
   border-radius: 12px;
   padding: 0 16px;
@@ -673,12 +793,14 @@ input {
   font-weight: 700;
 }
 
-.create-project-btn:hover { opacity: 0.9; }
+.create-project-btn:hover {
+  opacity: 0.9;
+}
 
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.65);
+  background: rgba(0, 0, 0, 0.65);
   display: none;
   align-items: center;
   justify-content: center;
@@ -687,47 +809,72 @@ input {
 
 .modal-card {
   width: 430px;
-  background: #151822;
-  border: 1px solid #2b3040;
+  background: var(--bg-panel);
+  border: 1px solid var(--border-soft);
   border-radius: 20px;
   padding: 24px;
-  box-shadow: 0 30px 80px rgba(0,0,0,0.5);
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.5);
 }
 
-.modal-card h2 { margin: 0 0 8px; font-size: 24px; }
-.modal-card p  { color: #9ca3af; margin-top: 0; margin-bottom: 22px; }
-.modal-card label { display: block; color: #9ca3af; font-size: 14px; margin-bottom: 8px; font-weight: 700; }
+.modal-card h2 {
+  margin: 0 0 8px;
+  font-size: 24px;
+}
+
+.modal-card p {
+  color: var(--text-muted);
+  margin-top: 0;
+  margin-bottom: 22px;
+}
+
+.modal-card label {
+  display: block;
+  color: var(--text-muted);
+  font-size: 14px;
+  margin-bottom: 8px;
+  font-weight: 700;
+}
 
 .modal-card input,
 .modal-card textarea {
   width: 100%;
-  background: #080b16;
-  border: 1px solid #2b3040;
-  color: #ffffff;
+  background: var(--bg-input);
+  border: 1px solid var(--border-soft);
+  color: var(--text-main);
   border-radius: 12px;
   padding: 12px 14px;
   margin-bottom: 16px;
   font-size: 14px;
 }
 
-.modal-card textarea { min-height: 95px; resize: none; }
+.modal-card textarea {
+  min-height: 95px;
+  resize: none;
+}
 
-.modal-actions { display: flex; justify-content: flex-end; gap: 12px; margin-top: 8px; }
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.cancel-btn,
+.save-btn {
+  padding: 11px 16px;
+  border-radius: 10px;
+}
 
 .cancel-btn {
   background: #1f2937;
   color: #d1d5db;
   border: 1px solid #374151;
-  padding: 11px 16px;
-  border-radius: 10px;
 }
 
 .save-btn {
-  background: linear-gradient(90deg, #2563eb, #7c3aed);
-  color: #ffffff;
+  background: var(--gradient-main);
+  color: var(--text-main);
   border: 1px solid #4f46e5;
-  padding: 11px 16px;
-  border-radius: 10px;
   font-weight: 700;
 }
 
@@ -735,22 +882,25 @@ input {
   opacity: 0.9;
 }
 
-.save-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+.save-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
 
 /* ================================
-   CAD WORKSPACE PAGE
+   CAD Workspace Page
 ================================ */
 
 .cad-page {
   min-height: 100vh;
   background: #090b15;
-  color: #ffffff;
+  color: var(--text-main);
 }
 
 .cad-topbar {
-  height: 72px;
-  background: #080a14;
-  border-bottom: 1px solid #171a26;
+  height: var(--cad-topbar-height);
+  background: var(--bg-panel-dark);
+  border-bottom: 1px solid var(--border-dark);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -764,7 +914,7 @@ input {
 
 .cad-topbar p {
   margin: 4px 0 0;
-  color: #9ca3af;
+  color: var(--text-muted);
   font-size: 13px;
 }
 
@@ -788,103 +938,163 @@ input {
 }
 
 /* ================================
-   CAD TOOLBAR
+   CAD Toolbar
 ================================ */
 
 .cad-toolbar {
-  height: 52px;
-  background: #080a14;
-  border-bottom: 1px solid #171a26;
+  height: var(--cad-toolbar-height);
+  background: rgba(2, 6, 23, 0.88);
+  border-bottom: 1px solid rgba(148, 163, 184, 0.14);
   display: flex;
   align-items: center;
-  padding: 0 20px;
+  padding: 10px 16px;
+  position: relative;
+  z-index: 99999;
+  overflow: visible;
+}
+
+.cad-tool-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.shape-menu-wrapper,
+.zoom-menu-wrapper {
   position: relative;
   z-index: 99999;
 }
 
-.shape-menu-wrapper {
-  position: relative;
-  z-index: 99999;
+.cad-icon-tool-btn,
+.add-shape-icon-btn {
+  height: 42px;
+  min-width: 48px;
+  padding: 6px;
+  border: 1px solid rgba(124, 58, 237, 0.35);
+  border-radius: 12px;
+  background: rgba(15, 23, 42, 0.92);
+  color: #e2e8f0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  cursor: pointer;
+  transition: 0.18s ease;
+  overflow: hidden;
+}
+
+.cad-icon-tool-btn {
+  width: 48px;
 }
 
 .add-shape-icon-btn {
-  height: 40px;
   min-width: 64px;
-  background: linear-gradient(145deg, #10131f, #151822);
-  border: 1px solid #2b3040;
-  border-radius: 13px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   gap: 6px;
   padding: 0 12px;
-  box-shadow:
-    0 8px 24px rgba(0, 0, 0, 0.35),
-    inset 0 1px 0 rgba(255, 255, 255, 0.04);
 }
 
+.cad-icon-tool-btn:hover,
 .add-shape-icon-btn:hover {
-  border-color: #6366f1;
-  background: linear-gradient(145deg, #151822, #1f2433);
-  box-shadow: 0 0 20px rgba(99, 102, 241, 0.35);
+  background: var(--gradient-purple);
+  border-color: rgba(196, 181, 253, 0.85);
+  transform: translateY(-1px);
+  box-shadow: 0 10px 24px rgba(124, 58, 237, 0.25);
 }
 
+.cad-icon-tool-btn img,
 .add-shape-icon-btn img {
-  width: 28px;
-  height: 28px;
+  width: 26px !important;
+  height: 26px !important;
+  max-width: 26px !important;
+  max-height: 26px !important;
   object-fit: contain;
+  display: block;
 }
 
-.add-shape-icon-btn span {
-  color: #cbd5e1;
-  font-size: 13px;
+.tool-arrow,
+.cad-icon-tool-btn .tool-arrow {
+  font-size: 10px;
+  color: #94a3b8;
+  line-height: 1;
 }
 
-.shape-menu-options {
+.shape-menu-options,
+.zoom-menu-options {
   display: none;
-  position: fixed;
-  top: 112px;
-  left: 20px;
-  width: 190px;
+  position: absolute;
+  top: 50px;
+  left: 0;
   background: #0f1220;
-  border: 1px solid #2b3040;
+  border: 1px solid var(--border-soft);
   border-radius: 14px;
   padding: 8px;
   z-index: 999999;
   box-shadow: 0 18px 50px rgba(0, 0, 0, 0.65);
 }
 
-.shape-menu-options.show {
+.shape-menu-options {
+  width: 190px;
+}
+
+.zoom-menu-options {
+  width: 170px;
+}
+
+.shape-menu-options.show,
+.zoom-menu-options.show {
   display: flex;
   flex-direction: column;
-  gap: 5px;
+  gap: 6px;
 }
 
-.shape-menu-options button {
+.shape-menu-options button,
+.zoom-menu-options button {
   width: 100%;
+  min-height: 40px;
   background: transparent;
-  color: #cbd5e1;
-  border: none;
+  color: var(--text-soft);
   border-radius: 10px;
-  padding: 10px 13px;
+  padding: 9px 12px;
   text-align: left;
   font-size: 14px;
-  font-weight: 600;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
-.shape-menu-options button:hover {
+.shape-menu-options button:hover,
+.zoom-menu-options button:hover {
   background: linear-gradient(90deg, rgba(37, 99, 235, 0.35), rgba(147, 51, 234, 0.35));
-  color: #ffffff;
+  color: var(--text-main);
+}
+
+.zoom-tool-btn img {
+  width: 25px !important;
+  height: 25px !important;
+  object-fit: contain;
+}
+
+.zoom-menu-options button img {
+  width: 26px;
+  height: 26px;
+  object-fit: contain;
+}
+
+#zoomToolBtn.active-tool-btn,
+#zoomToolBtn:hover {
+  background: linear-gradient(135deg, #2563eb, #7c3aed) !important;
+  border-color: rgba(196, 181, 253, 0.9) !important;
 }
 
 /* ================================
-   CAD WORKSPACE LAYOUT
+   CAD Workspace Layout
 ================================ */
 
 .cad-workspace {
-  height: calc(100vh - 72px - 52px);
+  height: calc(100vh - var(--cad-topbar-height) - var(--cad-toolbar-height));
   display: grid;
-  grid-template-columns: 1fr 280px;
+  grid-template-columns: 1fr var(--cad-inspector-width);
 }
 
 .cad-canvas-area {
@@ -900,10 +1110,24 @@ input {
 }
 
 .cad-inspector {
-  background: #080a14;
-  border-left: 1px solid #171a26;
+  background: var(--bg-panel-dark);
+  border-left: 1px solid var(--border-dark);
   padding: 20px;
   overflow-y: auto;
+  scrollbar-width: thin;
+}
+
+.cad-inspector::-webkit-scrollbar {
+  width: 6px;
+}
+
+.cad-inspector::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.35);
+  border-radius: 999px;
+}
+
+.cad-inspector::-webkit-scrollbar-track {
+  background: transparent;
 }
 
 .cad-inspector h3 {
@@ -911,12 +1135,12 @@ input {
 }
 
 .cad-inspector p {
-  color: #cbd5e1;
+  color: var(--text-soft);
   font-size: 14px;
 }
 
 /* ================================
-   SHAPE TOOLTIP
+   Shape Tooltip
 ================================ */
 
 #shapeTooltip {
@@ -924,8 +1148,8 @@ input {
   display: none;
   pointer-events: none;
   background: rgba(15, 18, 32, 0.95);
-  border: 1px solid #3b82f6;
-  color: #ffffff;
+  border: 1px solid var(--blue-light);
+  color: var(--text-main);
   padding: 10px 14px;
   border-radius: 10px;
   font-size: 13px;
@@ -933,14 +1157,15 @@ input {
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
   white-space: nowrap;
 }
+
 /* ================================
-   SELECTED OBJECT PANEL
+   Selected Object Panel
 ================================ */
 
 .selected-object-panel {
   margin-top: 22px;
-  background: #10131f;
-  border: 1px solid #2b3040;
+  background: var(--bg-card);
+  border: 1px solid var(--border-soft);
   border-radius: 16px;
   padding: 16px;
 }
@@ -948,18 +1173,19 @@ input {
 .selected-object-panel h3 {
   margin: 0 0 14px;
   font-size: 17px;
-  color: #ffffff;
+  color: var(--text-main);
 }
 
 .selected-object-panel p {
   margin: 10px 0;
-  color: #cbd5e1;
+  color: var(--text-soft);
   font-size: 14px;
 }
 
 .selected-object-panel span {
   color: #93c5fd;
 }
+
 /* ================================
    Object Editing Panels
 ================================ */
@@ -969,12 +1195,8 @@ input {
   padding: 16px;
   border: 1px solid rgba(148, 163, 184, 0.22);
   border-radius: 14px;
-  background: linear-gradient(
-    180deg,
-    rgba(17, 24, 39, 0.96),
-    rgba(15, 23, 42, 0.96)
-  );
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.28);
+  background: linear-gradient(180deg, rgba(17, 24, 39, 0.96), rgba(15, 23, 42, 0.96));
+  box-shadow: var(--shadow-panel);
 }
 
 .object-edit-header {
@@ -1004,7 +1226,7 @@ input {
 .edit-label {
   display: block;
   margin-bottom: 6px;
-  color: #cbd5e1;
+  color: var(--text-soft);
   font-size: 12px;
   font-weight: 700;
 }
@@ -1014,16 +1236,14 @@ input {
   height: 34px;
   padding: 7px 10px;
   border-radius: 8px;
-  border: 1px solid rgba(148, 163, 184, 0.35);
+  border: 1px solid var(--border-muted);
   background: rgba(2, 6, 23, 0.9);
   color: #f8fafc;
-  outline: none;
   font-size: 13px;
-  box-sizing: border-box;
 }
 
 .edit-input:focus {
-  border-color: #7c3aed;
+  border-color: var(--purple);
   box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.2);
 }
 
@@ -1050,35 +1270,70 @@ input {
 }
 
 .edit-button-grid button,
-.edit-primary-btn {
+.edit-primary-btn,
+.edit-secondary-btn,
+.edit-danger-btn {
   min-height: 34px;
-  border: 1px solid rgba(124, 58, 237, 0.38);
   border-radius: 8px;
-  background: rgba(30, 41, 59, 0.92);
   color: #e2e8f0;
   font-size: 12px;
   font-weight: 700;
-  cursor: pointer;
   transition: 0.18s ease;
 }
 
+.edit-button-grid button,
+.edit-primary-btn {
+  border: 1px solid rgba(124, 58, 237, 0.38);
+  background: rgba(30, 41, 59, 0.92);
+}
+
 .edit-button-grid button:hover,
-.edit-primary-btn:hover {
-  background: linear-gradient(135deg, #6d28d9, #7c3aed);
-  color: #ffffff;
+.edit-primary-btn:hover,
+.edit-secondary-btn:hover,
+.edit-danger-btn:hover {
+  color: var(--text-main);
   transform: translateY(-1px);
 }
 
 .edit-button-grid button:active,
-.edit-primary-btn:active {
+.edit-primary-btn:active,
+.edit-secondary-btn:active,
+.edit-danger-btn:active {
   transform: translateY(0);
 }
 
-.edit-primary-btn {
+.edit-primary-btn,
+.edit-secondary-btn,
+.edit-danger-btn {
   width: 100%;
   margin-top: 12px;
-  background: linear-gradient(135deg, #6d28d9, #7c3aed);
-  color: #ffffff;
+}
+
+.edit-primary-btn {
+  background: var(--gradient-purple);
+  color: var(--text-main);
+}
+
+.edit-secondary-btn {
+  margin-top: 8px;
+  border: 1px solid rgba(14, 165, 233, 0.38);
+  background: rgba(30, 41, 59, 0.92);
+}
+
+.edit-secondary-btn:hover {
+  background: linear-gradient(135deg, #0284c7, #2563eb);
+}
+
+.edit-danger-btn {
+  min-height: 36px;
+  border: 1px solid rgba(239, 68, 68, 0.55);
+  background: linear-gradient(135deg, #dc2626, #ef4444);
+  color: var(--text-main);
+}
+
+.edit-danger-btn:hover {
+  background: linear-gradient(135deg, #b91c1c, #dc2626);
+  box-shadow: 0 10px 24px rgba(239, 68, 68, 0.22);
 }
 
 .edit-subtitle {
@@ -1096,104 +1351,28 @@ input {
 }
 
 .axis-input-row label {
-  color: #cbd5e1;
+  color: var(--text-soft);
   font-size: 12px;
   font-weight: 700;
 }
 
-.edit-hint {
-  margin: 10px 0 0;
+.edit-hint,
+.edit-description {
   color: #94a3b8;
   font-size: 12px;
   line-height: 1.4;
 }
 
-/* Optional: make the inspector scroll smoothly if panels become long */
-.cad-inspector {
-  overflow-y: auto;
-  scrollbar-width: thin;
+.edit-hint {
+  margin: 10px 0 0;
 }
 
-.cad-inspector::-webkit-scrollbar {
-  width: 6px;
+.edit-description {
+  margin: 10px 0 16px;
 }
 
-.cad-inspector::-webkit-scrollbar-thumb {
-  background: rgba(148, 163, 184, 0.35);
-  border-radius: 999px;
-}
-
-.cad-inspector::-webkit-scrollbar-track {
-  background: transparent;
-}
 /* ================================
-   CAD Toolbar Icon Buttons
-================================ */
-
-.cad-toolbar {
-  display: flex;
-  align-items: center;
-  padding: 10px 16px;
-  border-bottom: 1px solid rgba(148, 163, 184, 0.14);
-  background: rgba(2, 6, 23, 0.88);
-  height: 58px;
-  overflow: visible;
-}
-
-.cad-tool-row {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.cad-icon-tool-btn {
-  width: 48px;
-  height: 42px;
-  padding: 6px;
-  border: 1px solid rgba(124, 58, 237, 0.35);
-  border-radius: 12px;
-  background: rgba(15, 23, 42, 0.92);
-  color: #e2e8f0;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 3px;
-  cursor: pointer;
-  transition: 0.18s ease;
-  overflow: hidden;
-}
-
-.cad-icon-tool-btn:hover {
-  background: linear-gradient(135deg, #6d28d9, #7c3aed);
-  transform: translateY(-1px);
-  box-shadow: 0 10px 24px rgba(124, 58, 237, 0.25);
-}
-
-.cad-icon-tool-btn img {
-  width: 26px !important;
-  height: 26px !important;
-  max-width: 26px !important;
-  max-height: 26px !important;
-  object-fit: contain;
-  display: block;
-}
-
-.cad-icon-tool-btn .tool-arrow {
-  font-size: 10px;
-  color: #94a3b8;
-  line-height: 1;
-}
-
-/* Also control older Add Shape button image if old class still exists */
-.add-shape-icon-btn img {
-  width: 26px !important;
-  height: 26px !important;
-  max-width: 26px !important;
-  max-height: 26px !important;
-  object-fit: contain;
-}
-/* ================================
-   Hide and Show Object Tool Panels
+   Tool Panel Visibility
 ================================ */
 
 .tool-panel-hidden {
@@ -1201,7 +1380,7 @@ input {
 }
 
 .active-tool-btn {
-  background: linear-gradient(135deg, #6d28d9, #7c3aed) !important;
+  background: var(--gradient-purple) !important;
   border-color: rgba(196, 181, 253, 0.85) !important;
   box-shadow: 0 10px 24px rgba(124, 58, 237, 0.25);
 }
@@ -1209,11 +1388,13 @@ input {
 .active-edit-panel {
   display: block;
   border-color: rgba(124, 58, 237, 0.85) !important;
-  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.18),
-              0 12px 30px rgba(0, 0, 0, 0.28) !important;
+  box-shadow:
+    0 0 0 3px rgba(124, 58, 237, 0.18),
+    var(--shadow-panel) !important;
 }
+
 /* ================================
-   Change Object Colour Panel
+   Change Object Colour Tool
 ================================ */
 
 .colour-input {
@@ -1221,7 +1402,7 @@ input {
   height: 42px;
   padding: 4px;
   border-radius: 8px;
-  border: 1px solid rgba(148, 163, 184, 0.35);
+  border: 1px solid var(--border-muted);
   background: rgba(2, 6, 23, 0.9);
   cursor: pointer;
 }
@@ -1230,16 +1411,11 @@ input {
   padding: 0;
 }
 
-.colour-input::-webkit-color-swatch {
-  border: none;
-  border-radius: 6px;
-}
-
+.colour-input::-webkit-color-swatch,
 .colour-input::-moz-color-swatch {
   border: none;
   border-radius: 6px;
 }
-/* HEX input for Change Object Colour */
 
 .hex-label {
   margin-top: 12px;
@@ -1250,6 +1426,7 @@ input {
   letter-spacing: 0.5px;
   font-family: Consolas, Monaco, monospace;
 }
+
 /* ================================
    Resize Object Tool
 ================================ */
@@ -1261,35 +1438,28 @@ input {
 #resizeObjectPanel .object-edit-badge {
   background: rgba(249, 115, 22, 0.18);
   color: #fed7aa;
-  border: 1px solid rgba(249, 115, 22, 0.38);
+  border-color: rgba(249, 115, 22, 0.38);
 }
 
 #resizeObjectPanel.active-edit-panel {
   border-color: rgba(249, 115, 22, 0.85) !important;
   box-shadow:
     0 0 0 3px rgba(249, 115, 22, 0.18),
-    0 12px 30px rgba(0, 0, 0, 0.28) !important;
+    var(--shadow-panel) !important;
 }
 
-#resizeToolBtn.active-tool-btn {
+#resizeToolBtn.active-tool-btn,
+#resizeToolBtn:hover,
+#resizeObjectPanel .edit-primary-btn {
   background: linear-gradient(135deg, #f59e0b, #f97316) !important;
   border-color: rgba(253, 186, 116, 0.9) !important;
-}
-
-#resizeToolBtn:hover {
-  background: linear-gradient(135deg, #f59e0b, #f97316);
-}
-
-#resizeObjectPanel .edit-primary-btn {
-  background: linear-gradient(135deg, #f59e0b, #f97316);
-  border-color: rgba(253, 186, 116, 0.55);
 }
 
 #resizeObjectPanel .edit-primary-btn:hover,
 #resizeObjectPanel .edit-button-grid button:hover {
   background: linear-gradient(135deg, #ea580c, #f97316);
-  color: #ffffff;
 }
+
 /* ================================
    Duplicate Object Tool
 ================================ */
@@ -1297,65 +1467,52 @@ input {
 #duplicateObjectPanel .object-edit-badge {
   background: rgba(34, 197, 94, 0.18);
   color: #bbf7d0;
-  border: 1px solid rgba(34, 197, 94, 0.38);
+  border-color: rgba(34, 197, 94, 0.38);
 }
 
 #duplicateObjectPanel.active-edit-panel {
   border-color: rgba(34, 197, 94, 0.85) !important;
   box-shadow:
     0 0 0 3px rgba(34, 197, 94, 0.18),
-    0 12px 30px rgba(0, 0, 0, 0.28) !important;
+    var(--shadow-panel) !important;
 }
 
-#duplicateToolBtn.active-tool-btn {
+#duplicateToolBtn.active-tool-btn,
+#duplicateToolBtn:hover,
+#duplicateObjectPanel .edit-primary-btn {
   background: linear-gradient(135deg, #16a34a, #22c55e) !important;
   border-color: rgba(134, 239, 172, 0.9) !important;
 }
 
-#duplicateToolBtn:hover {
-  background: linear-gradient(135deg, #16a34a, #22c55e);
-}
-
-#duplicateObjectPanel .edit-primary-btn {
-  background: linear-gradient(135deg, #16a34a, #22c55e);
-  border-color: rgba(134, 239, 172, 0.55);
-}
-
 #duplicateObjectPanel .edit-primary-btn:hover {
   background: linear-gradient(135deg, #15803d, #22c55e);
-  color: #ffffff;
 }
+
 /* ================================
    Delete Object Tool
 ================================ */
 
 #deleteObjectPanel .object-edit-badge {
   background: rgba(239, 68, 68, 0.18);
-  color: #fca5a5;
-  border: 1px solid rgba(239, 68, 68, 0.38);
+  color: #fecaca;
+  border-color: rgba(239, 68, 68, 0.38);
 }
 
 #deleteObjectPanel.active-edit-panel {
   border-color: rgba(239, 68, 68, 0.85) !important;
   box-shadow:
     0 0 0 3px rgba(239, 68, 68, 0.18),
-    0 12px 30px rgba(0, 0, 0, 0.28) !important;
+    var(--shadow-panel) !important;
 }
 
-#deleteToolBtn.active-tool-btn {
+#deleteToolBtn.active-tool-btn,
+#deleteToolBtn:hover {
   background: linear-gradient(135deg, #dc2626, #ef4444) !important;
   border-color: rgba(252, 165, 165, 0.9) !important;
 }
 
-#deleteToolBtn:hover {
-  background: linear-gradient(135deg, #dc2626, #ef4444);
-}
-
-.edit-description {
-  color: #94a3b8;
-  font-size: 13px;
-  line-height: 1.5;
-  margin: 10px 0 16px;
+#deleteObjectPanel .edit-hint {
+  color: #fca5a5;
 }
 
 .delete-confirm-btn {
@@ -1376,52 +1533,26 @@ input {
   margin-top: 12px;
 }
 
-.edit-secondary-btn {
-  width: 100%;
-  min-height: 34px;
-  margin-top: 8px;
-  border: 1px solid rgba(14, 165, 233, 0.38);
-  border-radius: 8px;
-  background: rgba(30, 41, 59, 0.92);
-  color: #e2e8f0;
-  font-size: 12px;
-  font-weight: 700;
-  cursor: pointer;
-  transition: 0.18s ease;
-}
-
-.edit-secondary-btn:hover {
-  background: linear-gradient(135deg, #0284c7, #2563eb);
-  color: #ffffff;
-  transform: translateY(-1px);
-}
-
 #gridObjectPanel .object-edit-badge {
   background: rgba(14, 165, 233, 0.18);
   color: #bae6fd;
-  border: 1px solid rgba(14, 165, 233, 0.38);
+  border-color: rgba(14, 165, 233, 0.38);
 }
 
 #gridObjectPanel.active-edit-panel {
   border-color: rgba(14, 165, 233, 0.85) !important;
   box-shadow:
     0 0 0 3px rgba(14, 165, 233, 0.18),
-    0 12px 30px rgba(0, 0, 0, 0.28) !important;
+    var(--shadow-panel) !important;
 }
 
-#gridToolBtn.active-tool-btn {
+#gridToolBtn.active-tool-btn,
+#gridToolBtn:hover,
+#gridObjectPanel .edit-primary-btn {
   background: linear-gradient(135deg, #0284c7, #2563eb) !important;
   border-color: rgba(125, 211, 252, 0.9) !important;
 }
 
-#gridToolBtn:hover {
-  background: linear-gradient(135deg, #0284c7, #2563eb);
-}
-
-#gridObjectPanel .edit-primary-btn {
-  background: linear-gradient(135deg, #0284c7, #2563eb);
-  border-color: rgba(125, 211, 252, 0.55);
-}
 /* ================================
    Show X Y Z Axes Tool
 ================================ */
@@ -1429,90 +1560,31 @@ input {
 #axesObjectPanel .object-edit-badge {
   background: rgba(59, 130, 246, 0.18);
   color: #bfdbfe;
-  border: 1px solid rgba(59, 130, 246, 0.38);
+  border-color: rgba(59, 130, 246, 0.38);
 }
 
 #axesObjectPanel.active-edit-panel {
   border-color: rgba(59, 130, 246, 0.85) !important;
   box-shadow:
     0 0 0 3px rgba(59, 130, 246, 0.18),
-    0 12px 30px rgba(0, 0, 0, 0.28) !important;
+    var(--shadow-panel) !important;
 }
 
-#axesToolBtn.active-tool-btn {
+#axesToolBtn.active-tool-btn,
+#axesToolBtn:hover,
+#axesObjectPanel .edit-primary-btn {
   background: linear-gradient(135deg, #2563eb, #22c55e) !important;
   border-color: rgba(147, 197, 253, 0.9) !important;
-}
-
-#axesToolBtn:hover {
-  background: linear-gradient(135deg, #2563eb, #22c55e);
-}
-
-#axesObjectPanel .edit-primary-btn {
-  background: linear-gradient(135deg, #2563eb, #22c55e);
-  border-color: rgba(147, 197, 253, 0.55);
 }
 
 #axesObjectPanel .edit-primary-btn:hover,
 #axesObjectPanel .edit-secondary-btn:hover {
   background: linear-gradient(135deg, #1d4ed8, #16a34a);
-  color: #ffffff;
 }
+
 /* ================================
-   Delete Object Tool
+   Pan Camera Tool
 ================================ */
-
-#deleteObjectPanel .object-edit-badge {
-  background: rgba(239, 68, 68, 0.18);
-  color: #fecaca;
-  border: 1px solid rgba(239, 68, 68, 0.38);
-}
-
-#deleteObjectPanel.active-edit-panel {
-  border-color: rgba(239, 68, 68, 0.85) !important;
-  box-shadow:
-    0 0 0 3px rgba(239, 68, 68, 0.18),
-    0 12px 30px rgba(0, 0, 0, 0.28) !important;
-}
-
-#deleteToolBtn.active-tool-btn {
-  background: linear-gradient(135deg, #dc2626, #ef4444) !important;
-  border-color: rgba(252, 165, 165, 0.9) !important;
-}
-
-#deleteToolBtn:hover {
-  background: linear-gradient(135deg, #dc2626, #ef4444);
-}
-
-.edit-danger-btn {
-  width: 100%;
-  min-height: 36px;
-  margin-top: 12px;
-  border: 1px solid rgba(239, 68, 68, 0.55);
-  border-radius: 8px;
-  background: linear-gradient(135deg, #dc2626, #ef4444);
-  color: #ffffff;
-  font-size: 12px;
-  font-weight: 700;
-  cursor: pointer;
-  transition: 0.18s ease;
-}
-
-.edit-danger-btn:hover {
-  background: linear-gradient(135deg, #b91c1c, #dc2626);
-  color: #ffffff;
-  transform: translateY(-1px);
-  box-shadow: 0 10px 24px rgba(239, 68, 68, 0.22);
-}
-
-.edit-danger-btn:active {
-  transform: translateY(0);
-}
-
-#deleteObjectPanel .edit-hint {
-  color: #fca5a5;
-}
-/* ================================
 
 .pan-camera-grid {
   display: grid;
@@ -1565,76 +1637,48 @@ input {
   width: 26px !important;
   height: 26px !important;
   object-fit: contain;
-   Zoom Dropdown Tool
-
-.zoom-menu-wrapper {
-  position: relative;
-  z-index: 99999;
 }
 
-.zoom-tool-btn img {
-  width: 25px !important;
-  height: 25px !important;
-  object-fit: contain;
+/* ================================
+   Responsive Adjustment
+================================ */
+
+@media (max-width: 1100px) {
+  .dashboard-layout {
+    margin-right: 0;
+  }
+
+  .properties-panel {
+    display: none;
+  }
+
+  .search-box {
+    width: 320px;
+  }
+
+  .cad-workspace {
+    grid-template-columns: 1fr 260px;
+  }
 }
 
-.zoom-menu-options {
-  display: none;
-  position: absolute;
-  top: 50px;
-  left: 0;
-  width: 170px;
-  background: #0f1220;
-  border: 1px solid #2b3040;
-  border-radius: 14px;
-  padding: 8px;
-  z-index: 999999;
-  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.65);
-}
+@media (max-width: 850px) {
+  .top-nav {
+    padding-left: 24px;
+  }
 
-.zoom-menu-options.show {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
+  .sidebar {
+    display: none;
+  }
 
-.zoom-menu-options button {
-  width: 100%;
-  min-height: 42px;
-  background: transparent;
-  color: #cbd5e1;
-  border: none;
-  border-radius: 10px;
-  padding: 8px 10px;
-  text-align: left;
-  font-size: 14px;
-  font-weight: 700;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  cursor: pointer;
-}
+  .dashboard-layout {
+    margin-left: 0;
+  }
 
-.zoom-menu-options button:hover {
-  background: linear-gradient(
-    90deg,
-    rgba(37, 99, 235, 0.35),
-    rgba(147, 51, 234, 0.35)
-  );
-  color: #ffffff;
-}
+  .cad-workspace {
+    grid-template-columns: 1fr;
+  }
 
-.zoom-menu-options button img {
-  width: 26px;
-  height: 26px;
-  object-fit: contain;
-}
-
-#zoomToolBtn.active-tool-btn {
-  background: linear-gradient(135deg, #2563eb, #7c3aed) !important;
-  border-color: rgba(196, 181, 253, 0.9) !important;
-}
-
-#zoomToolBtn:hover {
-  background: linear-gradient(135deg, #2563eb, #7c3aed);
+  .cad-inspector {
+    display: none;
+  }
 }

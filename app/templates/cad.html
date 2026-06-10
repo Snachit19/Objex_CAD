@@ -92,6 +92,10 @@
         </div>
       </div>
 
+      <button id="panToolBtn" class="cad-icon-tool-btn" title="Pan Camera" aria-label="Pan Camera" type="button">
+        <img src="/static/assets/pan-camera.svg" alt="Pan Camera">
+      </button>
+
     </div>
   </nav>
 
@@ -149,7 +153,6 @@
         </div>
 
         <button id="setPositionBtn" class="edit-primary-btn" type="button">Set Position</button>
-
         <p id="moveObjectHint" class="edit-hint">Select an object first, then move it.</p>
       </div>
 
@@ -189,7 +192,6 @@
         </div>
 
         <button id="setRotationBtn" class="edit-primary-btn" type="button">Set Rotation</button>
-
         <p id="rotateObjectHint" class="edit-hint">Select an object first, then rotate it.</p>
       </div>
 
@@ -227,7 +229,6 @@
         </div>
 
         <button id="setScaleBtn" class="edit-primary-btn" type="button">Set Scale</button>
-
         <p id="resizeObjectHint" class="edit-hint">Select an object first, then resize it.</p>
       </div>
 
@@ -241,7 +242,6 @@
         <input id="duplicateOffsetInput" class="edit-input" type="number" value="1" min="0.1" step="0.1">
 
         <button id="duplicateObjectBtn" class="edit-primary-btn" type="button">Duplicate Selected Object</button>
-
         <p id="duplicateObjectHint" class="edit-hint">Select an object first, then duplicate it.</p>
       </div>
 
@@ -256,7 +256,6 @@
         </p>
 
         <button id="deleteObjectBtn" class="edit-danger-btn" type="button">Delete Selected Object</button>
-
         <p id="deleteObjectHint" class="edit-hint">Select an object first, then delete it.</p>
       </div>
 
@@ -273,7 +272,6 @@
         <input id="objectHexInput" class="edit-input hex-input" type="text" value="#ff0000" maxlength="7" placeholder="#ff0000">
 
         <button id="applyColourBtn" class="edit-primary-btn" type="button">Apply Colour</button>
-
         <p id="colourObjectHint" class="edit-hint">Select an object first, then choose or type a hex colour.</p>
       </div>
 
@@ -366,6 +364,7 @@
   <script src="/static/js/cad/showGrid.js"></script>
   <script src="/static/js/cad/showAxes.js"></script>
   <script src="/static/js/cad/zoomView.js"></script>
+  <script src="/static/js/cad/panCamera.js"></script>
 
   <script>
     document.addEventListener("DOMContentLoaded", function () {
@@ -378,6 +377,7 @@
       const gridToolBtn = document.getElementById("gridToolBtn");
       const axesToolBtn = document.getElementById("axesToolBtn");
       const zoomToolBtn = document.getElementById("zoomToolBtn");
+      const panToolBtn = document.getElementById("panToolBtn");
 
       const movePanel = document.getElementById("moveObjectPanel");
       const rotatePanel = document.getElementById("rotateObjectPanel");
@@ -411,7 +411,8 @@
           colourToolBtn,
           gridToolBtn,
           axesToolBtn,
-          zoomToolBtn
+          zoomToolBtn,
+          panToolBtn
         ];
 
         panels.forEach(function (panel) {
@@ -462,6 +463,7 @@
       connectToolButton(colourToolBtn, colourPanel);
       connectToolButton(gridToolBtn, gridPanel);
       connectToolButton(axesToolBtn, axesPanel);
+      connectToolButton(panToolBtn, panCameraPanel);
 
       const zoomMenuOptions = document.getElementById("zoomMenuOptions");
 

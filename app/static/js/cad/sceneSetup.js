@@ -15,12 +15,12 @@ const DEFAULT_CAMERA_TARGET = {
   z: 0
 };
 
+let cadSceneInitialized = false;
+
 function initCADScene() {
   if (cadSceneInitialized) {
     return;
   }
-
-  cadSceneInitialized = true;
 
   const canvas = document.getElementById("cadCanvas");
 
@@ -29,12 +29,22 @@ function initCADScene() {
     return;
   }
 
+  if (typeof THREE === "undefined") {
+    console.error("Three.js is not loaded.");
+    return;
+  }
+
+  cadSceneInitialized = true;
+
   scene = new THREE.Scene();
   scene.background = new THREE.Color(0x090b15);
 
+  const width = canvas.clientWidth || canvas.parentElement.clientWidth || window.innerWidth;
+  const height = canvas.clientHeight || canvas.parentElement.clientHeight || window.innerHeight;
+
   camera = new THREE.PerspectiveCamera(
     60,
-    canvas.clientWidth / canvas.clientHeight,
+    width / height,
     0.1,
     1000
   );
@@ -50,8 +60,8 @@ function initCADScene() {
     antialias: true
   });
 
-  renderer.setSize(canvas.clientWidth, canvas.clientHeight);
-  renderer.setPixelRatio(window.devicePixelRatio);
+  renderer.setSize(width, height);
+  renderer.setPixelRatio(window.devicePixelRatio || 1);
 
   controls = new THREE.OrbitControls(camera, renderer.domElement);
   controls.enableDamping = true;
@@ -65,17 +75,7 @@ function initCADScene() {
     DEFAULT_CAMERA_TARGET.z
   );
 
-  controls.target.set(
-    DEFAULT_CAMERA_TARGET.x,
-    DEFAULT_CAMERA_TARGET.y,
-    DEFAULT_CAMERA_TARGET.z
-  );
-
   controls.update();
-
-  const grid = new THREE.GridHelper(40, 40, 0x1f2937, 0x111827);
-  grid.name = "CADGridHelper";
-  scene.add(grid);
 
   addDefaultLights();
   addDefaultGrid();
@@ -97,6 +97,11 @@ function initCADScene() {
   window.dispatchEvent(new Event("cad:ready"));
 
   animateCADScene();
+
+  const statusText = document.getElementById("cadStatusText");
+  if (statusText && statusText.textContent.includes("not ready")) {
+    statusText.textContent = "CAD scene ready.";
+  }
 }
 
 function addDefaultLights() {
@@ -145,10 +150,10 @@ function resizeCADScene() {
     return;
   }
 
-  const width = canvas.clientWidth;
-  const height = canvas.clientHeight;
+  const width = canvas.clientWidth || canvas.parentElement.clientWidth;
+  const height = canvas.clientHeight || canvas.parentElement.clientHeight;
 
-  if (width === 0 || height === 0) {
+  if (!width || !height) {
     return;
   }
 
@@ -183,7 +188,35 @@ function resetCADCameraView() {
   return true;
 }
 
+function isCADSceneReady() {
+  return !!(scene && camera && renderer && controls);
+}
+
+function getCADScene() {
+  return scene || null;
+}
+
+function getCADCamera() {
+  return camera || null;
+}
+
+function getCADRenderer() {
+  return renderer || null;
+}
+
+function getCADControls() {
+  return controls || null;
+}
+
+window.initCADScene = initCADScene;
+window.resizeCADScene = resizeCADScene;
 window.resetCADCameraView = resetCADCameraView;
+window.isCADSceneReady = isCADSceneReady;
+
+window.getCADScene = getCADScene;
+window.getCADCamera = getCADCamera;
+window.getCADRenderer = getCADRenderer;
+window.getCADControls = getCADControls;
 
 window.addEventListener("resize", resizeCADScene);
 document.addEventListener("DOMContentLoaded", initCADScene);

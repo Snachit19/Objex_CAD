@@ -172,5 +172,12 @@ function restoreSavedCADObjects() {
 
 
 document.addEventListener("DOMContentLoaded", function () {
+  if (window.isCADSceneReady && window.isCADSceneReady()) {
     loadProject();
+    return;
+  }
+
+  window.addEventListener("cad:ready", function () {
+    loadProject();
+  }, { once: true });
 });
