@@ -1682,3 +1682,67 @@ a {
     display: none;
   }
 }
+/* ================================
+   Orbit Around 3D Model Tool
+================================ */
+
+.orbit-camera-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.orbit-camera-grid button {
+  min-height: 36px;
+  border: 1px solid rgba(99, 102, 241, 0.38);
+  border-radius: 8px;
+  background: rgba(30, 41, 59, 0.92);
+  color: #e2e8f0;
+  font-size: 12px;
+  font-weight: 700;
+  transition: 0.18s ease;
+}
+
+.orbit-camera-grid button:hover {
+  background: linear-gradient(135deg, #4f46e5, #a855f7);
+  color: #ffffff;
+  transform: translateY(-1px);
+}
+
+.orbit-camera-grid button:active {
+  transform: translateY(0);
+}
+
+#orbitCameraPanel .object-edit-badge {
+  background: rgba(99, 102, 241, 0.18);
+  color: #c7d2fe;
+  border-color: rgba(99, 102, 241, 0.38);
+}
+
+#orbitCameraPanel.active-edit-panel {
+  border-color: rgba(99, 102, 241, 0.85) !important;
+  box-shadow:
+    0 0 0 3px rgba(99, 102, 241, 0.18),
+    var(--shadow-panel) !important;
+}
+
+#orbitToolBtn.active-tool-btn,
+#orbitToolBtn:hover {
+  background: linear-gradient(135deg, #4f46e5, #a855f7) !important;
+  border-color: rgba(199, 210, 254, 0.9) !important;
+}
+
+#orbitToolBtn img {
+  width: 26px !important;
+  height: 26px !important;
+  object-fit: contain;
+}
+
+#toggleAutoOrbitBtn {
+  border-color: rgba(99, 102, 241, 0.45);
+}
+
+#toggleAutoOrbitBtn:hover {
+  background: linear-gradient(135deg, #4f46e5, #a855f7);
+}
