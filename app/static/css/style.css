@@ -1513,8 +1513,59 @@ input {
   color: #fca5a5;
 }
 /* ================================
+
+.pan-camera-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.pan-camera-grid button {
+  min-height: 36px;
+  border: 1px solid rgba(168, 85, 247, 0.38);
+  border-radius: 8px;
+  background: rgba(30, 41, 59, 0.92);
+  color: #e2e8f0;
+  font-size: 12px;
+  font-weight: 700;
+  transition: 0.18s ease;
+}
+
+.pan-camera-grid button:hover {
+  background: linear-gradient(135deg, #2563eb, #7c3aed);
+  color: #ffffff;
+  transform: translateY(-1px);
+}
+
+.pan-camera-grid button:active {
+  transform: translateY(0);
+}
+
+#panCameraPanel .object-edit-badge {
+  background: rgba(168, 85, 247, 0.18);
+  color: #e9d5ff;
+  border-color: rgba(168, 85, 247, 0.38);
+}
+
+#panCameraPanel.active-edit-panel {
+  border-color: rgba(168, 85, 247, 0.85) !important;
+  box-shadow:
+    0 0 0 3px rgba(168, 85, 247, 0.18),
+    var(--shadow-panel) !important;
+}
+
+#panToolBtn.active-tool-btn,
+#panToolBtn:hover {
+  background: linear-gradient(135deg, #2563eb, #7c3aed) !important;
+  border-color: rgba(216, 180, 254, 0.9) !important;
+}
+
+#panToolBtn img {
+  width: 26px !important;
+  height: 26px !important;
+  object-fit: contain;
    Zoom Dropdown Tool
-================================ */
 
 .zoom-menu-wrapper {
   position: relative;

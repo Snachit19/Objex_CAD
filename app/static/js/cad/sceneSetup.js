@@ -16,6 +16,12 @@ const DEFAULT_CAMERA_TARGET = {
 };
 
 function initCADScene() {
+  if (cadSceneInitialized) {
+    return;
+  }
+
+  cadSceneInitialized = true;
+
   const canvas = document.getElementById("cadCanvas");
 
   if (!canvas) {
@@ -49,6 +55,15 @@ function initCADScene() {
 
   controls = new THREE.OrbitControls(camera, renderer.domElement);
   controls.enableDamping = true;
+  controls.enablePan = true;
+  controls.screenSpacePanning = true;
+  controls.panSpeed = 1.0;
+
+  controls.target.set(
+    DEFAULT_CAMERA_TARGET.x,
+    DEFAULT_CAMERA_TARGET.y,
+    DEFAULT_CAMERA_TARGET.z
+  );
 
   controls.target.set(
     DEFAULT_CAMERA_TARGET.x,
@@ -62,12 +77,8 @@ function initCADScene() {
   grid.name = "CADGridHelper";
   scene.add(grid);
 
-  const ambientLight = new THREE.AmbientLight(0xffffff, 0.55);
-  scene.add(ambientLight);
-
-  const directionalLight = new THREE.DirectionalLight(0xffffff, 0.9);
-  directionalLight.position.set(6, 10, 6);
-  scene.add(directionalLight);
+  addDefaultLights();
+  addDefaultGrid();
 
   window.cadObjects = window.cadObjects || [];
 
@@ -88,6 +99,33 @@ function initCADScene() {
   animateCADScene();
 }
 
+function addDefaultLights() {
+  const ambientLight = new THREE.AmbientLight(0xffffff, 0.55);
+  ambientLight.name = "DefaultAmbientLight";
+  scene.add(ambientLight);
+
+  const directionalLight = new THREE.DirectionalLight(0xffffff, 0.9);
+  directionalLight.name = "DefaultDirectionalLight";
+  directionalLight.position.set(6, 10, 6);
+  scene.add(directionalLight);
+}
+
+function addDefaultGrid() {
+  const existingGrid = scene.getObjectByName("CADGridHelper");
+
+  if (existingGrid) {
+    return;
+  }
+
+  const grid = new THREE.GridHelper(40, 40, 0x1f2937, 0x111827);
+  grid.name = "CADGridHelper";
+  grid.visible = true;
+
+  scene.add(grid);
+
+  window.gridHelper = grid;
+}
+
 function animateCADScene() {
   requestAnimationFrame(animateCADScene);
 
@@ -103,14 +141,21 @@ function animateCADScene() {
 function resizeCADScene() {
   const canvas = document.getElementById("cadCanvas");
 
-  if (!camera || !renderer || !canvas) {
+  if (!canvas || !camera || !renderer) {
     return;
   }
 
-  camera.aspect = canvas.clientWidth / canvas.clientHeight;
+  const width = canvas.clientWidth;
+  const height = canvas.clientHeight;
+
+  if (width === 0 || height === 0) {
+    return;
+  }
+
+  camera.aspect = width / height;
   camera.updateProjectionMatrix();
 
-  renderer.setSize(canvas.clientWidth, canvas.clientHeight);
+  renderer.setSize(width, height);
 }
 
 function resetCADCameraView() {
