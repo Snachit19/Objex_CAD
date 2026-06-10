@@ -15,8 +15,6 @@ const DEFAULT_CAMERA_TARGET = {
   z: 0
 };
 
-let cadSceneInitialized = false;
-
 function initCADScene() {
   if (cadSceneInitialized) {
     return;
@@ -67,7 +65,17 @@ function initCADScene() {
     DEFAULT_CAMERA_TARGET.z
   );
 
+  controls.target.set(
+    DEFAULT_CAMERA_TARGET.x,
+    DEFAULT_CAMERA_TARGET.y,
+    DEFAULT_CAMERA_TARGET.z
+  );
+
   controls.update();
+
+  const grid = new THREE.GridHelper(40, 40, 0x1f2937, 0x111827);
+  grid.name = "CADGridHelper";
+  scene.add(grid);
 
   addDefaultLights();
   addDefaultGrid();
@@ -175,30 +183,7 @@ function resetCADCameraView() {
   return true;
 }
 
-function getCADScene() {
-  return scene || null;
-}
-
-function getCADCamera() {
-  return camera || null;
-}
-
-function getCADRenderer() {
-  return renderer || null;
-}
-
-function getCADControls() {
-  return controls || null;
-}
-
-window.initCADScene = initCADScene;
-window.resizeCADScene = resizeCADScene;
 window.resetCADCameraView = resetCADCameraView;
-
-window.getCADScene = getCADScene;
-window.getCADCamera = getCADCamera;
-window.getCADRenderer = getCADRenderer;
-window.getCADControls = getCADControls;
 
 window.addEventListener("resize", resizeCADScene);
 document.addEventListener("DOMContentLoaded", initCADScene);

@@ -92,10 +92,6 @@
         </div>
       </div>
 
-      <button id="panToolBtn" class="cad-icon-tool-btn" title="Pan Camera" aria-label="Pan Camera" type="button">
-        <img src="/static/assets/pan-camera.svg" alt="Pan Camera">
-      </button>
-
     </div>
   </nav>
 
@@ -370,7 +366,6 @@
   <script src="/static/js/cad/showGrid.js"></script>
   <script src="/static/js/cad/showAxes.js"></script>
   <script src="/static/js/cad/zoomView.js"></script>
-  <script src="/static/js/cad/panCamera.js"></script>
 
   <script>
     document.addEventListener("DOMContentLoaded", function () {
@@ -383,7 +378,6 @@
       const gridToolBtn = document.getElementById("gridToolBtn");
       const axesToolBtn = document.getElementById("axesToolBtn");
       const zoomToolBtn = document.getElementById("zoomToolBtn");
-      const panToolBtn = document.getElementById("panToolBtn");
 
       const movePanel = document.getElementById("moveObjectPanel");
       const rotatePanel = document.getElementById("rotateObjectPanel");
@@ -417,8 +411,7 @@
           colourToolBtn,
           gridToolBtn,
           axesToolBtn,
-          zoomToolBtn,
-          panToolBtn
+          zoomToolBtn
         ];
 
         panels.forEach(function (panel) {
@@ -469,7 +462,6 @@
       connectToolButton(colourToolBtn, colourPanel);
       connectToolButton(gridToolBtn, gridPanel);
       connectToolButton(axesToolBtn, axesPanel);
-      connectToolButton(panToolBtn, panCameraPanel);
 
       const zoomMenuOptions = document.getElementById("zoomMenuOptions");
 

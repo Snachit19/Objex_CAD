@@ -1513,8 +1513,6 @@ input {
   color: #fca5a5;
 }
 /* ================================
-   Pan Camera Tool
-================================ */
 
 .pan-camera-grid {
   display: grid;
@@ -1567,4 +1565,76 @@ input {
   width: 26px !important;
   height: 26px !important;
   object-fit: contain;
+   Zoom Dropdown Tool
+
+.zoom-menu-wrapper {
+  position: relative;
+  z-index: 99999;
+}
+
+.zoom-tool-btn img {
+  width: 25px !important;
+  height: 25px !important;
+  object-fit: contain;
+}
+
+.zoom-menu-options {
+  display: none;
+  position: absolute;
+  top: 50px;
+  left: 0;
+  width: 170px;
+  background: #0f1220;
+  border: 1px solid #2b3040;
+  border-radius: 14px;
+  padding: 8px;
+  z-index: 999999;
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.65);
+}
+
+.zoom-menu-options.show {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.zoom-menu-options button {
+  width: 100%;
+  min-height: 42px;
+  background: transparent;
+  color: #cbd5e1;
+  border: none;
+  border-radius: 10px;
+  padding: 8px 10px;
+  text-align: left;
+  font-size: 14px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+}
+
+.zoom-menu-options button:hover {
+  background: linear-gradient(
+    90deg,
+    rgba(37, 99, 235, 0.35),
+    rgba(147, 51, 234, 0.35)
+  );
+  color: #ffffff;
+}
+
+.zoom-menu-options button img {
+  width: 26px;
+  height: 26px;
+  object-fit: contain;
+}
+
+#zoomToolBtn.active-tool-btn {
+  background: linear-gradient(135deg, #2563eb, #7c3aed) !important;
+  border-color: rgba(196, 181, 253, 0.9) !important;
+}
+
+#zoomToolBtn:hover {
+  background: linear-gradient(135deg, #2563eb, #7c3aed);
 }
