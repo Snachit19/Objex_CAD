@@ -73,6 +73,25 @@
         <img src="/static/assets/axes-object.svg" alt="Show X Y Z Axes">
       </button>
 
+      <div class="zoom-menu-wrapper">
+        <button id="zoomToolBtn" class="cad-icon-tool-btn zoom-tool-btn" title="Zoom" aria-label="Zoom" type="button">
+          <img src="/static/assets/zoom-object.svg" alt="Zoom">
+          <span class="tool-arrow">▾</span>
+        </button>
+
+        <div id="zoomMenuOptions" class="zoom-menu-options">
+          <button id="zoomInBtn" type="button">
+            <img src="/static/assets/zoom-in.svg" alt="Zoom In">
+            <span>Zoom In</span>
+          </button>
+
+          <button id="zoomOutBtn" type="button">
+            <img src="/static/assets/zoom-out.svg" alt="Zoom Out">
+            <span>Zoom Out</span>
+          </button>
+        </div>
+      </div>
+
     </div>
   </nav>
 
@@ -319,6 +338,7 @@
 
   <script src="/static/js/cad/showGrid.js"></script>
   <script src="/static/js/cad/showAxes.js"></script>
+  <script src="/static/js/cad/zoomView.js"></script>
 
   <script>
     document.addEventListener("DOMContentLoaded", function () {
@@ -330,6 +350,7 @@
       const colourToolBtn = document.getElementById("colourToolBtn");
       const gridToolBtn = document.getElementById("gridToolBtn");
       const axesToolBtn = document.getElementById("axesToolBtn");
+      const zoomToolBtn = document.getElementById("zoomToolBtn");
 
       const movePanel = document.getElementById("moveObjectPanel");
       const rotatePanel = document.getElementById("rotateObjectPanel");
@@ -360,7 +381,8 @@
           deleteToolBtn,
           colourToolBtn,
           gridToolBtn,
-          axesToolBtn
+          axesToolBtn,
+          zoomToolBtn
         ];
 
         panels.forEach(function (panel) {
@@ -377,6 +399,13 @@
         });
       }
 
+      function closeAllDropdownMenus() {
+        document.querySelectorAll(".shape-menu-options.show, .zoom-menu-options.show")
+          .forEach(function (menu) {
+            menu.classList.remove("show");
+          });
+      }
+
       function connectToolButton(button, panel) {
         if (!button || !panel) {
           return;
@@ -385,6 +414,7 @@
         button.addEventListener("click", function () {
           const isAlreadyOpen = !panel.classList.contains("tool-panel-hidden");
 
+          closeAllDropdownMenus();
           hideAllToolPanels();
 
           if (!isAlreadyOpen) {
@@ -403,6 +433,38 @@
       connectToolButton(colourToolBtn, colourPanel);
       connectToolButton(gridToolBtn, gridPanel);
       connectToolButton(axesToolBtn, axesPanel);
+
+      const zoomMenuOptions = document.getElementById("zoomMenuOptions");
+
+      if (zoomToolBtn && zoomMenuOptions) {
+        zoomToolBtn.addEventListener("click", function (event) {
+          event.stopPropagation();
+
+          const isOpen = zoomMenuOptions.classList.contains("show");
+
+          closeAllDropdownMenus();
+          hideAllToolPanels();
+
+          if (!isOpen) {
+            zoomMenuOptions.classList.add("show");
+            zoomToolBtn.classList.add("active-tool-btn");
+          } else {
+            zoomToolBtn.classList.remove("active-tool-btn");
+          }
+        });
+
+        zoomMenuOptions.addEventListener("click", function (event) {
+          event.stopPropagation();
+        });
+
+        document.addEventListener("click", function () {
+          closeAllDropdownMenus();
+
+          if (zoomToolBtn) {
+            zoomToolBtn.classList.remove("active-tool-btn");
+          }
+        });
+      }
     });
   </script>
 

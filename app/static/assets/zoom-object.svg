@@ -1,0 +1,66 @@
+<svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="zoomGradient" x1="14" y1="12" x2="50" y2="52" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#60A5FA"/>
+      <stop offset="100%" stop-color="#A855F7"/>
+    </linearGradient>
+
+    <filter id="zoomGlow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="0" stdDeviation="2.5" flood-color="#7C3AED" flood-opacity="0.35"/>
+    </filter>
+  </defs>
+
+  <!-- Magnifying glass -->
+  <g filter="url(#zoomGlow)">
+    <circle
+      cx="27"
+      cy="27"
+      r="13"
+      stroke="url(#zoomGradient)"
+      stroke-width="4"
+      fill="rgba(15,23,42,0.0)"
+    />
+    
+    <line
+      x1="36.5"
+      y1="36.5"
+      x2="48"
+      y2="48"
+      stroke="url(#zoomGradient)"
+      stroke-width="4.5"
+      stroke-linecap="round"
+    />
+
+    <!-- Plus sign inside -->
+    <line
+      x1="27"
+      y1="21"
+      x2="27"
+      y2="33"
+      stroke="url(#zoomGradient)"
+      stroke-width="3.5"
+      stroke-linecap="round"
+    />
+    <line
+      x1="21"
+      y1="27"
+      x2="33"
+      y2="27"
+      stroke="url(#zoomGradient)"
+      stroke-width="3.5"
+      stroke-linecap="round"
+    />
+
+    <!-- Small minus mark for zoom out hint -->
+    <line
+      x1="40"
+      y1="16"
+      x2="48"
+      y2="16"
+      stroke="#E2E8F0"
+      stroke-width="2.5"
+      stroke-linecap="round"
+      opacity="0.9"
+    />
+  </g>
+</svg>
