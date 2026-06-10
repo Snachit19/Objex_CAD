@@ -1,228 +1,242 @@
-function getResizeSelectedObject() {
-    if (typeof window.getSelectedCADObject === "function") {
-        return window.getSelectedCADObject();
+(function () {
+    "use strict";
+
+    const DEFAULT_RESIZE_STEP = 0.1;
+    const MINIMUM_SCALE = 0.01;
+    const RESIZE_AXES = ["x", "y", "z"];
+
+    let resizeControlsInitialized = false;
+
+    function getSelectedObject() {
+        if (typeof window.getSelectedCADObject === "function") {
+            return window.getSelectedCADObject();
+        }
+
+        return window.selectedObject || null;
     }
 
-    return window.selectedObject || null;
-}
+    function setStatus(message) {
+        const statusText = document.getElementById("cadStatusText");
 
-
-function setResizeStatus(message) {
-    const statusText = document.getElementById("cadStatusText");
-
-    if (statusText) {
-        statusText.textContent = message;
-    }
-}
-
-
-function getResizeStep() {
-    const stepInput = document.getElementById("resizeStepInput");
-
-    if (!stepInput) {
-        return 0.1;
+        if (statusText) {
+            statusText.textContent = message;
+        }
     }
 
-    const value = Number(stepInput.value);
+    function getInputNumber(inputId, fallbackValue, requirePositive) {
+        const input = document.getElementById(inputId);
 
-    if (isNaN(value) || value <= 0) {
-        return 0.1;
+        if (!input) {
+            return fallbackValue;
+        }
+
+        const value = Number(input.value);
+
+        if (Number.isNaN(value)) {
+            return fallbackValue;
+        }
+
+        if (requirePositive && value <= 0) {
+            return fallbackValue;
+        }
+
+        return value;
     }
 
-    return value;
-}
-
-
-function updateResizeInputs(object) {
-    const xInput = document.getElementById("resizeXInput");
-    const yInput = document.getElementById("resizeYInput");
-    const zInput = document.getElementById("resizeZInput");
-
-    if (!xInput || !yInput || !zInput) {
-        return;
+    function getResizeStep() {
+        return getInputNumber("resizeStepInput", DEFAULT_RESIZE_STEP, true);
     }
 
-    if (!object) {
-        xInput.value = "";
-        yInput.value = "";
-        zInput.value = "";
-        return;
-    }
+    function updateResizeInputs(object) {
+        const xInput = document.getElementById("resizeXInput");
+        const yInput = document.getElementById("resizeYInput");
+        const zInput = document.getElementById("resizeZInput");
 
-    xInput.value = object.scale.x.toFixed(2);
-    yInput.value = object.scale.y.toFixed(2);
-    zInput.value = object.scale.z.toFixed(2);
-}
-
-
-function refreshAfterResize(object) {
-    if (!object) {
-        return;
-    }
-
-    if (typeof window.refreshSelectedObjectPanel === "function") {
-        window.refreshSelectedObjectPanel();
-    }
-
-    updateResizeInputs(object);
-}
-
-
-function resizeSelectedObject(axis, amount) {
-    const object = getResizeSelectedObject();
-
-    if (!object) {
-        setResizeStatus("Please select an object before resizing.");
-        return;
-    }
-
-    if (axis === "x") {
-        const newScale = object.scale.x + amount;
-        if (newScale <= 0) {
-            setResizeStatus("Scale cannot be zero or negative.");
+        if (!xInput || !yInput || !zInput) {
             return;
         }
-        object.scale.x = newScale;
-    }
 
-    if (axis === "y") {
-        const newScale = object.scale.y + amount;
-        if (newScale <= 0) {
-            setResizeStatus("Scale cannot be zero or negative.");
+        if (!object) {
+            xInput.value = "";
+            yInput.value = "";
+            zInput.value = "";
             return;
         }
-        object.scale.y = newScale;
+
+        xInput.value = object.scale.x.toFixed(2);
+        yInput.value = object.scale.y.toFixed(2);
+        zInput.value = object.scale.z.toFixed(2);
     }
 
-    if (axis === "z") {
-        const newScale = object.scale.z + amount;
-        if (newScale <= 0) {
-            setResizeStatus("Scale cannot be zero or negative.");
+    function refreshAfterResize(object) {
+        if (!object) {
             return;
         }
-        object.scale.z = newScale;
+
+        if (typeof window.refreshSelectedObjectPanel === "function") {
+            window.refreshSelectedObjectPanel();
+        }
+
+        updateResizeInputs(object);
     }
 
-    if (axis === "all") {
-        const newX = object.scale.x + amount;
-        const newY = object.scale.y + amount;
-        const newZ = object.scale.z + amount;
-        if (newX <= 0 || newY <= 0 || newZ <= 0) {
-            setResizeStatus("Scale cannot be zero or negative.");
+    function isValidScale(xScale, yScale, zScale) {
+        return (
+            xScale >= MINIMUM_SCALE &&
+            yScale >= MINIMUM_SCALE &&
+            zScale >= MINIMUM_SCALE
+        );
+    }
+
+    function getScaleStatusMessage(object) {
+        const objectName = object.name || "Selected object";
+
+        return (
+            objectName +
+            " scale set to X: " +
+            object.scale.x.toFixed(2) +
+            ", Y: " +
+            object.scale.y.toFixed(2) +
+            ", Z: " +
+            object.scale.z.toFixed(2)
+        );
+    }
+
+    function resizeSelectedObject(axis, amount) {
+        const object = getSelectedObject();
+
+        if (!object) {
+            setStatus("Please select an object before resizing.");
             return;
         }
-        object.scale.x = newX;
-        object.scale.y = newY;
-        object.scale.z = newZ;
-    }
 
-    refreshAfterResize(object);
+        const resizeAmount = Number(amount);
 
-    setResizeStatus(
-        object.name +
-        " scale set to X: " +
-        object.scale.x.toFixed(2) +
-        ", Y: " +
-        object.scale.y.toFixed(2) +
-        ", Z: " +
-        object.scale.z.toFixed(2)
-    );
-}
+        if (Number.isNaN(resizeAmount)) {
+            setStatus("Please enter a valid resize amount.");
+            return;
+        }
 
+        const newScale = {
+            x: object.scale.x,
+            y: object.scale.y,
+            z: object.scale.z
+        };
 
-function connectResizeButton(buttonId, axis, direction) {
-    const button = document.getElementById(buttonId);
-
-    if (!button) {
-        return;
-    }
-
-    button.addEventListener("click", function () {
-        const step = getResizeStep();
-        resizeSelectedObject(axis, step * direction);
-    });
-}
-
-
-function applyManualResize() {
-    const object = getResizeSelectedObject();
-
-    if (!object) {
-        setResizeStatus("Please select an object before setting scale.");
-        return;
-    }
-
-    const xInput = document.getElementById("resizeXInput");
-    const yInput = document.getElementById("resizeYInput");
-    const zInput = document.getElementById("resizeZInput");
-
-    if (!xInput || !yInput || !zInput) {
-        setResizeStatus("Scale input fields are missing.");
-        return;
-    }
-
-    const xScale = Number(xInput.value);
-    const yScale = Number(yInput.value);
-    const zScale = Number(zInput.value);
-
-    if (isNaN(xScale) || isNaN(yScale) || isNaN(zScale)) {
-        setResizeStatus("Please enter valid X, Y and Z scale values.");
-        return;
-    }
-
-    if (xScale <= 0 || yScale <= 0 || zScale <= 0) {
-        setResizeStatus("Scale values must be greater than zero.");
-        return;
-    }
-
-    object.scale.set(xScale, yScale, zScale);
-
-    refreshAfterResize(object);
-
-    setResizeStatus(
-        object.name +
-        " scale set to X: " +
-        xScale.toFixed(2) +
-        ", Y: " +
-        yScale.toFixed(2) +
-        ", Z: " +
-        zScale.toFixed(2)
-    );
-}
-
-
-function initResizeObjectControls() {
-    connectResizeButton("resizeXPlusBtn", "x", 1);
-    connectResizeButton("resizeXMinusBtn", "x", -1);
-
-    connectResizeButton("resizeYPlusBtn", "y", 1);
-    connectResizeButton("resizeYMinusBtn", "y", -1);
-
-    connectResizeButton("resizeZPlusBtn", "z", 1);
-    connectResizeButton("resizeZMinusBtn", "z", -1);
-
-    connectResizeButton("resizeAllPlusBtn", "all", 1);
-    connectResizeButton("resizeAllMinusBtn", "all", -1);
-
-    const setScaleBtn = document.getElementById("setScaleBtn");
-
-    if (setScaleBtn) {
-        setScaleBtn.addEventListener("click", applyManualResize);
-    }
-
-    window.addEventListener("cad:selectionChanged", function (event) {
-        if (event.detail && event.detail.object) {
-            updateResizeInputs(event.detail.object);
+        if (axis === "all") {
+            newScale.x += resizeAmount;
+            newScale.y += resizeAmount;
+            newScale.z += resizeAmount;
+        } else if (RESIZE_AXES.includes(axis)) {
+            newScale[axis] += resizeAmount;
         } else {
-            updateResizeInputs(null);
+            setStatus("Invalid resize axis.");
+            return;
         }
-    });
-}
-document.addEventListener("DOMContentLoaded", function () {
-    initResizeObjectControls();
-});
 
+        if (!isValidScale(newScale.x, newScale.y, newScale.z)) {
+            setStatus("Scale values must be greater than zero.");
+            return;
+        }
 
-document.addEventListener("DOMContentLoaded", function () {
-    initResizeObjectControls();
-});
+        object.scale.set(newScale.x, newScale.y, newScale.z);
+
+        refreshAfterResize(object);
+        setStatus(getScaleStatusMessage(object));
+    }
+
+    function applyManualResize() {
+        const object = getSelectedObject();
+
+        if (!object) {
+            setStatus("Please select an object before setting scale.");
+            return;
+        }
+
+        const xInput = document.getElementById("resizeXInput");
+        const yInput = document.getElementById("resizeYInput");
+        const zInput = document.getElementById("resizeZInput");
+
+        if (!xInput || !yInput || !zInput) {
+            setStatus("Scale input fields are missing.");
+            return;
+        }
+
+        const xScale = Number(xInput.value);
+        const yScale = Number(yInput.value);
+        const zScale = Number(zInput.value);
+
+        if (
+            Number.isNaN(xScale) ||
+            Number.isNaN(yScale) ||
+            Number.isNaN(zScale)
+        ) {
+            setStatus("Please enter valid X, Y and Z scale values.");
+            return;
+        }
+
+        if (!isValidScale(xScale, yScale, zScale)) {
+            setStatus("Scale values must be greater than zero.");
+            return;
+        }
+
+        object.scale.set(xScale, yScale, zScale);
+
+        refreshAfterResize(object);
+        setStatus(getScaleStatusMessage(object));
+    }
+
+    function connectResizeButton(buttonId, axis, direction) {
+        const button = document.getElementById(buttonId);
+
+        if (!button) {
+            return;
+        }
+
+        button.addEventListener("click", function () {
+            const step = getResizeStep();
+            resizeSelectedObject(axis, step * direction);
+        });
+    }
+
+    function handleSelectionChanged(event) {
+        const selectedObject = event.detail ? event.detail.object : null;
+        updateResizeInputs(selectedObject);
+    }
+
+    function initResizeObjectControls() {
+        if (resizeControlsInitialized) {
+            return;
+        }
+
+        resizeControlsInitialized = true;
+
+        connectResizeButton("resizeXPlusBtn", "x", 1);
+        connectResizeButton("resizeXMinusBtn", "x", -1);
+
+        connectResizeButton("resizeYPlusBtn", "y", 1);
+        connectResizeButton("resizeYMinusBtn", "y", -1);
+
+        connectResizeButton("resizeZPlusBtn", "z", 1);
+        connectResizeButton("resizeZMinusBtn", "z", -1);
+
+        connectResizeButton("resizeAllPlusBtn", "all", 1);
+        connectResizeButton("resizeAllMinusBtn", "all", -1);
+
+        const setScaleBtn = document.getElementById("setScaleBtn");
+
+        if (setScaleBtn) {
+            setScaleBtn.addEventListener("click", applyManualResize);
+        }
+
+        window.addEventListener("cad:selectionChanged", handleSelectionChanged);
+
+        updateResizeInputs(getSelectedObject());
+    }
+
+    window.resizeSelectedObject = resizeSelectedObject;
+    window.applyManualResize = applyManualResize;
+    window.updateResizeInputs = updateResizeInputs;
+
+    document.addEventListener("DOMContentLoaded", initResizeObjectControls);
+})();
