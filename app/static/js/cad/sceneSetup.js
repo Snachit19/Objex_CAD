@@ -3,6 +3,18 @@ let camera;
 let renderer;
 let controls;
 
+const DEFAULT_CAMERA_POSITION = {
+  x: 5,
+  y: 5,
+  z: 8
+};
+
+const DEFAULT_CAMERA_TARGET = {
+  x: 0,
+  y: 0,
+  z: 0
+};
+
 function initCADScene() {
   const canvas = document.getElementById("cadCanvas");
 
@@ -21,7 +33,11 @@ function initCADScene() {
     1000
   );
 
-  camera.position.set(5, 5, 8);
+  camera.position.set(
+    DEFAULT_CAMERA_POSITION.x,
+    DEFAULT_CAMERA_POSITION.y,
+    DEFAULT_CAMERA_POSITION.z
+  );
 
   renderer = new THREE.WebGLRenderer({
     canvas: canvas,
@@ -34,7 +50,16 @@ function initCADScene() {
   controls = new THREE.OrbitControls(camera, renderer.domElement);
   controls.enableDamping = true;
 
+  controls.target.set(
+    DEFAULT_CAMERA_TARGET.x,
+    DEFAULT_CAMERA_TARGET.y,
+    DEFAULT_CAMERA_TARGET.z
+  );
+
+  controls.update();
+
   const grid = new THREE.GridHelper(40, 40, 0x1f2937, 0x111827);
+  grid.name = "CADGridHelper";
   scene.add(grid);
 
   const ambientLight = new THREE.AmbientLight(0xffffff, 0.55);
@@ -52,6 +77,11 @@ function initCADScene() {
     renderer: renderer,
     controls: controls
   };
+
+  window.scene = scene;
+  window.camera = camera;
+  window.renderer = renderer;
+  window.controls = controls;
 
   window.dispatchEvent(new Event("cad:ready"));
 
@@ -82,6 +112,33 @@ function resizeCADScene() {
 
   renderer.setSize(canvas.clientWidth, canvas.clientHeight);
 }
+
+function resetCADCameraView() {
+  if (!camera || !controls) {
+    return false;
+  }
+
+  camera.position.set(
+    DEFAULT_CAMERA_POSITION.x,
+    DEFAULT_CAMERA_POSITION.y,
+    DEFAULT_CAMERA_POSITION.z
+  );
+
+  camera.zoom = 1;
+  camera.updateProjectionMatrix();
+
+  controls.target.set(
+    DEFAULT_CAMERA_TARGET.x,
+    DEFAULT_CAMERA_TARGET.y,
+    DEFAULT_CAMERA_TARGET.z
+  );
+
+  controls.update();
+
+  return true;
+}
+
+window.resetCADCameraView = resetCADCameraView;
 
 window.addEventListener("resize", resizeCADScene);
 document.addEventListener("DOMContentLoaded", initCADScene);
