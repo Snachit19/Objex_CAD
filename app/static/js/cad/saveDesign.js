@@ -33,7 +33,8 @@ function getCADObjectsForSaving() {
                 z: object.scale.z
             },
 
-            color: color
+            color: color,
+            materialData: object.userData.materialData || null
         };
     });
 }

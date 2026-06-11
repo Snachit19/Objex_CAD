@@ -5,6 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Objex CAD | Workspace</title>
   <link rel="stylesheet" href="/static/css/style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Outfit', sans-serif !important; }
+  </style>
 </head>
 
 <body class="cad-page">
@@ -57,12 +63,12 @@
         <img src="/static/assets/duplicate-object.svg" alt="Duplicate Object">
       </button>
 
-      <button id="deleteToolBtn" class="cad-icon-tool-btn" title="Delete Object" aria-label="Delete Object" type="button">
-        <img src="/static/assets/delete-object.svg" alt="Delete Object">
-      </button>
-
       <button id="colourToolBtn" class="cad-icon-tool-btn" title="Change Object Colour" aria-label="Change Object Colour" type="button">
         <img src="/static/assets/colour-object.svg" alt="Change Object Colour">
+      </button>
+
+      <button id="deleteToolBtn" class="cad-icon-tool-btn" title="Delete Object" aria-label="Delete Object" type="button">
+        <img src="/static/assets/delete-object.svg" alt="Delete Object">
       </button>
 
       <button id="gridToolBtn" class="cad-icon-tool-btn" title="Show Grid" aria-label="Show Grid" type="button">
@@ -103,6 +109,8 @@
     </div>
   </nav>
 
+  <div id="toastContainer" class="toast-container"></div>
+
   <main class="cad-workspace">
     <section class="cad-canvas-area">
       <canvas id="cadCanvas"></canvas>
@@ -112,17 +120,102 @@
     <aside class="cad-inspector">
       <h3>Project Details</h3>
 
-      <p><strong>Name:</strong> <span id="projectNameText">Loading...</span></p>
-      <p><strong>Description:</strong> <span id="projectDescriptionText">Loading...</span></p>
-      <p><strong>Status:</strong> <span id="cadStatusText">Opening saved project...</span></p>
-      <p><strong>Tip:</strong> Hover a shape to see its dimensions. Drag to orbit. Scroll to zoom.</p>
+      <div id="projectSummary" class="property-group">
+        <p><strong>Name:</strong> <span id="projectNameText">Loading...</span></p>
+        <p><strong>Description:</strong> <span id="projectDescriptionText">Loading...</span></p>
+        <p><strong>Status:</strong> <span id="cadStatusText">Opening saved project...</span></p>
+        <p id="workspaceTip" class="edit-hint" style="margin-top: 10px;">Tip: Hover a shape to see its dimensions. Drag to orbit. Scroll to zoom.</p>
+      </div>
 
-      <div class="selected-object-panel">
-        <h3>Selected Object</h3>
-        <p><strong>Name:</strong> <span id="selectedObjectName">None</span></p>
-        <p><strong>Type:</strong> <span id="selectedObjectType">None</span></p>
-        <p><strong>Position:</strong> <span id="selectedObjectPosition">None</span></p>
-        <p><strong>Scale:</strong> <span id="selectedObjectScale">None</span></p>
+      <div class="selected-object-panel" id="selectedObjectSummary" style="display: none;">
+        <div class="object-edit-header">
+          <h3>Selected Object</h3>
+          <span class="object-edit-badge" id="propObjectTypeBadge">Mesh</span>
+        </div>
+
+        <div class="property-group">
+          <label class="edit-label" for="propObjectName">Object Name</label>
+          <input id="propObjectName" class="edit-input prop-name-input" type="text" placeholder="Mesh name">
+        </div>
+
+        <div class="property-group">
+          <p class="edit-subtitle">Position</p>
+          <div class="axis-input-row">
+            <label for="propPosX">X</label>
+            <input id="propPosX" class="edit-input" type="number" step="0.1">
+            <label for="propPosY">Y</label>
+            <input id="propPosY" class="edit-input" type="number" step="0.1">
+            <label for="propPosZ">Z</label>
+            <input id="propPosZ" class="edit-input" type="number" step="0.1">
+          </div>
+        </div>
+
+        <div class="property-group">
+          <p class="edit-subtitle">Rotation</p>
+          <div class="axis-input-row">
+            <label for="propRotX">X</label>
+            <input id="propRotX" class="edit-input" type="number" step="1">
+            <label for="propRotY">Y</label>
+            <input id="propRotY" class="edit-input" type="number" step="1">
+            <label for="propRotZ">Z</label>
+            <input id="propRotZ" class="edit-input" type="number" step="1">
+          </div>
+        </div>
+
+        <div class="property-group">
+          <p class="edit-subtitle">Scale</p>
+          <div class="axis-input-row">
+            <label for="propScaleX">X</label>
+            <input id="propScaleX" class="edit-input" type="number" step="0.1">
+            <label for="propScaleY">Y</label>
+            <input id="propScaleY" class="edit-input" type="number" step="0.1">
+            <label for="propScaleZ">Z</label>
+            <input id="propScaleZ" class="edit-input" type="number" step="0.1">
+          </div>
+        </div>
+
+        <div class="property-group">
+          <p class="edit-subtitle">Dimensions (Current)</p>
+          <p id="propDimensions" class="edit-hint">L: -, W: -, H: -</p>
+        </div>
+
+        <div class="property-group">
+          <p class="edit-subtitle">Appearance</p>
+          <label class="edit-label" for="propColourInput">Colour</label>
+          <div class="input-with-unit">
+            <input id="propColourInput" class="edit-input colour-input" type="color" style="width: 50px; height: 34px; padding: 2px;">
+            <input id="propHexInput" class="edit-input hex-input" type="text" maxlength="7" placeholder="#ffffff">
+          </div>
+        </div>
+
+        <div class="property-group" id="propMaterialGroup">
+          <label class="edit-label" for="propMaterialSelect">Material Type</label>
+          <select id="propMaterialSelect" class="edit-input">
+            <option value="standard">Standard</option>
+            <option value="basic">Basic (No Lighting)</option>
+            <option value="phong">Phong (Shiny)</option>
+            <option value="lambert">Lambert (Matte)</option>
+          </select>
+        </div>
+
+        <div class="property-group">
+          <p class="edit-subtitle">Material Library</p>
+          <div class="edit-button-grid material-grid">
+            <button type="button" data-mat-preset="plastic" title="Smooth Plastic">Plastic</button>
+            <button type="button" data-mat-preset="metal" title="Shiny Metal">Metal</button>
+            <button type="button" data-mat-preset="glass" title="Transparent Glass">Glass</button>
+            <button type="button" data-mat-preset="wood" title="Wood Texture">Wood</button>
+            <button type="button" data-mat-preset="neon" title="Glowing Neon">Neon</button>
+            <button type="button" data-mat-preset="default" title="Default Matte">Default</button>
+          </div>
+        </div>
+
+        <button id="applyPropertiesBtn" class="edit-primary-btn" type="button">Apply All Changes</button>
+      </div>
+
+      <div class="selected-object-panel" id="noObjectSelected" style="text-align: center; color: var(--text-muted); padding: 30px 10px;">
+        <h3>No Object Selected</h3>
+        <p>Click a shape to view and edit its properties.</p>
       </div>
 
       <div id="moveObjectPanel" class="object-edit-panel tool-panel-hidden">
@@ -249,20 +342,6 @@
         <p id="duplicateObjectHint" class="edit-hint">Select an object first, then duplicate it.</p>
       </div>
 
-      <div id="deleteObjectPanel" class="object-edit-panel tool-panel-hidden">
-        <div class="object-edit-header">
-          <h3>Delete Object</h3>
-          <span class="object-edit-badge">Delete</span>
-        </div>
-
-        <p class="edit-hint">
-          This will remove the selected object from the CAD workspace. Click Save Design after deleting to keep the change.
-        </p>
-
-        <button id="deleteObjectBtn" class="edit-danger-btn" type="button">Delete Selected Object</button>
-        <p id="deleteObjectHint" class="edit-hint">Select an object first, then delete it.</p>
-      </div>
-
       <div id="colourObjectPanel" class="object-edit-panel tool-panel-hidden">
         <div class="object-edit-header">
           <h3>Change Object Colour</h3>
@@ -277,6 +356,18 @@
 
         <button id="applyColourBtn" class="edit-primary-btn" type="button">Apply Colour</button>
         <p id="colourObjectHint" class="edit-hint">Select an object first, then choose or type a hex colour.</p>
+      </div>
+
+      <div id="deleteObjectPanel" class="object-edit-panel tool-panel-hidden">
+        <div class="object-edit-header">
+          <h3>Delete Object</h3>
+          <span class="object-edit-badge danger-badge">Removal</span>
+        </div>
+
+        <p class="edit-description">Are you sure you want to delete the selected object? This action cannot be undone.</p>
+
+        <button id="deleteObjectBtn" class="edit-primary-btn delete-confirm-btn" type="button">Delete Selected Object</button>
+        <p id="deleteObjectHint" class="edit-hint">Select an object first, then delete it.</p>
       </div>
 
       <div id="gridObjectPanel" class="object-edit-panel tool-panel-hidden">
@@ -391,13 +482,13 @@
   <script src="/static/js/cad/selectObject.js"></script>
   <script src="/static/js/cad/loadProject.js"></script>
   <script src="/static/js/cad/saveDesign.js"></script>
-
   <script src="/static/js/cad/moveObject.js"></script>
   <script src="/static/js/cad/rotateObject.js"></script>
   <script src="/static/js/cad/resizeObjects.js"></script>
   <script src="/static/js/cad/duplicateObject.js"></script>
-  <script src="/static/js/cad/deleteObject.js"></script>
   <script src="/static/js/cad/colourObject.js"></script>
+  <script src="/static/js/cad/deleteObject.js"></script>
+  <script src="/static/js/cad/objectProperties.js"></script>
 
   <script src="/static/js/cad/showGrid.js"></script>
   <script src="/static/js/cad/showAxes.js"></script>
@@ -411,8 +502,8 @@
       const rotateToolBtn = document.getElementById("rotateToolBtn");
       const resizeToolBtn = document.getElementById("resizeToolBtn");
       const duplicateToolBtn = document.getElementById("duplicateToolBtn");
-      const deleteToolBtn = document.getElementById("deleteToolBtn");
       const colourToolBtn = document.getElementById("colourToolBtn");
+      const deleteToolBtn = document.getElementById("deleteToolBtn");
       const gridToolBtn = document.getElementById("gridToolBtn");
       const axesToolBtn = document.getElementById("axesToolBtn");
       const zoomToolBtn = document.getElementById("zoomToolBtn");
@@ -423,8 +514,8 @@
       const rotatePanel = document.getElementById("rotateObjectPanel");
       const resizePanel = document.getElementById("resizeObjectPanel");
       const duplicatePanel = document.getElementById("duplicateObjectPanel");
-      const deletePanel = document.getElementById("deleteObjectPanel");
       const colourPanel = document.getElementById("colourObjectPanel");
+      const deletePanel = document.getElementById("deleteObjectPanel");
       const gridPanel = document.getElementById("gridObjectPanel");
       const axesPanel = document.getElementById("axesObjectPanel");
       const panCameraPanel = document.getElementById("panCameraPanel");

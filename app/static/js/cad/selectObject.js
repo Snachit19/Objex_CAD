@@ -31,49 +31,15 @@ function getSelectableRoot(object) {
 
 
 function updateSelectedObjectPanel(object) {
-    const nameText = document.getElementById("selectedObjectName");
-    const typeText = document.getElementById("selectedObjectType");
-    const positionText = document.getElementById("selectedObjectPosition");
-    const scaleText = document.getElementById("selectedObjectScale");
-    const dashboardDeleteBtn = document.getElementById("dashboardDeleteBtn");
-
-    if (!nameText || !typeText || !positionText || !scaleText) {
-        return;
-    }
+    const dashboard = document.getElementById("selectedObjectPanel");
+    if (!dashboard) return;
 
     if (!object) {
-        nameText.textContent = "None";
-        typeText.textContent = "None";
-        positionText.textContent = "None";
-        scaleText.textContent = "None";
-
-        if (dashboardDeleteBtn) {
-            dashboardDeleteBtn.style.display = "none";
-        }
+        dashboard.style.display = "none";
         return;
     }
 
-    if (dashboardDeleteBtn) {
-        dashboardDeleteBtn.style.display = "block";
-    }
-
-    nameText.textContent = object.name || "Unnamed Object";
-
-    if (object.userData && object.userData.type) {
-        typeText.textContent = object.userData.type;
-    } else {
-        typeText.textContent = "Unknown";
-    }
-
-    positionText.textContent =
-        "X: " + object.position.x.toFixed(2) +
-        ", Y: " + object.position.y.toFixed(2) +
-        ", Z: " + object.position.z.toFixed(2);
-
-    scaleText.textContent =
-        "X: " + object.scale.x.toFixed(2) +
-        ", Y: " + object.scale.y.toFixed(2) +
-        ", Z: " + object.scale.z.toFixed(2);
+    dashboard.style.display = "block";
 }
 
 

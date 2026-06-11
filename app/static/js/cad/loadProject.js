@@ -159,6 +159,34 @@ function restoreSavedCADObjects() {
                 object.material.needsUpdate = true;
             }
         }
+
+        if (savedObject.materialData) {
+            object.userData.materialData = savedObject.materialData;
+            
+            const matData = savedObject.materialData;
+            let newMaterial;
+            
+            const materialParams = {
+                color: savedObject.color || 0xcccccc,
+                roughness: Number(matData.roughness) || 0.5,
+                metalness: Number(matData.metalness) || 0.5,
+                opacity: Number(matData.opacity) || 1.0,
+                transparent: matData.transparent || false,
+                emissive: new THREE.Color(matData.emissive || 0x000000),
+                emissiveIntensity: Number(matData.emissiveIntensity) || 1.0
+            };
+
+            switch (matData.type.toLowerCase()) {
+                case 'standard': newMaterial = new THREE.MeshStandardMaterial(materialParams); break;
+                case 'basic': newMaterial = new THREE.MeshBasicMaterial({ color: materialParams.color, opacity: materialParams.opacity, transparent: materialParams.transparent }); break;
+                case 'phong': newMaterial = new THREE.MeshPhongMaterial({ ...materialParams, shininess: 30 }); break;
+                case 'lambert': newMaterial = new THREE.MeshLambertMaterial(materialParams); break;
+                default: newMaterial = new THREE.MeshStandardMaterial(materialParams);
+            }
+            
+            object.material = newMaterial;
+            object.material.needsUpdate = true;
+        }
     });
 
     savedObjectsRestored = true;
