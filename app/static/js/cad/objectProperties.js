@@ -2,6 +2,9 @@
  * Object Properties Feature
  * Handles viewing and editing individual object properties like
  * Name, Type, Position, Rotation, Scale, Colour, Material and Dimensions.
+ * 
+ * Part of the Objex CAD Integrated Dashboard system.
+ * @version 1.1.0
  */
 
 (function () {
