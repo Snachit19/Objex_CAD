@@ -388,9 +388,13 @@
             propPanel.applyBtn.addEventListener("click", () => applyChangesToObject(true));
         }
 
-        // Listen for workspace selection changes
+        // Listen for workspace selection changes with a slight protection for rapid clicks
         window.addEventListener("cad:selectionChanged", (event) => {
-            refreshPropertiesUI(event.detail.object);
+            if (event.detail && event.detail.object) {
+                refreshPropertiesUI(event.detail.object);
+            } else {
+                refreshPropertiesUI(null);
+            }
         });
 
         // Also check if something is already selected
