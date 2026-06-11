@@ -34,6 +34,11 @@ function initCADScene() {
     return;
   }
 
+  if (typeof THREE.OrbitControls === "undefined") {
+    console.error("OrbitControls is not loaded.");
+    return;
+  }
+
   cadSceneInitialized = true;
 
   scene = new THREE.Scene();
@@ -64,10 +69,22 @@ function initCADScene() {
   renderer.setPixelRatio(window.devicePixelRatio || 1);
 
   controls = new THREE.OrbitControls(camera, renderer.domElement);
+
   controls.enableDamping = true;
+  controls.dampingFactor = 0.08;
+
+  controls.enableRotate = true;
+  controls.rotateSpeed = 1.0;
+
   controls.enablePan = true;
   controls.screenSpacePanning = true;
   controls.panSpeed = 1.0;
+
+  controls.enableZoom = true;
+  controls.zoomSpeed = 1.0;
+
+  controls.autoRotate = false;
+  controls.autoRotateSpeed = 2.0;
 
   controls.target.set(
     DEFAULT_CAMERA_TARGET.x,
@@ -99,26 +116,35 @@ function initCADScene() {
   animateCADScene();
 
   const statusText = document.getElementById("cadStatusText");
+
   if (statusText && statusText.textContent.includes("not ready")) {
     statusText.textContent = "CAD scene ready.";
   }
 }
 
 function addDefaultLights() {
-  const ambientLight = new THREE.AmbientLight(0xffffff, 0.55);
-  ambientLight.name = "DefaultAmbientLight";
-  scene.add(ambientLight);
+  const existingAmbientLight = scene.getObjectByName("DefaultAmbientLight");
+  const existingDirectionalLight = scene.getObjectByName("DefaultDirectionalLight");
 
-  const directionalLight = new THREE.DirectionalLight(0xffffff, 0.9);
-  directionalLight.name = "DefaultDirectionalLight";
-  directionalLight.position.set(6, 10, 6);
-  scene.add(directionalLight);
+  if (!existingAmbientLight) {
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.55);
+    ambientLight.name = "DefaultAmbientLight";
+    scene.add(ambientLight);
+  }
+
+  if (!existingDirectionalLight) {
+    const directionalLight = new THREE.DirectionalLight(0xffffff, 0.9);
+    directionalLight.name = "DefaultDirectionalLight";
+    directionalLight.position.set(6, 10, 6);
+    scene.add(directionalLight);
+  }
 }
 
 function addDefaultGrid() {
   const existingGrid = scene.getObjectByName("CADGridHelper");
 
   if (existingGrid) {
+    window.gridHelper = existingGrid;
     return;
   }
 
@@ -183,6 +209,37 @@ function resetCADCameraView() {
     DEFAULT_CAMERA_TARGET.z
   );
 
+  controls.autoRotate = false;
+  controls.update();
+
+  return true;
+}
+
+function focusCameraOnObject(object) {
+  if (!object || !camera || !controls) {
+    return false;
+  }
+
+  const box = new THREE.Box3().setFromObject(object);
+  const center = new THREE.Vector3();
+  const size = new THREE.Vector3();
+
+  box.getCenter(center);
+  box.getSize(size);
+
+  const maxSize = Math.max(size.x, size.y, size.z);
+  const distance = maxSize * 3 || 6;
+
+  camera.position.set(
+    center.x + distance,
+    center.y + distance,
+    center.z + distance
+  );
+
+  controls.target.copy(center);
+  camera.lookAt(center);
+
+  camera.updateProjectionMatrix();
   controls.update();
 
   return true;
@@ -211,6 +268,7 @@ function getCADControls() {
 window.initCADScene = initCADScene;
 window.resizeCADScene = resizeCADScene;
 window.resetCADCameraView = resetCADCameraView;
+window.focusCameraOnObject = focusCameraOnObject;
 window.isCADSceneReady = isCADSceneReady;
 
 window.getCADScene = getCADScene;
