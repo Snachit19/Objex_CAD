@@ -19,47 +19,31 @@
         }
     }
 
-    function showCADToast(title, message) {
-        let toastContainer = document.getElementById("cadToastContainer");
+    function showToast(message, duration) {
+        const toastDuration = duration || 3000;
+        let container = document.getElementById("toastContainer");
 
-        if (!toastContainer) {
-            toastContainer = document.createElement("div");
-            toastContainer.id = "cadToastContainer";
-            toastContainer.className = "cad-toast-container";
-            document.body.appendChild(toastContainer);
+        if (!container) {
+            container = document.createElement("div");
+            container.id = "toastContainer";
+            container.className = "toast-container";
+            document.body.appendChild(container);
         }
 
-        toastContainer.innerHTML = "";
-
         const toast = document.createElement("div");
-        toast.className = "cad-toast";
+        toast.className = "toast";
+        toast.textContent = message;
+        toast.style.animation =
+            "toastSlideIn 0.5s cubic-bezier(0.18, 0.89, 0.32, 1.28), " +
+            "toastFadeOut 0.5s " +
+            Math.max(toastDuration - 500, 500) +
+            "ms forwards";
 
-        const iconElement = document.createElement("div");
-        iconElement.className = "cad-toast-icon";
-        iconElement.textContent = "✓";
-
-        const contentElement = document.createElement("div");
-        contentElement.className = "cad-toast-content";
-
-        const titleElement = document.createElement("span");
-        titleElement.className = "cad-toast-title";
-        titleElement.textContent = title;
-
-        const messageElement = document.createElement("span");
-        messageElement.className = "cad-toast-message";
-        messageElement.textContent = message;
-
-        contentElement.appendChild(titleElement);
-        contentElement.appendChild(messageElement);
-
-        toast.appendChild(iconElement);
-        toast.appendChild(contentElement);
-
-        toastContainer.appendChild(toast);
+        container.appendChild(toast);
 
         setTimeout(function () {
             toast.remove();
-        }, 3200);
+        }, toastDuration);
     }
 
     function radianToDegree(radian) {
@@ -144,6 +128,84 @@
         }
 
         return "#ffffff";
+    }
+
+    function formatNumber(value, decimals) {
+        return Number(value).toFixed(decimals);
+    }
+
+    function valuesAreDifferent(oldValue, newValue, decimals) {
+        return formatNumber(oldValue, decimals) !== formatNumber(newValue, decimals);
+    }
+
+    function addAxisChanges(changes, label, oldValues, newValues, decimals) {
+        let hasChanges = false;
+
+        ["x", "y", "z"].forEach(function (axis) {
+            if (valuesAreDifferent(oldValues[axis], newValues[axis], decimals)) {
+                hasChanges = true;
+            }
+        });
+
+        if (hasChanges) {
+            changes.push(label);
+        }
+    }
+
+    function getObjectPropertyChanges(object, nextProperties) {
+        const changes = [];
+        const currentName = object.name || "Unnamed Object";
+        const currentColour = getObjectColour(object);
+
+        if (currentName !== nextProperties.name) {
+            changes.push("Name");
+        }
+
+        addAxisChanges(
+            changes,
+            "Position",
+            {
+                x: object.position.x,
+                y: object.position.y,
+                z: object.position.z
+            },
+            nextProperties.position,
+            2
+        );
+
+        addAxisChanges(
+            changes,
+            "Rotation",
+            {
+                x: radianToDegree(object.rotation.x),
+                y: radianToDegree(object.rotation.y),
+                z: radianToDegree(object.rotation.z)
+            },
+            nextProperties.rotation,
+            0
+        );
+
+        addAxisChanges(
+            changes,
+            "Scale",
+            {
+                x: object.scale.x,
+                y: object.scale.y,
+                z: object.scale.z
+            },
+            nextProperties.scale,
+            2
+        );
+
+        if (currentColour !== nextProperties.colour) {
+            changes.push("Colour");
+        }
+
+        if (changes.length === 0) {
+            return "No changes applied.";
+        }
+
+        return "Changed: " + changes.join(", ");
     }
 
     function getObjectDimensions(object) {
@@ -355,21 +417,25 @@
             return;
         }
 
-        const newValues = {
+        const changeMessage = getObjectPropertyChanges(object, {
             name: objectName,
-            positionX: positionX,
-            positionY: positionY,
-            positionZ: positionZ,
-            rotationX: rotationX,
-            rotationY: rotationY,
-            rotationZ: rotationZ,
-            scaleX: scaleX,
-            scaleY: scaleY,
-            scaleZ: scaleZ,
+            position: {
+                x: positionX,
+                y: positionY,
+                z: positionZ
+            },
+            rotation: {
+                x: rotationX,
+                y: rotationY,
+                z: rotationZ
+            },
+            scale: {
+                x: scaleX,
+                y: scaleY,
+                z: scaleZ
+            },
             colour: selectedColour
-        };
-
-        const changedProperties = getChangedProperties(object, newValues);
+        });
 
         object.name = objectName;
         object.position.set(positionX, positionY, positionZ);
@@ -393,21 +459,8 @@
             window.refreshSelectedObjectPanel();
         }
 
-        if (changedProperties.length > 0) {
-            setStatus(object.name + " properties updated.");
-
-            showCADToast(
-                "Properties Updated Successfully",
-                "Changed: " + changedProperties.join(", ")
-            );
-        } else {
-            setStatus("No property changes detected.");
-
-            showCADToast(
-                "No changes detected",
-                "The selected object already has these values."
-            );
-        }
+        setStatus(object.name + " properties updated.");
+        showToast(changeMessage, 4200);
     }
 
     function connectColourInputs() {

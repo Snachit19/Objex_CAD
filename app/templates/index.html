@@ -63,23 +63,6 @@
   </section>
  
   <script>
-  function showMsg(message, type) {
-    const msgBox = document.getElementById("msg-box");
-
-    msgBox.textContent = message;
-    msgBox.style.display = "block";
-
-    if (type === "success") {
-      msgBox.style.background = "rgba(34, 197, 94, 0.12)";
-      msgBox.style.border = "1px solid rgba(34, 197, 94, 0.35)";
-      msgBox.style.color = "#4ade80";
-    } else {
-      msgBox.style.background = "rgba(239, 68, 68, 0.12)";
-      msgBox.style.border = "1px solid rgba(239, 68, 68, 0.35)";
-      msgBox.style.color = "#f87171";
-    }
-  }
-
   document.getElementById("login-btn").addEventListener("click", async () => {
     const email = document.getElementById("email").value.trim().toLowerCase();
     const password = document.getElementById("password").value;

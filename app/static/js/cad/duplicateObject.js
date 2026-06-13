@@ -33,6 +33,23 @@ function getDuplicateOffset() {
 }
 
 
+function getDuplicateCount() {
+    const countInput = document.getElementById("duplicateCountInput");
+
+    if (!countInput) {
+        return 1;
+    }
+
+    const value = Math.floor(Number(countInput.value));
+
+    if (isNaN(value) || value <= 0) {
+        return 1;
+    }
+
+    return Math.min(value, 50);
+}
+
+
 function getCADSceneForDuplicate() {
     if (typeof scene !== "undefined") {
         return scene;
@@ -75,9 +92,67 @@ function cloneMaterialForDuplicate(material) {
 }
 
 
-function createDuplicateName(originalName) {
+function createDuplicateName(originalName, copyNumber) {
     const baseName = originalName || "Object";
-    return baseName + " Copy";
+    return baseName + " Copy " + copyNumber;
+}
+
+
+function createDuplicateObjectId(copyNumber) {
+    return "object-" + Date.now() + "-" + copyNumber + "-" + Math.floor(Math.random() * 1000);
+}
+
+
+function createDuplicatedObject(selectedObject, offset, copyNumber) {
+    const duplicatedObject = new THREE.Mesh(
+        selectedObject.geometry.clone(),
+        cloneMaterialForDuplicate(selectedObject.material)
+    );
+
+    duplicatedObject.name = createDuplicateName(selectedObject.name, copyNumber);
+
+    duplicatedObject.position.copy(selectedObject.position);
+    duplicatedObject.position.x += offset * copyNumber;
+    duplicatedObject.position.z += offset * copyNumber;
+
+    duplicatedObject.rotation.copy(selectedObject.rotation);
+    duplicatedObject.scale.copy(selectedObject.scale);
+
+    duplicatedObject.userData = Object.assign({}, selectedObject.userData);
+    duplicatedObject.userData.id = createDuplicateObjectId(copyNumber);
+    duplicatedObject.userData.selectable = true;
+
+    if (selectedObject.userData && selectedObject.userData.type) {
+        duplicatedObject.userData.type = selectedObject.userData.type;
+    }
+
+    if (selectedObject.userData && selectedObject.userData.color) {
+        duplicatedObject.userData.color = selectedObject.userData.color;
+    } else if (duplicatedObject.material && duplicatedObject.material.color) {
+        duplicatedObject.userData.color = "#" + duplicatedObject.material.color.getHexString();
+    }
+
+    return duplicatedObject;
+}
+
+
+function selectDuplicatedObject(duplicatedObject) {
+    if (typeof window.selectObject === "function") {
+        window.selectObject(duplicatedObject);
+        return;
+    }
+
+    window.selectedObject = duplicatedObject;
+
+    if (typeof window.refreshSelectedObjectPanel === "function") {
+        window.refreshSelectedObjectPanel();
+    }
+
+    window.dispatchEvent(new CustomEvent("cad:selectionChanged", {
+        detail: {
+            object: duplicatedObject
+        }
+    }));
 }
 
 
@@ -102,53 +177,37 @@ function duplicateSelectedObject() {
     }
 
     const offset = getDuplicateOffset();
-
-    const duplicatedObject = new THREE.Mesh(
-        selectedObject.geometry.clone(),
-        cloneMaterialForDuplicate(selectedObject.material)
-    );
-
-    duplicatedObject.name = createDuplicateName(selectedObject.name);
-
-    duplicatedObject.position.copy(selectedObject.position);
-    duplicatedObject.position.x += offset;
-    duplicatedObject.position.z += offset;
-
-    duplicatedObject.rotation.copy(selectedObject.rotation);
-    duplicatedObject.scale.copy(selectedObject.scale);
-
-    duplicatedObject.userData = Object.assign({}, selectedObject.userData);
-    duplicatedObject.userData.id = "object-" + Date.now();
-    duplicatedObject.userData.selectable = true;
-
-    if (selectedObject.userData && selectedObject.userData.type) {
-        duplicatedObject.userData.type = selectedObject.userData.type;
-    }
-
-    if (selectedObject.userData && selectedObject.userData.color) {
-        duplicatedObject.userData.color = selectedObject.userData.color;
-    } else if (duplicatedObject.material && duplicatedObject.material.color) {
-        duplicatedObject.userData.color = "#" + duplicatedObject.material.color.getHexString();
-    }
-
-    cadScene.add(duplicatedObject);
+    const duplicateCount = getDuplicateCount();
 
     const cadObjects = getCADObjectListForDuplicate();
-    cadObjects.push(duplicatedObject);
+    let lastDuplicatedObject = null;
 
-    window.selectedObject = duplicatedObject;
+    for (let copyNumber = 1; copyNumber <= duplicateCount; copyNumber++) {
+        const duplicatedObject = createDuplicatedObject(
+            selectedObject,
+            offset,
+            copyNumber
+        );
 
-    if (typeof window.refreshSelectedObjectPanel === "function") {
-        window.refreshSelectedObjectPanel();
+        cadScene.add(duplicatedObject);
+        cadObjects.push(duplicatedObject);
+        lastDuplicatedObject = duplicatedObject;
     }
 
-    window.dispatchEvent(new CustomEvent("cad:selectionChanged", {
-        detail: {
-            object: duplicatedObject
-        }
-    }));
+    if (lastDuplicatedObject) {
+        selectDuplicatedObject(lastDuplicatedObject);
+    }
 
-    setDuplicateStatus(duplicatedObject.name + " duplicated successfully.");
+    if (duplicateCount === 1) {
+        setDuplicateStatus(lastDuplicatedObject.name + " duplicated successfully.");
+    } else {
+        setDuplicateStatus(
+            duplicateCount +
+            " duplicates created from " +
+            (selectedObject.name || "selected object") +
+            "."
+        );
+    }
 }
 
 
@@ -165,4 +224,4 @@ window.duplicateSelectedObject = duplicateSelectedObject;
 
 document.addEventListener("DOMContentLoaded", function () {
     initDuplicateObjectControls();
-});  
+});

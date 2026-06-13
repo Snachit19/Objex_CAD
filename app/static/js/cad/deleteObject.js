@@ -24,42 +24,34 @@ function deleteSelectedObject() {
         return;
     }
 
-    const { scene } = window.CADWorkspace;
+    const workspace = window.CADWorkspace;
     const cadObjects = window.cadObjects || [];
 
-    if (!scene) {
+    if (!workspace || !workspace.scene) {
         console.error("CAD Scene not found.");
+        setDeleteStatus("CAD scene is not available.");
         return;
     }
 
-    // Confirm deletion
+    const scene = workspace.scene;
     const objectName = object.name || "Object";
 
-    // Remove from scene
     scene.remove(object);
 
-    // Remove from cadObjects array
     const objIndex = cadObjects.indexOf(object);
 
     if (objIndex !== -1) {
         cadObjects.splice(objIndex, 1);
     }
 
-    // Set selection to null
-    if (typeof window.setSelectedCADObject === "function") {
-        window.setSelectedCADObject(null);
+    if (typeof window.clearSelection === "function") {
+        window.clearSelection();
     } else {
         window.selectedObject = null;
-    }
 
-    // Notify others that selection changed to null
-    window.dispatchEvent(new CustomEvent("cad:selectionChanged", {
-        detail: { object: null }
-    }));
-
-    // Fresh UI
-    if (typeof window.refreshSelectedObjectPanel === "function") {
-        window.refreshSelectedObjectPanel();
+        window.dispatchEvent(new CustomEvent("cad:selectionChanged", {
+            detail: { object: null }
+        }));
     }
 
     setDeleteStatus(objectName + " deleted successfully.");
