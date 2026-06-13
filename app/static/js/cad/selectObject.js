@@ -9,11 +9,9 @@ let pointerStart = {
     y: 0
 };
 
-
 function getSelectionWorkspace() {
     return window.CADWorkspace;
 }
-
 
 function getSelectableRoot(object) {
     let current = object;
@@ -29,19 +27,49 @@ function getSelectableRoot(object) {
     return null;
 }
 
-
 function updateSelectedObjectPanel(object) {
-    const dashboard = document.getElementById("selectedObjectPanel");
-    if (!dashboard) return;
+    const nameText = document.getElementById("selectedObjectName");
+    const typeText = document.getElementById("selectedObjectType");
+    const positionText = document.getElementById("selectedObjectPosition");
+    const scaleText = document.getElementById("selectedObjectScale");
+    const dashboardDeleteBtn = document.getElementById("dashboardDeleteBtn");
 
-    if (!object) {
-        dashboard.style.display = "none";
+    if (!nameText || !typeText || !positionText || !scaleText) {
         return;
     }
 
-    dashboard.style.display = "block";
-}
+    if (!object) {
+        nameText.textContent = "None";
+        typeText.textContent = "None";
+        positionText.textContent = "None";
+        scaleText.textContent = "None";
 
+        if (dashboardDeleteBtn) {
+            dashboardDeleteBtn.style.display = "none";
+        }
+
+        return;
+    }
+
+    if (dashboardDeleteBtn) {
+        dashboardDeleteBtn.style.display = "block";
+    }
+
+    nameText.textContent = object.name || "Unnamed Object";
+    typeText.textContent = object.userData && object.userData.type
+        ? object.userData.type
+        : "Unknown";
+
+    positionText.textContent =
+        "X: " + object.position.x.toFixed(2) +
+        ", Y: " + object.position.y.toFixed(2) +
+        ", Z: " + object.position.z.toFixed(2);
+
+    scaleText.textContent =
+        "X: " + object.scale.x.toFixed(2) +
+        ", Y: " + object.scale.y.toFixed(2) +
+        ", Z: " + object.scale.z.toFixed(2);
+}
 
 function dispatchSelectionChanged(object) {
     window.dispatchEvent(
@@ -53,6 +81,15 @@ function dispatchSelectionChanged(object) {
     );
 }
 
+function dispatchObjectChanged(object) {
+    window.dispatchEvent(
+        new CustomEvent("cad:objectChanged", {
+            detail: {
+                object: object
+            }
+        })
+    );
+}
 
 function clearSelection() {
     const workspace = getSelectionWorkspace();
@@ -67,8 +104,11 @@ function clearSelection() {
 
     updateSelectedObjectPanel(null);
     dispatchSelectionChanged(null);
-}
 
+    if (typeof window.updateObjectPropertiesPanel === "function") {
+        window.updateObjectPropertiesPanel(null);
+    }
+}
 
 function selectObject(object) {
     const workspace = getSelectionWorkspace();
@@ -88,6 +128,10 @@ function selectObject(object) {
     updateSelectedObjectPanel(object);
     dispatchSelectionChanged(object);
 
+    if (typeof window.updateObjectPropertiesPanel === "function") {
+        window.updateObjectPropertiesPanel(object);
+    }
+
     const statusText = document.getElementById("cadStatusText");
 
     if (statusText) {
@@ -95,12 +139,16 @@ function selectObject(object) {
     }
 }
 
-
 function refreshSelectedObjectPanel() {
     const object = getSelectedCADObject();
 
     if (object) {
         updateSelectedObjectPanel(object);
+        dispatchObjectChanged(object);
+
+        if (typeof window.updateObjectPropertiesPanel === "function") {
+            window.updateObjectPropertiesPanel(object);
+        }
     }
 
     if (selectionBox) {
@@ -108,11 +156,9 @@ function refreshSelectedObjectPanel() {
     }
 }
 
-
 function getSelectedCADObject() {
     return window.selectedObject || selectedObject;
 }
-
 
 function getObjectFromPointer(event) {
     const workspace = getSelectionWorkspace();
@@ -139,12 +185,10 @@ function getObjectFromPointer(event) {
     return getSelectableRoot(intersections[0].object);
 }
 
-
 function handlePointerDown(event) {
     pointerStart.x = event.clientX;
     pointerStart.y = event.clientY;
 }
-
 
 function handlePointerUp(event) {
     const moveX = Math.abs(event.clientX - pointerStart.x);
@@ -163,7 +207,6 @@ function handlePointerUp(event) {
     }
 }
 
-
 function initObjectSelection() {
     const workspace = getSelectionWorkspace();
 
@@ -177,11 +220,11 @@ function initObjectSelection() {
     canvas.addEventListener("pointerup", handlePointerUp);
 }
 
-
 window.selectObject = selectObject;
 window.clearSelection = clearSelection;
 window.refreshSelectedObjectPanel = refreshSelectedObjectPanel;
 window.getSelectedCADObject = getSelectedCADObject;
+window.dispatchObjectChanged = dispatchObjectChanged;
 
 document.addEventListener("DOMContentLoaded", function () {
     window.addEventListener("cad:ready", initObjectSelection);

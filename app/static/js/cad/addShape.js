@@ -2,6 +2,21 @@ function getWorkspace() {
     return window.CADWorkspace;
 }
 
+function normaliseShapeColour(color) {
+    if (typeof color === "number") {
+        return "#" + color.toString(16).padStart(6, "0");
+    }
+
+    if (typeof color === "string") {
+        if (color.charAt(0) === "#") {
+            return color.toLowerCase();
+        }
+
+        return "#" + color.toLowerCase();
+    }
+
+    return "#ffffff";
+}
 
 function createMaterial(color) {
     return new THREE.MeshStandardMaterial({
@@ -11,7 +26,6 @@ function createMaterial(color) {
     });
 }
 
-
 function randomPosition() {
     return {
         x: Math.random() * 4 - 2,
@@ -20,8 +34,11 @@ function randomPosition() {
     };
 }
 
+function createObjectId() {
+    return "obj-" + Date.now() + "-" + Math.floor(Math.random() * 1000);
+}
 
-function registerShape(mesh, type) {
+function registerShape(mesh, type, colour) {
     const workspace = getWorkspace();
 
     if (!workspace || !workspace.scene) {
@@ -36,10 +53,15 @@ function registerShape(mesh, type) {
 
     mesh.name = type + "-" + (window.cadObjects.length + 1);
 
+    const hexColour = normaliseShapeColour(colour);
+
     mesh.userData = {
-        id: "obj-" + Date.now() + "-" + Math.floor(Math.random() * 1000),
+        id: createObjectId(),
         type: type,
-        selectable: true
+        selectable: true,
+        color: hexColour,
+        materialType: "default",
+        materialName: "Default"
     };
 
     workspace.scene.add(mesh);
@@ -48,44 +70,51 @@ function registerShape(mesh, type) {
     return mesh;
 }
 
-
 function addShape(type) {
     let geometry = null;
     let material = null;
+    let colour = 0xffffff;
 
     if (type === "cube") {
         geometry = new THREE.BoxGeometry(1.4, 1.4, 1.4);
-        material = createMaterial(0x3b82f6);
+        colour = 0x3b82f6;
+        material = createMaterial(colour);
     }
 
     if (type === "sphere") {
         geometry = new THREE.SphereGeometry(0.8, 32, 32);
-        material = createMaterial(0xef4444);
+        colour = 0xef4444;
+        material = createMaterial(colour);
     }
 
     if (type === "cylinder") {
         geometry = new THREE.CylinderGeometry(0.7, 0.7, 1.6, 32);
-        material = createMaterial(0x22c55e);
+        colour = 0x22c55e;
+        material = createMaterial(colour);
     }
 
     if (type === "cone") {
         geometry = new THREE.ConeGeometry(0.8, 1.7, 32);
-        material = createMaterial(0xf97316);
+        colour = 0xf97316;
+        material = createMaterial(colour);
     }
 
     if (type === "torus") {
         geometry = new THREE.TorusGeometry(0.75, 0.25, 16, 80);
-        material = createMaterial(0x60a5fa);
+        colour = 0x60a5fa;
+        material = createMaterial(colour);
     }
 
     if (type === "pyramid") {
         geometry = new THREE.ConeGeometry(0.9, 1.6, 4);
-        material = createMaterial(0x22c55e);
+        colour = 0x22c55e;
+        material = createMaterial(colour);
     }
 
     if (type === "plane") {
         geometry = new THREE.BoxGeometry(2.2, 0.08, 1.4);
-        material = createMaterial(0xf59e0b);
+        colour = 0xf59e0b;
+        material = createMaterial(colour);
     }
 
     if (!geometry || !material) {
@@ -94,9 +123,8 @@ function addShape(type) {
     }
 
     const mesh = new THREE.Mesh(geometry, material);
-    return registerShape(mesh, type);
+    return registerShape(mesh, type, colour);
 }
-
 
 function initAddShapeMenu() {
     const addShapeBtn = document.getElementById("addShapeBtn");
@@ -119,7 +147,11 @@ function initAddShapeMenu() {
             event.stopPropagation();
 
             const shapeType = button.getAttribute("data-shape");
-            addShape(shapeType);
+            const newObject = addShape(shapeType);
+
+            if (newObject && typeof window.selectObject === "function") {
+                window.selectObject(newObject);
+            }
 
             shapeMenuOptions.classList.remove("show");
         });
@@ -129,7 +161,6 @@ function initAddShapeMenu() {
         shapeMenuOptions.classList.remove("show");
     });
 }
-
 
 window.addShape = addShape;
 window.createMaterial = createMaterial;
