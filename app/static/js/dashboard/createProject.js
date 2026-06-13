@@ -24,6 +24,47 @@ function showProjectError(message) {
   projectError.style.display = "block";
 }
 
+function clearProjectList() {
+  projectList.textContent = "";
+}
+
+function createProjectListItem(project) {
+  const item = document.createElement("div");
+  item.className = "mock-project";
+  item.style.cursor = "pointer";
+
+  const name = document.createElement("strong");
+  name.textContent = project.name || "Untitled Project";
+
+  const action = document.createElement("span");
+  action.textContent = "Open";
+
+  item.appendChild(name);
+  item.appendChild(action);
+
+  item.addEventListener("click", () => {
+    window.location.href = `/cad/${project.id}`;
+  });
+
+  return item;
+}
+
+function createEmptyProjectState() {
+  const item = document.createElement("div");
+  item.className = "mock-project";
+
+  const title = document.createElement("strong");
+  title.textContent = "No projects yet";
+
+  const action = document.createElement("span");
+  action.textContent = "Create one";
+
+  item.appendChild(title);
+  item.appendChild(action);
+
+  return item;
+}
+
 async function loadProjects() {
   try {
     const response = await fetch("/api/projects");
@@ -34,33 +75,15 @@ async function loadProjects() {
       return;
     }
 
-    projectList.innerHTML = "";
+    clearProjectList();
 
     if (!data.projects || data.projects.length === 0) {
-      projectList.innerHTML = `
-        <div class="mock-project">
-          <strong>No projects yet</strong>
-          <span>Create one</span>
-        </div>
-      `;
+      projectList.appendChild(createEmptyProjectState());
       return;
     }
 
     data.projects.forEach((project) => {
-      const item = document.createElement("div");
-      item.className = "mock-project";
-      item.style.cursor = "pointer";
-
-      item.innerHTML = `
-        <strong>${project.name}</strong>
-        <span>Open</span>
-      `;
-
-      item.addEventListener("click", () => {
-        window.location.href = `/cad/${project.id}`;
-      });
-
-      projectList.appendChild(item);
+      projectList.appendChild(createProjectListItem(project));
     });
 
   } catch (error) {

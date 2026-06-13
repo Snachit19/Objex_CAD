@@ -103,6 +103,8 @@
     </div>
   </nav>
 
+  <div id="toastContainer" class="toast-container"></div>
+
   <main class="cad-workspace">
     <section class="cad-canvas-area">
       <canvas id="cadCanvas"></canvas>
@@ -312,6 +314,9 @@
 
         <label class="edit-label" for="duplicateOffsetInput">Duplicate Offset</label>
         <input id="duplicateOffsetInput" class="edit-input" type="number" value="1" min="0.1" step="0.1">
+
+        <label class="edit-label duplicate-count-label" for="duplicateCountInput">Number of Duplicates</label>
+        <input id="duplicateCountInput" class="edit-input" type="number" value="1" min="1" max="50" step="1">
 
         <button id="duplicateObjectBtn" class="edit-primary-btn" type="button">Duplicate Selected Object</button>
         <p id="duplicateObjectHint" class="edit-hint">Select an object first, then duplicate it.</p>
