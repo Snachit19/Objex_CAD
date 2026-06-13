@@ -19,6 +19,49 @@
         }
     }
 
+    function showCADToast(title, message) {
+        let toastContainer = document.getElementById("cadToastContainer");
+
+        if (!toastContainer) {
+            toastContainer = document.createElement("div");
+            toastContainer.id = "cadToastContainer";
+            toastContainer.className = "cad-toast-container";
+            document.body.appendChild(toastContainer);
+        }
+
+        toastContainer.innerHTML = "";
+
+        const toast = document.createElement("div");
+        toast.className = "cad-toast";
+
+        const iconElement = document.createElement("div");
+        iconElement.className = "cad-toast-icon";
+        iconElement.textContent = "✓";
+
+        const contentElement = document.createElement("div");
+        contentElement.className = "cad-toast-content";
+
+        const titleElement = document.createElement("span");
+        titleElement.className = "cad-toast-title";
+        titleElement.textContent = title;
+
+        const messageElement = document.createElement("span");
+        messageElement.className = "cad-toast-message";
+        messageElement.textContent = message;
+
+        contentElement.appendChild(titleElement);
+        contentElement.appendChild(messageElement);
+
+        toast.appendChild(iconElement);
+        toast.appendChild(contentElement);
+
+        toastContainer.appendChild(toast);
+
+        setTimeout(function () {
+            toast.remove();
+        }, 3200);
+    }
+
     function radianToDegree(radian) {
         return radian * 180 / Math.PI;
     }
@@ -210,11 +253,52 @@
         object.userData.color = colour;
     }
 
+    function getChangedProperties(object, newValues) {
+        const changedProperties = [];
+
+        if (object.name !== newValues.name) {
+            changedProperties.push("Name");
+        }
+
+        if (
+            object.position.x !== newValues.positionX ||
+            object.position.y !== newValues.positionY ||
+            object.position.z !== newValues.positionZ
+        ) {
+            changedProperties.push("Position");
+        }
+
+        if (
+            Math.round(radianToDegree(object.rotation.x)) !== Math.round(newValues.rotationX) ||
+            Math.round(radianToDegree(object.rotation.y)) !== Math.round(newValues.rotationY) ||
+            Math.round(radianToDegree(object.rotation.z)) !== Math.round(newValues.rotationZ)
+        ) {
+            changedProperties.push("Rotation");
+        }
+
+        if (
+            object.scale.x !== newValues.scaleX ||
+            object.scale.y !== newValues.scaleY ||
+            object.scale.z !== newValues.scaleZ
+        ) {
+            changedProperties.push("Scale");
+        }
+
+        const currentColour = getObjectColour(object);
+
+        if (currentColour !== newValues.colour) {
+            changedProperties.push("Colour");
+        }
+
+        return changedProperties;
+    }
+
     function applyObjectProperties() {
         const object = getSelectedObject();
 
         if (!object) {
             setStatus("Please select an object before applying properties.");
+            showCADToast("No object selected", "Please select an object before applying changes.");
             return;
         }
 
@@ -261,13 +345,31 @@
 
         if (!selectedColour) {
             setStatus("Invalid colour value. Use format like #ff0000.");
+            showCADToast("Invalid colour", "Use colour format like #ff0000.");
             return;
         }
 
         if (scaleX <= 0 || scaleY <= 0 || scaleZ <= 0) {
             setStatus("Scale values must be greater than 0.");
+            showCADToast("Invalid scale", "Scale values must be greater than 0.");
             return;
         }
+
+        const newValues = {
+            name: objectName,
+            positionX: positionX,
+            positionY: positionY,
+            positionZ: positionZ,
+            rotationX: rotationX,
+            rotationY: rotationY,
+            rotationZ: rotationZ,
+            scaleX: scaleX,
+            scaleY: scaleY,
+            scaleZ: scaleZ,
+            colour: selectedColour
+        };
+
+        const changedProperties = getChangedProperties(object, newValues);
 
         object.name = objectName;
         object.position.set(positionX, positionY, positionZ);
@@ -291,7 +393,21 @@
             window.refreshSelectedObjectPanel();
         }
 
-        setStatus(object.name + " properties updated.");
+        if (changedProperties.length > 0) {
+            setStatus(object.name + " properties updated.");
+
+            showCADToast(
+                "Properties Updated Successfully",
+                "Changed: " + changedProperties.join(", ")
+            );
+        } else {
+            setStatus("No property changes detected.");
+
+            showCADToast(
+                "No changes detected",
+                "The selected object already has these values."
+            );
+        }
     }
 
     function connectColourInputs() {
@@ -349,6 +465,7 @@
 
     window.updateObjectPropertiesPanel = updateObjectPropertiesPanel;
     window.applyObjectProperties = applyObjectProperties;
+    window.showCADToast = showCADToast;
 
     document.addEventListener("DOMContentLoaded", initObjectProperties);
 })();
