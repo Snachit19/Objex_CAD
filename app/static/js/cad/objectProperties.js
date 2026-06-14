@@ -360,7 +360,7 @@
 
         if (!object) {
             setStatus("Please select an object before applying properties.");
-            showCADToast("No object selected", "Please select an object before applying changes.");
+            showToast("No object selected");
             return;
         }
 
@@ -407,13 +407,13 @@
 
         if (!selectedColour) {
             setStatus("Invalid colour value. Use format like #ff0000.");
-            showCADToast("Invalid colour", "Use colour format like #ff0000.");
+            showToast("Invalid colour");
             return;
         }
 
         if (scaleX <= 0 || scaleY <= 0 || scaleZ <= 0) {
             setStatus("Scale values must be greater than 0.");
-            showCADToast("Invalid scale", "Scale values must be greater than 0.");
+            showToast("Invalid scale");
             return;
         }
 
@@ -518,7 +518,7 @@
 
     window.updateObjectPropertiesPanel = updateObjectPropertiesPanel;
     window.applyObjectProperties = applyObjectProperties;
-    window.showCADToast = showCADToast;
+    window.showToast = showToast;
 
     document.addEventListener("DOMContentLoaded", initObjectProperties);
 })();

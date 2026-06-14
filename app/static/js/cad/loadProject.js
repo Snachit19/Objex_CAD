@@ -2,6 +2,7 @@ let loadedProjectDesignData = [];
 let savedObjectsRestored = false;
 let restoreRetryCount = 0;
 
+
 function setTextById(elementId, text) {
     const element = document.getElementById(elementId);
 
@@ -10,28 +11,6 @@ function setTextById(elementId, text) {
     }
 }
 
-function parseDesignData(designData) {
-    if (Array.isArray(designData)) {
-        return designData;
-    }
-
-    if (typeof designData === "string") {
-        try {
-            const parsedData = JSON.parse(designData);
-
-            if (Array.isArray(parsedData)) {
-                return parsedData;
-            }
-
-            return [];
-        } catch (error) {
-            console.error("Could not parse design data:", error);
-            return [];
-        }
-    }
-
-    return [];
-}
 
 async function loadProject() {
     const projectId = window.PROJECT_ID;
@@ -64,7 +43,17 @@ async function loadProject() {
             project.description || "No description added."
         );
 
-        loadedProjectDesignData = parseDesignData(project.design_data);
+        if (Array.isArray(project.design_data)) {
+            loadedProjectDesignData = project.design_data;
+        } else if (typeof project.design_data === "string") {
+            try {
+                loadedProjectDesignData = JSON.parse(project.design_data);
+            } catch (error) {
+                loadedProjectDesignData = [];
+            }
+        } else {
+            loadedProjectDesignData = [];
+        }
 
         setTextById("cadStatusText", "Saved project opened successfully.");
 
@@ -78,80 +67,6 @@ async function loadProject() {
     }
 }
 
-function applySavedColour(object, colour) {
-    if (!object || !object.material || !colour) {
-        return;
-    }
-
-    if (Array.isArray(object.material)) {
-        object.material.forEach(function (material) {
-            if (material && material.color) {
-                material.color.set(colour);
-                material.needsUpdate = true;
-            }
-        });
-    } else if (object.material.color) {
-        object.material.color.set(colour);
-        object.material.needsUpdate = true;
-    }
-}
-
-function restoreSingleObject(savedObject) {
-    if (!savedObject || !savedObject.type) {
-        return null;
-    }
-
-    const beforeCount = window.cadObjects.length;
-    const createdObject = addShape(savedObject.type);
-
-    let object = createdObject;
-
-    if (!object && window.cadObjects.length > beforeCount) {
-        object = window.cadObjects[window.cadObjects.length - 1];
-    }
-
-    if (!object) {
-        return null;
-    }
-
-    object.name = savedObject.name || object.name || "Unnamed Object";
-
-    object.userData = object.userData || {};
-    object.userData.id = savedObject.id || object.userData.id || "";
-    object.userData.type = savedObject.type || object.userData.type || "unknown";
-    object.userData.selectable = true;
-    object.userData.color = savedObject.color || object.userData.color || "#ffffff";
-    object.userData.materialType = savedObject.materialType || "default";
-    object.userData.materialName = savedObject.materialName || "Default";
-
-    if (savedObject.position) {
-        object.position.set(
-            Number(savedObject.position.x) || 0,
-            Number(savedObject.position.y) || 0,
-            Number(savedObject.position.z) || 0
-        );
-    }
-
-    if (savedObject.rotation) {
-        object.rotation.set(
-            Number(savedObject.rotation.x) || 0,
-            Number(savedObject.rotation.y) || 0,
-            Number(savedObject.rotation.z) || 0
-        );
-    }
-
-    if (savedObject.scale) {
-        object.scale.set(
-            Number(savedObject.scale.x) || 1,
-            Number(savedObject.scale.y) || 1,
-            Number(savedObject.scale.z) || 1
-        );
-    }
-
-    applySavedColour(object, object.userData.color);
-
-    return object;
-}
 
 function restoreSavedCADObjects() {
     if (savedObjectsRestored) {
@@ -165,11 +80,10 @@ function restoreSavedCADObjects() {
 
     if (loadedProjectDesignData.length === 0) {
         savedObjectsRestored = true;
-        setTextById("cadStatusText", "Saved project opened successfully. No objects saved yet.");
         return;
     }
 
-    if (typeof addShape !== "function" || !window.cadObjects || !window.CADWorkspace) {
+    if (typeof addShape !== "function" || !window.cadObjects) {
         restoreRetryCount = restoreRetryCount + 1;
 
         if (restoreRetryCount <= 10) {
@@ -182,7 +96,107 @@ function restoreSavedCADObjects() {
     }
 
     loadedProjectDesignData.forEach(function (savedObject) {
-        restoreSingleObject(savedObject);
+        if (!savedObject || !savedObject.type) {
+            return;
+        }
+
+        const beforeCount = window.cadObjects.length;
+
+        const createdObject = addShape(savedObject.type);
+
+        let object = createdObject;
+
+        if (!object && window.cadObjects.length > beforeCount) {
+            object = window.cadObjects[window.cadObjects.length - 1];
+        }
+
+        if (!object) {
+            return;
+        }
+
+        object.name = savedObject.name || object.name || "Unnamed Object";
+
+        object.userData = object.userData || {};
+        object.userData.id = savedObject.id || object.userData.id || "";
+        object.userData.type = savedObject.type || object.userData.type || "unknown";
+        object.userData.selectable = true;
+        object.userData.color = savedObject.color || "#ffffff";
+
+        // ✅ UPDATED: Restore material type and name
+        if (savedObject.materialType) {
+            object.userData.materialType = savedObject.materialType;
+        } else {
+            object.userData.materialType = "default";
+        }
+
+        if (savedObject.materialName) {
+            object.userData.materialName = savedObject.materialName;
+        } else {
+            object.userData.materialName = "Default";
+        }
+
+        if (savedObject.position) {
+            object.position.set(
+                Number(savedObject.position.x) || 0,
+                Number(savedObject.position.y) || 0,
+                Number(savedObject.position.z) || 0
+            );
+        }
+
+        if (savedObject.rotation) {
+            object.rotation.set(
+                Number(savedObject.rotation.x) || 0,
+                Number(savedObject.rotation.y) || 0,
+                Number(savedObject.rotation.z) || 0
+            );
+        }
+
+        if (savedObject.scale) {
+            object.scale.set(
+                Number(savedObject.scale.x) || 1,
+                Number(savedObject.scale.y) || 1,
+                Number(savedObject.scale.z) || 1
+            );
+        }
+
+        if (savedObject.color && object.material) {
+            if (Array.isArray(object.material)) {
+                object.material.forEach(function (material) {
+                    if (material && material.color) {
+                        material.color.set(savedObject.color);
+                        material.needsUpdate = true;
+                    }
+                });
+            } else if (object.material.color) {
+                object.material.color.set(savedObject.color);
+                object.material.needsUpdate = true;
+            }
+        }
+
+        // ✅ UPDATED: Restore material properties
+        if (savedObject.materialData) {
+            object.userData.materialData = savedObject.materialData;
+            
+            const matData = savedObject.materialData;
+            let newMaterial;
+            
+            const materialParams = {
+                color: savedObject.color || 0xcccccc,
+                roughness: Number(matData.roughness) || 0.5,
+                metalness: Number(matData.metalness) || 0.5,
+                opacity: Number(matData.opacity) || 1.0,
+                transparent: matData.transparent || false,
+                emissive: new THREE.Color(matData.emissive || 0x000000),
+                emissiveIntensity: Number(matData.emissiveIntensity) || 1.0,
+                depthWrite: matData.depthWrite !== undefined ? matData.depthWrite : true
+            };
+
+            // Create material based on stored type
+            newMaterial = new THREE.MeshStandardMaterial(materialParams);
+            
+            object.material = newMaterial;
+            object.material.needsUpdate = true;
+        }
     });
 
     savedObjectsRestored = true;
@@ -192,22 +206,16 @@ function restoreSavedCADObjects() {
         "Saved project opened successfully. Objects loaded: " +
         loadedProjectDesignData.length
     );
-
-    if (typeof window.clearSelection === "function") {
-        window.clearSelection();
-    }
 }
 
+
 document.addEventListener("DOMContentLoaded", function () {
-    if (window.isCADSceneReady && window.isCADSceneReady()) {
-        loadProject();
-        return;
-    }
+  if (window.isCADSceneReady && window.isCADSceneReady()) {
+    loadProject();
+    return;
+  }
 
-    window.addEventListener("cad:ready", function () {
-        loadProject();
-    }, { once: true });
+  window.addEventListener("cad:ready", function () {
+    loadProject();
+  }, { once: true });
 });
-
-window.loadProject = loadProject;
-window.restoreSavedCADObjects = restoreSavedCADObjects;
