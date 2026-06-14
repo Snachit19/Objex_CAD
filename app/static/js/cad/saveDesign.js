@@ -1,29 +1,20 @@
-function getObjectColourForSaving(object) {
-    if (!object) {
-        return "#ffffff";
-    }
-
-    if (object.userData && object.userData.color) {
-        return object.userData.color;
-    }
-
-    if (object.material && object.material.color) {
-        return "#" + object.material.color.getHexString();
-    }
-
-    return "#ffffff";
-}
-
 function getCADObjectsForSaving() {
     const objects = window.cadObjects || [];
 
     return objects.map(function (object) {
-        object.userData = object.userData || {};
+        let color = "#ffffff";
 
+        if (object.userData && object.userData.color) {
+            color = object.userData.color;
+        } else if (object.material && object.material.color) {
+            color = "#" + object.material.color.getHexString();
+        }
+
+        // ✅ UPDATED: Include materialType and materialName in saved data
         return {
-            id: object.userData.id || "",
+            id: object.userData && object.userData.id ? object.userData.id : "",
             name: object.name || "Unnamed Object",
-            type: object.userData.type || "unknown",
+            type: object.userData && object.userData.type ? object.userData.type : "unknown",
 
             position: {
                 x: object.position.x,
@@ -43,13 +34,20 @@ function getCADObjectsForSaving() {
                 z: object.scale.z
             },
 
-            color: getObjectColourForSaving(object),
-
-            materialType: object.userData.materialType || "default",
-            materialName: object.userData.materialName || "Default"
+            color: color,
+            
+            // New: Material type (e.g., "metal", "glass", "plastic")
+            materialType: (object.userData && object.userData.materialType) || "default",
+            
+            // New: Material name (e.g., "Metal", "Glass", "Plastic")
+            materialName: (object.userData && object.userData.materialName) || "Default",
+            
+            // Existing: Full material data for backward compatibility
+            materialData: object.userData.materialData || null
         };
     });
 }
+
 
 async function saveDesign() {
     const saveButton = document.getElementById("saveDesignBtn");
@@ -60,7 +58,6 @@ async function saveDesign() {
         if (statusText) {
             statusText.textContent = "Project ID missing. Cannot save design.";
         }
-
         return;
     }
 
@@ -92,7 +89,6 @@ async function saveDesign() {
             if (statusText) {
                 statusText.textContent = data.message || "Could not save design.";
             }
-
             return;
         }
 
@@ -118,6 +114,7 @@ async function saveDesign() {
     }
 }
 
+
 document.addEventListener("DOMContentLoaded", function () {
     const saveButton = document.getElementById("saveDesignBtn");
 
@@ -128,6 +125,3 @@ document.addEventListener("DOMContentLoaded", function () {
 
     saveButton.addEventListener("click", saveDesign);
 });
-
-window.getCADObjectsForSaving = getCADObjectsForSaving;
-window.saveDesign = saveDesign;
