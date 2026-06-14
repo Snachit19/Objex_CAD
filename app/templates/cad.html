@@ -65,6 +65,10 @@
         <img src="/static/assets/colour-object.svg" alt="Change Object Colour">
       </button>
 
+      <button id="materialsToolBtn" class="cad-icon-tool-btn" title="Apply Material" aria-label="Apply Material" type="button">
+        <span style="font-size: 20px; line-height: 1;">✨</span>
+      </button>
+
       <button id="gridToolBtn" class="cad-icon-tool-btn" title="Show Grid" aria-label="Show Grid" type="button">
         <img src="/static/assets/grid-object.svg" alt="Show Grid">
       </button>
@@ -352,6 +356,27 @@
         <p id="colourObjectHint" class="edit-hint">Select an object first, then choose or type a hex colour.</p>
       </div>
 
+      <div id="materialsObjectPanel" class="object-edit-panel tool-panel-hidden">
+        <div class="object-edit-header">
+          <h3>Apply Material</h3>
+          <span class="object-edit-badge">Material</span>
+        </div>
+
+        <p class="edit-subtitle">Material Library</p>
+        <div class="edit-button-grid material-grid">
+          <button type="button" data-mat-preset="default" title="Default Matte">Default</button>
+          <button type="button" data-mat-preset="solid" title="Fully Opaque">Solid</button>
+          <button type="button" data-mat-preset="plastic" title="Smooth Plastic">Plastic</button>
+          <button type="button" data-mat-preset="metal" title="Shiny Metal">Metal</button>
+          <button type="button" data-mat-preset="glass" title="Transparent Glass">Glass</button>
+          <button type="button" data-mat-preset="wood" title="Wood Texture">Wood</button>
+          <button type="button" data-mat-preset="neon" title="Glowing Neon">Neon</button>
+          <button type="button" data-mat-preset="transparent" title="See-Through">Transparent</button>
+        </div>
+
+        <p id="materialsObjectHint" class="edit-hint">Select an object first, then choose a material.</p>
+      </div>
+
       <div id="gridObjectPanel" class="object-edit-panel tool-panel-hidden">
         <div class="object-edit-header">
           <h3>Show Grid</h3>
@@ -472,6 +497,7 @@
   <script src="/static/js/cad/duplicateObject.js"></script>
   <script src="/static/js/cad/deleteObject.js"></script>
   <script src="/static/js/cad/colourObject.js"></script>
+  <script src="/static/js/cad/applyMaterials.js"></script>
 
   <script src="/static/js/cad/showGrid.js"></script>
   <script src="/static/js/cad/showAxes.js"></script>
@@ -487,6 +513,7 @@
       const duplicateToolBtn = document.getElementById("duplicateToolBtn");
       const deleteToolBtn = document.getElementById("deleteToolBtn");
       const colourToolBtn = document.getElementById("colourToolBtn");
+      const materialsToolBtn = document.getElementById("materialsToolBtn");
       const gridToolBtn = document.getElementById("gridToolBtn");
       const axesToolBtn = document.getElementById("axesToolBtn");
       const zoomToolBtn = document.getElementById("zoomToolBtn");
@@ -499,6 +526,7 @@
       const duplicatePanel = document.getElementById("duplicateObjectPanel");
       const deletePanel = document.getElementById("deleteObjectPanel");
       const colourPanel = document.getElementById("colourObjectPanel");
+      const materialsPanel = document.getElementById("materialsObjectPanel");
       const gridPanel = document.getElementById("gridObjectPanel");
       const axesPanel = document.getElementById("axesObjectPanel");
       const panCameraPanel = document.getElementById("panCameraPanel");
@@ -512,6 +540,7 @@
           duplicatePanel,
           deletePanel,
           colourPanel,
+          materialsPanel,
           gridPanel,
           axesPanel,
           panCameraPanel,
@@ -525,6 +554,7 @@
           duplicateToolBtn,
           deleteToolBtn,
           colourToolBtn,
+          materialsToolBtn,
           gridToolBtn,
           axesToolBtn,
           zoomToolBtn,
@@ -578,6 +608,7 @@
       connectToolButton(duplicateToolBtn, duplicatePanel);
       connectToolButton(deleteToolBtn, deletePanel);
       connectToolButton(colourToolBtn, colourPanel);
+      connectToolButton(materialsToolBtn, materialsPanel);
       connectToolButton(gridToolBtn, gridPanel);
       connectToolButton(axesToolBtn, axesPanel);
       connectToolButton(panToolBtn, panCameraPanel);
