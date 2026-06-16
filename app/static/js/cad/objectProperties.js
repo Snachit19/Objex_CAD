@@ -199,6 +199,12 @@
 
         if (currentColour !== nextProperties.colour) {
             changes.push("Colour");
+        } 
+
+        const currentMaterial = (object.userData && object.userData.materialType) || "default";
+
+        if (currentMaterial !== nextProperties.material) {
+            changes.push("Material");
         }
 
         if (changes.length === 0) {
