@@ -102,6 +102,75 @@
         );
     }
 
+    function captureRotation(object) {
+        return {
+            x: object.rotation.x,
+            y: object.rotation.y,
+            z: object.rotation.z,
+            order: object.rotation.order
+        };
+    }
+
+    function rotationsAreEqual(firstRotation, secondRotation) {
+        const tolerance = 0.0000001;
+
+        return (
+            Math.abs(firstRotation.x - secondRotation.x) <= tolerance &&
+            Math.abs(firstRotation.y - secondRotation.y) <= tolerance &&
+            Math.abs(firstRotation.z - secondRotation.z) <= tolerance &&
+            firstRotation.order === secondRotation.order
+        );
+    }
+
+    function applyRotationSnapshot(object, rotation) {
+        object.rotation.set(
+            rotation.x,
+            rotation.y,
+            rotation.z,
+            rotation.order
+        );
+
+        refreshAfterRotate(object);
+    }
+
+    function recordRotationHistory(object, previousRotation, nextRotation) {
+        if (!window.CADHistory || typeof window.CADHistory.push !== "function") {
+            return;
+        }
+
+        const objectName = object.name || "Selected object";
+
+        window.CADHistory.push({
+            label: "Rotate " + objectName,
+            undo: function () {
+                applyRotationSnapshot(object, previousRotation);
+                setStatus(objectName + " rotation undone.");
+            },
+            redo: function () {
+                applyRotationSnapshot(object, nextRotation);
+                setStatus(objectName + " rotation redone.");
+            }
+        });
+    }
+
+    function applyRotationChange(object, changeRotation) {
+        const previousRotation = captureRotation(object);
+
+        changeRotation();
+
+        const nextRotation = captureRotation(object);
+
+        if (rotationsAreEqual(previousRotation, nextRotation)) {
+            refreshAfterRotate(object);
+            setStatus((object.name || "Selected object") + " rotation unchanged.");
+            return;
+        }
+
+        refreshAfterRotate(object);
+        recordRotationHistory(object, previousRotation, nextRotation);
+        setStatus(getRotationStatusMessage(object));
+    }
+
     function rotateSelectedObject(axis, degreeAmount) {
         const object = getSelectedObject();
 
@@ -122,10 +191,9 @@
             return;
         }
 
-        object.rotation[axis] += degreeToRadian(amount);
-
-        refreshAfterRotate(object);
-        setStatus(getRotationStatusMessage(object));
+        applyRotationChange(object, function () {
+            object.rotation[axis] += degreeToRadian(amount);
+        });
     }
 
     function applyManualRotation() {
@@ -158,14 +226,13 @@
             return;
         }
 
-        object.rotation.set(
-            degreeToRadian(xDegree),
-            degreeToRadian(yDegree),
-            degreeToRadian(zDegree)
-        );
-
-        refreshAfterRotate(object);
-        setStatus(getRotationStatusMessage(object));
+        applyRotationChange(object, function () {
+            object.rotation.set(
+                degreeToRadian(xDegree),
+                degreeToRadian(yDegree),
+                degreeToRadian(zDegree)
+            );
+        });
     }
 
     function connectRotateButton(buttonId, axis, direction) {
