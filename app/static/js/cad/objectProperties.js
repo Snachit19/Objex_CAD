@@ -199,6 +199,12 @@
 
         if (currentColour !== nextProperties.colour) {
             changes.push("Colour");
+        } 
+
+        const currentMaterial = (object.userData && object.userData.materialType) || "default";
+
+        if (currentMaterial !== nextProperties.material) {
+            changes.push("Material");
         }
 
         if (changes.length === 0) {
@@ -249,7 +255,9 @@
             setInputValue("propertyColourInput", "#ffffff");
             setInputValue("propertyHexInput", "#ffffff");
 
-            setTextValue("propertyMaterialText", "Default");
+            const materialSelect = document.getElementById("propertyMaterialSelect");
+            if (materialSelect) materialSelect.value = "default";
+
             setTextValue("propertyDimensionsText", "None");
 
             return;
@@ -284,8 +292,10 @@
         setInputValue("propertyColourInput", colour);
         setInputValue("propertyHexInput", colour);
 
-        setTextValue("propertyMaterialText", object.userData.materialName || "Default");
-
+        const materialSelect = document.getElementById("propertyMaterialSelect");
+            if (materialSelect) {
+                materialSelect.value = object.userData.materialType || "default";
+            }
         setTextValue(
             "propertyDimensionsText",
             "W: " + dimensions.x.toFixed(2) +
@@ -417,6 +427,11 @@
             return;
         }
 
+        const materialSelect = document.getElementById("propertyMaterialSelect");
+const selectedMaterial = materialSelect
+    ? materialSelect.value
+    : (object.userData.materialType || "default");
+
         const changeMessage = getObjectPropertyChanges(object, {
             name: objectName,
             position: {
@@ -434,7 +449,8 @@
                 y: scaleY,
                 z: scaleZ
             },
-            colour: selectedColour
+            colour: selectedColour,
+            material: selectedMaterial
         });
 
         object.name = objectName;
@@ -451,6 +467,10 @@
         object.userData = object.userData || {};
         object.userData.materialType = object.userData.materialType || "default";
         object.userData.materialName = object.userData.materialName || "Default";
+        
+        if (selectedMaterial !== (object.userData.materialType || "default") && typeof window.applyMaterialPreset === "function") {
+            window.applyMaterialPreset(selectedMaterial);
+        }
 
         applyColourToObject(object, selectedColour);
         updateObjectPropertiesPanel(object);
