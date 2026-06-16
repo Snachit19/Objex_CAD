@@ -255,7 +255,9 @@
             setInputValue("propertyColourInput", "#ffffff");
             setInputValue("propertyHexInput", "#ffffff");
 
-            setTextValue("propertyMaterialText", "Default");
+            const materialSelect = document.getElementById("propertyMaterialSelect");
+            if (materialSelect) materialSelect.value = "default";
+
             setTextValue("propertyDimensionsText", "None");
 
             return;
