@@ -1020,7 +1020,7 @@ a {
 }
 
 .zoom-menu-options {
-  width: 170px;
+  width: 250px;
 }
 
 .shape-menu-options.show,
@@ -1062,6 +1062,41 @@ a {
   width: 26px;
   height: 26px;
   object-fit: contain;
+}
+
+.zoom-slider-control {
+  padding: 8px 10px 10px;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.16);
+}
+
+.zoom-slider-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  color: #e2e8f0;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+#zoomLevelText {
+  color: #93c5fd;
+}
+
+#zoomSlider {
+  width: 100%;
+  accent-color: #60a5fa;
+  cursor: pointer;
+}
+
+.zoom-action-row {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 6px;
+}
+
+.zoom-action-row button {
+  justify-content: center;
 }
 
 #zoomToolBtn.active-tool-btn,
