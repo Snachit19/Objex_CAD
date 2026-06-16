@@ -142,7 +142,7 @@ console.log("🟢 applyMaterials.js LOADED");
         const preset = MATERIAL_PRESETS[presetKey];
         const config = preset.config;
         
-        // Get current color
+        // Get current color    
         let currentColor = 0xcccccc;
         if (object.material && object.material.color) {
             currentColor = object.material.color.clone();
@@ -176,7 +176,8 @@ console.log("🟢 applyMaterials.js LOADED");
         // Store metadata
         object.userData = object.userData || {};
         object.userData.materialType = presetKey;
-        object.userData.materialName = preset.name;
+        object.userData.materialName = preset.name; 
+        object.userData.materialData = config;
         
         console.log("🟢 userData updated");
 
