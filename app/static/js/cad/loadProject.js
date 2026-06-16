@@ -102,7 +102,9 @@ function restoreSavedCADObjects() {
 
         const beforeCount = window.cadObjects.length;
 
-        const createdObject = addShape(savedObject.type);
+        const createdObject = addShape(savedObject.type, {
+            recordHistory: false
+        });
 
         let object = createdObject;
 

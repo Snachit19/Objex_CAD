@@ -21,7 +21,110 @@ function randomPosition() {
 }
 
 
-function registerShape(mesh, type) {
+function getCADObjectList() {
+    window.cadObjects = window.cadObjects || [];
+    return window.cadObjects;
+}
+
+
+function setAddShapeStatus(message) {
+    const statusText = document.getElementById("cadStatusText");
+
+    if (statusText) {
+        statusText.textContent = message;
+    }
+}
+
+
+function getShapeDisplayName(type) {
+    if (!type) {
+        return "Object";
+    }
+
+    return type.charAt(0).toUpperCase() + type.slice(1);
+}
+
+
+function addObjectToCADScene(object) {
+    const workspace = getWorkspace();
+
+    if (!workspace || !workspace.scene || !object) {
+        return false;
+    }
+
+    const cadObjects = getCADObjectList();
+
+    workspace.scene.add(object);
+
+    if (cadObjects.indexOf(object) === -1) {
+        cadObjects.push(object);
+    }
+
+    return true;
+}
+
+
+function removeObjectFromCADScene(object) {
+    const workspace = getWorkspace();
+
+    if (!workspace || !workspace.scene || !object) {
+        return false;
+    }
+
+    const selectedObject = typeof window.getSelectedCADObject === "function"
+        ? window.getSelectedCADObject()
+        : window.selectedObject;
+
+    if (selectedObject === object) {
+        if (typeof window.clearSelection === "function") {
+            window.clearSelection();
+        } else {
+            window.selectedObject = null;
+        }
+    }
+
+    workspace.scene.remove(object);
+
+    const cadObjects = getCADObjectList();
+    const objectIndex = cadObjects.indexOf(object);
+
+    if (objectIndex !== -1) {
+        cadObjects.splice(objectIndex, 1);
+    }
+
+    return true;
+}
+
+
+function shouldRecordShapeHistory(options) {
+    return !options || options.recordHistory !== false;
+}
+
+
+function recordShapeCreationHistory(mesh, type) {
+    if (!window.CADHistory || typeof window.CADHistory.push !== "function") {
+        return;
+    }
+
+    const label = "Add " + getShapeDisplayName(type);
+
+    window.CADHistory.push({
+        label: label,
+        undo: function () {
+            if (removeObjectFromCADScene(mesh)) {
+                setAddShapeStatus((mesh.name || getShapeDisplayName(type)) + " removed.");
+            }
+        },
+        redo: function () {
+            if (addObjectToCADScene(mesh)) {
+                setAddShapeStatus((mesh.name || getShapeDisplayName(type)) + " restored.");
+            }
+        }
+    });
+}
+
+
+function registerShape(mesh, type, options) {
     const workspace = getWorkspace();
 
     if (!workspace || !workspace.scene) {
@@ -29,12 +132,12 @@ function registerShape(mesh, type) {
         return null;
     }
 
-    window.cadObjects = window.cadObjects || [];
+    const cadObjects = getCADObjectList();
 
     const position = randomPosition();
     mesh.position.set(position.x, position.y, position.z);
 
-    mesh.name = type + "-" + (window.cadObjects.length + 1);
+    mesh.name = type + "-" + (cadObjects.length + 1);
 
     mesh.userData = {
         id: "obj-" + Date.now() + "-" + Math.floor(Math.random() * 1000),
@@ -44,14 +147,17 @@ function registerShape(mesh, type) {
         materialName: "Default"
     };
 
-    workspace.scene.add(mesh);
-    window.cadObjects.push(mesh);
+    addObjectToCADScene(mesh);
+
+    if (shouldRecordShapeHistory(options)) {
+        recordShapeCreationHistory(mesh, type);
+    }
 
     return mesh;
 }
 
 
-function addShape(type) {
+function addShape(type, options) {
     let geometry = null;
     let material = null;
 
@@ -96,7 +202,7 @@ function addShape(type) {
     }
 
     const mesh = new THREE.Mesh(geometry, material);
-    return registerShape(mesh, type);
+    return registerShape(mesh, type, options);
 }
 
 
@@ -135,6 +241,8 @@ function initAddShapeMenu() {
 
 window.addShape = addShape;
 window.createMaterial = createMaterial;
+window.addObjectToCADScene = addObjectToCADScene;
+window.removeObjectFromCADScene = removeObjectFromCADScene;
 
 document.addEventListener("DOMContentLoaded", function () {
     initAddShapeMenu();
