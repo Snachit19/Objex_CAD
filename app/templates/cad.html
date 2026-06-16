@@ -184,9 +184,17 @@
         <input id="propertyColourInput" class="edit-input colour-input" type="color" value="#ffffff">
         <input id="propertyHexInput" class="edit-input hex-input" type="text" value="#ffffff" maxlength="7" placeholder="#ffffff">
 
-        <p class="edit-hint">
-          <strong>Material:</strong> <span id="propertyMaterialText">Default</span>
-        </p>
+        <p class="edit-subtitle">Material</p>
+          <select id="propertyMaterialSelect" class="edit-input">
+            <option value="default">Default</option>
+            <option value="solid">Solid</option>
+            <option value="plastic">Plastic</option>
+            <option value="metal">Metal</option>
+            <option value="glass">Glass</option>
+            <option value="wood">Wood</option>
+            <option value="neon">Neon</option>
+            <option value="transparent">Transparent</option>
+          </select>
 
         <p class="edit-hint">
           <strong>Dimensions:</strong> <span id="propertyDimensionsText">None</span>
