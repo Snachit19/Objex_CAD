@@ -1,4 +1,3 @@
-
 function getMoveSelectedObject() {
     if (typeof window.getSelectedCADObject === "function") {
         return window.getSelectedCADObject();
@@ -69,6 +68,84 @@ function refreshAfterMove(object) {
 }
 
 
+function capturePosition(object) {
+    return {
+        x: object.position.x,
+        y: object.position.y,
+        z: object.position.z
+    };
+}
+
+
+function positionsAreEqual(firstPosition, secondPosition) {
+    return (
+        firstPosition.x === secondPosition.x &&
+        firstPosition.y === secondPosition.y &&
+        firstPosition.z === secondPosition.z
+    );
+}
+
+
+function applyPositionSnapshot(object, position) {
+    object.position.set(position.x, position.y, position.z);
+    refreshAfterMove(object);
+}
+
+
+function getMoveStatusMessage(object) {
+    const objectName = object.name || "Selected object";
+
+    return (
+        objectName +
+        " moved to X: " +
+        object.position.x.toFixed(2) +
+        ", Y: " +
+        object.position.y.toFixed(2) +
+        ", Z: " +
+        object.position.z.toFixed(2)
+    );
+}
+
+
+function recordMoveHistory(object, previousPosition, nextPosition) {
+    if (!window.CADHistory || typeof window.CADHistory.push !== "function") {
+        return;
+    }
+
+    const objectName = object.name || "Selected object";
+
+    window.CADHistory.push({
+        label: "Move " + objectName,
+        undo: function () {
+            applyPositionSnapshot(object, previousPosition);
+            setMoveStatus(objectName + " move undone.");
+        },
+        redo: function () {
+            applyPositionSnapshot(object, nextPosition);
+            setMoveStatus(objectName + " move redone.");
+        }
+    });
+}
+
+
+function applyMoveChange(object, changePosition, successMessage) {
+    const previousPosition = capturePosition(object);
+
+    changePosition();
+
+    const nextPosition = capturePosition(object);
+
+    if (positionsAreEqual(previousPosition, nextPosition)) {
+        refreshAfterMove(object);
+        setMoveStatus((object.name || "Selected object") + " position unchanged.");
+        return;
+    }
+
+    refreshAfterMove(object);
+    recordMoveHistory(object, previousPosition, nextPosition);
+    setMoveStatus(successMessage || getMoveStatusMessage(object));
+}
+
 
 function moveSelectedObject(dx, dy, dz) {
     const object = getMoveSelectedObject();
@@ -78,21 +155,11 @@ function moveSelectedObject(dx, dy, dz) {
         return;
     }
 
-    object.position.x = object.position.x + dx;
-    object.position.y = object.position.y + dy;
-    object.position.z = object.position.z + dz;
-
-    refreshAfterMove(object);
-
-    setMoveStatus(
-        object.name +
-        " moved to X: " +
-        object.position.x.toFixed(2) +
-        ", Y: " +
-        object.position.y.toFixed(2) +
-        ", Z: " +
-        object.position.z.toFixed(2)
-    );
+    applyMoveChange(object, function () {
+        object.position.x = object.position.x + dx;
+        object.position.y = object.position.y + dy;
+        object.position.z = object.position.z + dz;
+    });
 }
 
 
@@ -137,11 +204,11 @@ function applyManualPosition() {
         return;
     }
 
-    object.position.set(x, y, z);
-
-    refreshAfterMove(object);
-
-    setMoveStatus(
+    applyMoveChange(
+        object,
+        function () {
+            object.position.set(x, y, z);
+        },
         object.name +
         " position set to X: " +
         x.toFixed(2) +
@@ -183,3 +250,5 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 
+window.moveSelectedObject = moveSelectedObject;
+window.applyManualPosition = applyManualPosition;
