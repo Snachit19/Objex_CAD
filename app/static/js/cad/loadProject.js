@@ -122,7 +122,6 @@ function restoreSavedCADObjects() {
         object.userData.selectable = true;
         object.userData.color = savedObject.color || "#ffffff";
 
-        // ✅ UPDATED: Restore material type and name
         if (savedObject.materialType) {
             object.userData.materialType = savedObject.materialType;
         } else {
@@ -133,6 +132,10 @@ function restoreSavedCADObjects() {
             object.userData.materialName = savedObject.materialName;
         } else {
             object.userData.materialName = "Default";
+        }
+
+        if (savedObject.materialDescription) {
+            object.userData.materialDescription = savedObject.materialDescription;
         }
 
         if (savedObject.position) {
@@ -173,27 +176,28 @@ function restoreSavedCADObjects() {
             }
         }
 
-        // ✅ UPDATED: Restore material properties
         if (savedObject.materialData) {
             object.userData.materialData = savedObject.materialData;
-            
+
             const matData = savedObject.materialData;
             let newMaterial;
-            
+            const emissiveColor = savedObject.materialType === "neon"
+                ? savedObject.color
+                : (matData.emissive || 0x000000);
+
             const materialParams = {
                 color: savedObject.color || 0xcccccc,
-                roughness: Number(matData.roughness) || 0.5,
-                metalness: Number(matData.metalness) || 0.5,
-                opacity: Number(matData.opacity) || 1.0,
+                roughness: matData.roughness === undefined ? 0.5 : Number(matData.roughness),
+                metalness: matData.metalness === undefined ? 0.5 : Number(matData.metalness),
+                opacity: matData.opacity === undefined ? 1.0 : Number(matData.opacity),
                 transparent: matData.transparent || false,
-                emissive: new THREE.Color(matData.emissive || 0x000000),
-                emissiveIntensity: Number(matData.emissiveIntensity) || 1.0,
+                emissive: new THREE.Color(emissiveColor || 0x000000),
+                emissiveIntensity: matData.emissiveIntensity === undefined ? 1.0 : Number(matData.emissiveIntensity),
                 depthWrite: matData.depthWrite !== undefined ? matData.depthWrite : true
             };
 
-            // Create material based on stored type
             newMaterial = new THREE.MeshStandardMaterial(materialParams);
-            
+
             object.material = newMaterial;
             object.material.needsUpdate = true;
         }

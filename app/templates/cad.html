@@ -127,6 +127,7 @@
         <h3>Selected Object</h3>
         <p><strong>Name:</strong> <span id="selectedObjectName">None</span></p>
         <p><strong>Type:</strong> <span id="selectedObjectType">None</span></p>
+        <p><strong>Material:</strong> <span id="selectedObjectMaterial">None</span></p>
         <p><strong>Position:</strong> <span id="selectedObjectPosition">None</span></p>
         <p><strong>Scale:</strong> <span id="selectedObjectScale">None</span></p>
       </div>
@@ -195,6 +196,11 @@
             <option value="neon">Neon</option>
             <option value="transparent">Transparent</option>
           </select>
+
+        <p class="edit-hint material-selected-hint">
+          <strong>Selected Material:</strong> <span id="propertyMaterialNameText">None</span>
+        </p>
+        <p id="propertyMaterialDetailsText" class="material-properties-text">Select an object to view material properties.</p>
 
         <p class="edit-hint">
           <strong>Dimensions:</strong> <span id="propertyDimensionsText">None</span>
@@ -369,6 +375,45 @@
           <h3>Apply Material</h3>
           <span class="object-edit-badge">Material</span>
         </div>
+
+        <label class="edit-label" for="materialPresetSelect">Material Selector</label>
+        <select id="materialPresetSelect" class="edit-input">
+          <option value="default">Default</option>
+          <option value="solid">Solid</option>
+          <option value="plastic">Plastic</option>
+          <option value="metal">Metal</option>
+          <option value="glass">Glass</option>
+          <option value="wood">Wood</option>
+          <option value="neon">Neon</option>
+          <option value="transparent">Transparent</option>
+        </select>
+
+        <p class="edit-hint material-selected-hint">
+          <strong>Selected Material:</strong> <span id="materialsPanelMaterialName">Default</span>
+        </p>
+        <p id="materialsPanelMaterialDetails" class="material-properties-text">Balanced matte surface | Roughness 0.45 | Metalness 0.15 | Opacity 1.00</p>
+
+        <p class="edit-subtitle">Material Properties</p>
+        <div class="material-property-grid">
+          <label for="materialRoughnessInput">Roughness</label>
+          <input id="materialRoughnessInput" class="edit-input" type="number" value="0.45" min="0" max="1" step="0.01">
+
+          <label for="materialMetalnessInput">Metalness</label>
+          <input id="materialMetalnessInput" class="edit-input" type="number" value="0.15" min="0" max="1" step="0.01">
+
+          <label for="materialOpacityInput">Opacity</label>
+          <input id="materialOpacityInput" class="edit-input" type="number" value="1" min="0" max="1" step="0.01">
+
+          <label for="materialGlowInput">Glow</label>
+          <input id="materialGlowInput" class="edit-input" type="number" value="0" min="0" max="2" step="0.05">
+        </div>
+
+        <label class="material-toggle-row" for="materialTransparentInput">
+          <input id="materialTransparentInput" type="checkbox">
+          <span>Transparent Surface</span>
+        </label>
+
+        <button id="applySelectedMaterialBtn" class="edit-primary-btn" type="button">Apply Selected Material</button>
 
         <p class="edit-subtitle">Material Library</p>
         <div class="edit-button-grid material-grid">
@@ -655,8 +700,5 @@
       }
     });
   </script>
-
-  <div id="cadToastContainer" class="cad-toast-container"></div>
-
 </body>
 </html>

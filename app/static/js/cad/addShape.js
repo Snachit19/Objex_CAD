@@ -36,13 +36,12 @@ function registerShape(mesh, type) {
 
     mesh.name = type + "-" + (window.cadObjects.length + 1);
 
-    // ✅ UPDATED: Add default material data to all new shapes
     mesh.userData = {
         id: "obj-" + Date.now() + "-" + Math.floor(Math.random() * 1000),
         type: type,
         selectable: true,
-        materialType: "default",      // New: Store material type
-        materialName: "Default"       // New: Store material name
+        materialType: "default",
+        materialName: "Default"
     };
 
     workspace.scene.add(mesh);

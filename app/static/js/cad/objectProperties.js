@@ -130,6 +130,69 @@
         return "#ffffff";
     }
 
+    function titleCaseMaterialType(materialType) {
+        return materialType.charAt(0).toUpperCase() + materialType.slice(1);
+    }
+
+    function getObjectMaterialType(object) {
+        if (!object || !object.userData) {
+            return "default";
+        }
+
+        return object.userData.materialType || "default";
+    }
+
+    function getMaterialName(materialType, object) {
+        if (typeof window.getMaterialDisplayName === "function") {
+            return window.getMaterialDisplayName(materialType);
+        }
+
+        if (object && object.userData && object.userData.materialName) {
+            return object.userData.materialName;
+        }
+
+        return titleCaseMaterialType(materialType);
+    }
+
+    function getStoredMaterialPropertySummary(object) {
+        if (!object || !object.userData || !object.userData.materialData) {
+            return "";
+        }
+
+        const materialData = object.userData.materialData;
+        const details = [
+            "Roughness " + formatNumber(materialData.roughness || 0, 2),
+            "Metalness " + formatNumber(materialData.metalness || 0, 2),
+            "Opacity " + formatNumber(materialData.opacity === undefined ? 1 : materialData.opacity, 2)
+        ];
+
+        if (materialData.transparent) {
+            details.push("Transparent");
+        }
+
+        if (materialData.emissiveIntensity) {
+            details.push("Glow " + formatNumber(materialData.emissiveIntensity, 2));
+        }
+
+        return details.join(" | ");
+    }
+
+    function getMaterialDetails(materialType, object) {
+        if (typeof window.getMaterialPropertySummary === "function") {
+            return window.getMaterialPropertySummary(
+                materialType,
+                object && object.userData ? object.userData.materialData : null
+            );
+        }
+
+        return getStoredMaterialPropertySummary(object) || "Material properties unavailable.";
+    }
+
+    function updateMaterialReadout(materialType, object) {
+        setTextValue("propertyMaterialNameText", getMaterialName(materialType, object));
+        setTextValue("propertyMaterialDetailsText", getMaterialDetails(materialType, object));
+    }
+
     function formatNumber(value, decimals) {
         return Number(value).toFixed(decimals);
     }
@@ -199,7 +262,7 @@
 
         if (currentColour !== nextProperties.colour) {
             changes.push("Colour");
-        } 
+        }
 
         const currentMaterial = (object.userData && object.userData.materialType) || "default";
 
@@ -257,6 +320,8 @@
 
             const materialSelect = document.getElementById("propertyMaterialSelect");
             if (materialSelect) materialSelect.value = "default";
+            setTextValue("propertyMaterialNameText", "None");
+            setTextValue("propertyMaterialDetailsText", "Select an object to view material properties.");
 
             setTextValue("propertyDimensionsText", "None");
 
@@ -264,8 +329,9 @@
         }
 
         object.userData = object.userData || {};
-        object.userData.materialType = object.userData.materialType || "default";
-        object.userData.materialName = object.userData.materialName || "Default";
+        const materialType = getObjectMaterialType(object);
+        object.userData.materialType = materialType;
+        object.userData.materialName = getMaterialName(materialType, object);
 
         const colour = getObjectColour(object);
         const dimensions = getObjectDimensions(object);
@@ -293,9 +359,13 @@
         setInputValue("propertyHexInput", colour);
 
         const materialSelect = document.getElementById("propertyMaterialSelect");
-            if (materialSelect) {
-                materialSelect.value = object.userData.materialType || "default";
-            }
+
+        if (materialSelect) {
+            materialSelect.value = materialType;
+        }
+
+        updateMaterialReadout(materialType, object);
+
         setTextValue(
             "propertyDimensionsText",
             "W: " + dimensions.x.toFixed(2) +
@@ -323,46 +393,6 @@
 
         object.userData = object.userData || {};
         object.userData.color = colour;
-    }
-
-    function getChangedProperties(object, newValues) {
-        const changedProperties = [];
-
-        if (object.name !== newValues.name) {
-            changedProperties.push("Name");
-        }
-
-        if (
-            object.position.x !== newValues.positionX ||
-            object.position.y !== newValues.positionY ||
-            object.position.z !== newValues.positionZ
-        ) {
-            changedProperties.push("Position");
-        }
-
-        if (
-            Math.round(radianToDegree(object.rotation.x)) !== Math.round(newValues.rotationX) ||
-            Math.round(radianToDegree(object.rotation.y)) !== Math.round(newValues.rotationY) ||
-            Math.round(radianToDegree(object.rotation.z)) !== Math.round(newValues.rotationZ)
-        ) {
-            changedProperties.push("Rotation");
-        }
-
-        if (
-            object.scale.x !== newValues.scaleX ||
-            object.scale.y !== newValues.scaleY ||
-            object.scale.z !== newValues.scaleZ
-        ) {
-            changedProperties.push("Scale");
-        }
-
-        const currentColour = getObjectColour(object);
-
-        if (currentColour !== newValues.colour) {
-            changedProperties.push("Colour");
-        }
-
-        return changedProperties;
     }
 
     function applyObjectProperties() {
@@ -428,9 +458,9 @@
         }
 
         const materialSelect = document.getElementById("propertyMaterialSelect");
-const selectedMaterial = materialSelect
-    ? materialSelect.value
-    : (object.userData.materialType || "default");
+        const selectedMaterial = materialSelect
+            ? materialSelect.value
+            : (object.userData.materialType || "default");
 
         const changeMessage = getObjectPropertyChanges(object, {
             name: objectName,
@@ -467,9 +497,11 @@ const selectedMaterial = materialSelect
         object.userData = object.userData || {};
         object.userData.materialType = object.userData.materialType || "default";
         object.userData.materialName = object.userData.materialName || "Default";
-        
+
         if (selectedMaterial !== (object.userData.materialType || "default") && typeof window.applyMaterialPreset === "function") {
-            window.applyMaterialPreset(selectedMaterial);
+            window.applyMaterialPreset(selectedMaterial, {
+                showNotification: false
+            });
         }
 
         applyColourToObject(object, selectedColour);
@@ -504,6 +536,18 @@ const selectedMaterial = materialSelect
         });
     }
 
+    function connectMaterialSelector() {
+        const materialSelect = document.getElementById("propertyMaterialSelect");
+
+        if (!materialSelect) {
+            return;
+        }
+
+        materialSelect.addEventListener("change", function () {
+            updateMaterialReadout(materialSelect.value, getSelectedObject());
+        });
+    }
+
     function initObjectProperties() {
         if (objectPropertiesInitialized) {
             return;
@@ -518,6 +562,7 @@ const selectedMaterial = materialSelect
         }
 
         connectColourInputs();
+        connectMaterialSelector();
 
         window.addEventListener("cad:selectionChanged", function (event) {
             if (event.detail && event.detail.object) {

@@ -1,48 +1,50 @@
-/**
- * SIMPLE TEST VERSION
- * This version has LOTS of logging to verify it's working
- * Replace your applyMaterials.js with this temporarily
- */
-
-console.log("🟢 applyMaterials.js LOADED");
-
 (function () {
-    /**
-     * Material Presets Configuration
-     */
+    "use strict";
+
     const MATERIAL_PRESETS = {
         default: {
             name: "Default",
+            description: "Balanced matte surface",
             config: {
                 roughness: 0.45,
-                metalness: 0.15
+                metalness: 0.15,
+                transparent: false,
+                opacity: 1
             }
         },
         solid: {
             name: "Solid",
+            description: "Clean opaque finish",
             config: {
-                roughness: 0.35,
-                metalness: 0.05,
+                roughness: 0.28,
+                metalness: 0,
                 transparent: false,
                 opacity: 1
             }
         },
         plastic: {
             name: "Plastic",
+            description: "Soft synthetic surface",
             config: {
-                roughness: 0.55,
-                metalness: 0.05
+                roughness: 0.5,
+                metalness: 0.03,
+                transparent: false,
+                opacity: 1
             }
         },
         metal: {
             name: "Metal",
+            description: "Reflective hard surface",
             config: {
-                roughness: 0.18,
-                metalness: 0.85
+                roughness: 0.16,
+                metalness: 0.95,
+                transparent: false,
+                opacity: 1
             }
         },
         glass: {
             name: "Glass",
+            description: "Clear transparent surface",
             config: {
                 roughness: 0.05,
                 metalness: 0,
@@ -53,22 +55,29 @@ console.log("🟢 applyMaterials.js LOADED");
         },
         wood: {
             name: "Wood",
+            description: "Warm rough surface",
             config: {
                 color: "#8b4513",
                 roughness: 0.85,
-                metalness: 0.02
+                metalness: 0.02,
+                transparent: false,
+                opacity: 1
             }
         },
         neon: {
             name: "Neon",
+            description: "Bright glowing surface",
             config: {
-                emissiveIntensity: 0.85,
-                roughness: 0.25,
-                metalness: 0
+                emissiveIntensity: 1.15,
+                roughness: 0.2,
+                metalness: 0,
+                transparent: false,
+                opacity: 1
             }
         },
         transparent: {
             name: "Transparent",
+            description: "Tinted see-through surface",
             config: {
                 roughness: 0.25,
                 metalness: 0.05,
@@ -79,154 +88,374 @@ console.log("🟢 applyMaterials.js LOADED");
         }
     };
 
-    console.log("🟢 Material presets defined");
+    let materialButtonsInitialized = false;
 
-    /**
-     * Toast Notification Helper
-     */
-    function showToast(message, duration = 3000) {
-        console.log("🟢 Toast message:", message);
+    function getMaterialPreset(presetKey) {
+        return MATERIAL_PRESETS[presetKey] || MATERIAL_PRESETS.default;
+    }
+
+    function getMaterialDisplayName(presetKey) {
+        return getMaterialPreset(presetKey).name;
+    }
+
+    function formatMaterialValue(value) {
+        return Number(value).toFixed(2);
+    }
+
+    function clampMaterialValue(value, min, max, fallback) {
+        const numberValue = Number(value);
+
+        if (Number.isNaN(numberValue)) {
+            return fallback;
+        }
+
+        return Math.min(Math.max(numberValue, min), max);
+    }
+
+    function normaliseMaterialConfig(config) {
+        const sourceConfig = config || {};
+        const opacity = clampMaterialValue(sourceConfig.opacity, 0, 1, 1);
+        const transparent = Boolean(sourceConfig.transparent) || opacity < 1;
+        const emissiveIntensity = clampMaterialValue(sourceConfig.emissiveIntensity, 0, 2, 0);
+        const materialConfig = Object.assign({}, sourceConfig, {
+            roughness: clampMaterialValue(sourceConfig.roughness, 0, 1, 0.45),
+            metalness: clampMaterialValue(sourceConfig.metalness, 0, 1, 0),
+            opacity: opacity,
+            transparent: transparent,
+            depthWrite: transparent
+                ? false
+                : (sourceConfig.depthWrite === undefined ? true : Boolean(sourceConfig.depthWrite))
+        });
+
+        if (emissiveIntensity > 0) {
+            materialConfig.emissiveIntensity = emissiveIntensity;
+        } else {
+            delete materialConfig.emissiveIntensity;
+        }
+
+        return materialConfig;
+    }
+
+    function getMaterialPropertySummary(presetKey, materialConfig) {
+        const preset = getMaterialPreset(presetKey);
+        const config = normaliseMaterialConfig(Object.assign({}, preset.config, materialConfig || {}));
+        const details = [
+            preset.description,
+            "Roughness " + formatMaterialValue(config.roughness || 0),
+            "Metalness " + formatMaterialValue(config.metalness || 0),
+            "Opacity " + formatMaterialValue(config.opacity === undefined ? 1 : config.opacity)
+        ];
+
+        if (config.transparent) {
+            details.push("Transparent");
+        }
+
+        if (config.emissiveIntensity) {
+            details.push("Glow " + formatMaterialValue(config.emissiveIntensity));
+        }
+
+        return details.join(" | ");
+    }
+
+    function showMaterialToast(message, duration) {
+        if (typeof window.showToast === "function") {
+            window.showToast(message, duration || 3000);
+            return;
+        }
+
         const container = document.getElementById("toastContainer");
+
         if (!container) {
-            console.warn("⚠️ Toast container not found");
             return;
         }
 
         const toast = document.createElement("div");
         toast.className = "toast";
-        toast.innerHTML = `
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#7c3aed" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
-            <span>${message}</span>
-        `;
+        toast.textContent = message;
 
         container.appendChild(toast);
 
-        setTimeout(() => {
-            toast.classList.add("hiding");
-            toast.addEventListener("animationend", () => {
-                toast.remove();
-            });
-        }, duration);
+        setTimeout(function () {
+            toast.remove();
+        }, duration || 3000);
     }
 
-    /**
-     * Get the currently selected CAD object
-     */
+    function setTextValue(elementId, value) {
+        const element = document.getElementById(elementId);
+
+        if (element) {
+            element.textContent = value;
+        }
+    }
+
+    function setInputValue(elementId, value) {
+        const input = document.getElementById(elementId);
+
+        if (input) {
+            input.value = value;
+        }
+    }
+
+    function setCheckboxValue(elementId, value) {
+        const input = document.getElementById(elementId);
+
+        if (input) {
+            input.checked = Boolean(value);
+        }
+    }
+
+    function getInputNumber(elementId, fallback, min, max) {
+        const input = document.getElementById(elementId);
+
+        if (!input) {
+            return fallback;
+        }
+
+        return clampMaterialValue(input.value, min, max, fallback);
+    }
+
+    function getCheckboxValue(elementId, fallback) {
+        const input = document.getElementById(elementId);
+
+        if (!input) {
+            return fallback;
+        }
+
+        return input.checked;
+    }
+
     function getSelectedObject() {
-        const obj = window.selectedObject || (window.getSelectedCADObject ? window.getSelectedCADObject() : null);
-        console.log("🟢 getSelectedObject returned:", obj ? obj.name : "NULL");
-        return obj;
+        if (typeof window.getSelectedCADObject === "function") {
+            return window.getSelectedCADObject();
+        }
+
+        return window.selectedObject || null;
     }
 
-    /**
-     * Apply a material preset to the selected object
-     */
-    function applyMaterialPreset(presetKey) {
-        console.log("🟡 applyMaterialPreset called with:", presetKey);
-        
-        const object = getSelectedObject();
-        
-        if (!object) {
-            console.error("❌ NO OBJECT SELECTED");
-            showToast("No object selected", 3000);
+    function updateMaterialControls(config) {
+        const materialConfig = normaliseMaterialConfig(config);
+
+        setInputValue("materialRoughnessInput", formatMaterialValue(materialConfig.roughness));
+        setInputValue("materialMetalnessInput", formatMaterialValue(materialConfig.metalness));
+        setInputValue("materialOpacityInput", formatMaterialValue(materialConfig.opacity));
+        setInputValue("materialGlowInput", formatMaterialValue(materialConfig.emissiveIntensity || 0));
+        setCheckboxValue("materialTransparentInput", materialConfig.transparent);
+    }
+
+    function getMaterialControlConfig(presetKey) {
+        const baseConfig = getMaterialPreset(presetKey).config;
+        const opacity = getInputNumber("materialOpacityInput", baseConfig.opacity === undefined ? 1 : baseConfig.opacity, 0, 1);
+        const transparentInput = document.getElementById("materialTransparentInput");
+
+        if (transparentInput && opacity < 1) {
+            transparentInput.checked = true;
+        }
+
+        return normaliseMaterialConfig(Object.assign({}, baseConfig, {
+            roughness: getInputNumber("materialRoughnessInput", baseConfig.roughness || 0, 0, 1),
+            metalness: getInputNumber("materialMetalnessInput", baseConfig.metalness || 0, 0, 1),
+            opacity: opacity,
+            transparent: getCheckboxValue("materialTransparentInput", Boolean(baseConfig.transparent)) || opacity < 1,
+            emissiveIntensity: getInputNumber("materialGlowInput", baseConfig.emissiveIntensity || 0, 0, 2)
+        }));
+    }
+
+    function updateMaterialPanelReadout(presetKey, materialConfig, options) {
+        const materialKey = MATERIAL_PRESETS[presetKey] ? presetKey : "default";
+        const settings = options || {};
+        const displayConfig = normaliseMaterialConfig(Object.assign(
+            {},
+            getMaterialPreset(materialKey).config,
+            materialConfig || {}
+        ));
+        const materialSelect = document.getElementById("materialPresetSelect");
+
+        if (materialSelect) {
+            materialSelect.value = materialKey;
+        }
+
+        if (settings.updateControls !== false) {
+            updateMaterialControls(displayConfig);
+        }
+
+        setTextValue("materialsPanelMaterialName", getMaterialDisplayName(materialKey));
+        setTextValue("materialsPanelMaterialDetails", getMaterialPropertySummary(materialKey, displayConfig));
+    }
+
+    function syncMaterialPanelWithObject(object) {
+        if (!object || !object.userData) {
+            updateMaterialPanelReadout("default");
             return;
         }
 
-        if (!MATERIAL_PRESETS[presetKey]) {
-            console.error("❌ UNKNOWN PRESET:", presetKey);
-            return;
+        updateMaterialPanelReadout(
+            object.userData.materialType || "default",
+            object.userData.materialData || null
+        );
+    }
+
+    function getCurrentMaterialColour(object, config) {
+        if (config.color) {
+            return new THREE.Color(config.color);
         }
 
-        console.log("🟢 Applying material to:", object.name);
-
-        const preset = MATERIAL_PRESETS[presetKey];
-        const config = preset.config;
-        
-        // Get current color    
-        let currentColor = 0xcccccc;
         if (object.material && object.material.color) {
-            currentColor = object.material.color.clone();
-        } else if (object.userData && object.userData.color) {
-            currentColor = new THREE.Color(object.userData.color);
+            return object.material.color.clone();
         }
 
-        // Special handling for wood
-        if (presetKey === "wood") {
-            currentColor = new THREE.Color(config.color);
+        if (object.userData && object.userData.color) {
+            return new THREE.Color(object.userData.color);
         }
 
-        // Create material params
-        const materialParams = {
-            color: currentColor,
-            ...config
-        };
+        return new THREE.Color(0xcccccc);
+    }
 
-        // For neon, set emissive
-        if (presetKey === "neon") {
-            materialParams.emissive = currentColor.clone();
+    function createMaterialFromPreset(object, presetKey, materialConfig) {
+        const preset = MATERIAL_PRESETS[presetKey];
+        const config = normaliseMaterialConfig(Object.assign({}, preset.config, materialConfig || {}));
+        const materialColour = getCurrentMaterialColour(object, config);
+        const materialParams = Object.assign({}, config, {
+            color: materialColour
+        });
+
+        if (config.emissiveIntensity) {
+            materialParams.emissive = materialColour.clone();
         }
 
-        // Create and apply material
-        const newMaterial = new THREE.MeshStandardMaterial(materialParams);
-        object.material = newMaterial;
+        return new THREE.MeshStandardMaterial(materialParams);
+    }
+
+    function refreshMaterialUI(object) {
+        if (typeof window.refreshSelectedObjectPanel === "function") {
+            window.refreshSelectedObjectPanel();
+            return;
+        }
+
+        if (typeof window.updateObjectPropertiesPanel === "function") {
+            window.updateObjectPropertiesPanel(object);
+        }
+
+        if (typeof window.dispatchObjectChanged === "function") {
+            window.dispatchObjectChanged(object);
+        }
+    }
+
+    function applyMaterialPreset(presetKey, options) {
+        const object = getSelectedObject();
+        const preset = MATERIAL_PRESETS[presetKey];
+        const settings = options || {};
+
+        if (!object) {
+            showMaterialToast("No object selected");
+            return false;
+        }
+
+        if (!preset) {
+            return false;
+        }
+
+        const materialConfig = normaliseMaterialConfig(Object.assign(
+            {},
+            preset.config,
+            settings.materialConfig || {}
+        ));
+
+        object.material = createMaterialFromPreset(object, presetKey, materialConfig);
         object.material.needsUpdate = true;
 
-        console.log("🟢 Material applied successfully");
-
-        // Store metadata
         object.userData = object.userData || {};
         object.userData.materialType = presetKey;
-        object.userData.materialName = preset.name; 
-        object.userData.materialData = config;
-        
-        console.log("🟢 userData updated");
+        object.userData.materialName = preset.name;
+        object.userData.materialData = Object.assign({}, materialConfig);
+        object.userData.materialDescription = preset.description;
+        object.userData.color = "#" + object.material.color.getHexString();
 
-        // Update properties panel if it exists
-        if (window.refreshPropertiesUI) {
-            window.refreshPropertiesUI(object);
-            console.log("🟢 Properties UI refreshed");
+        updateMaterialPanelReadout(presetKey, materialConfig);
+        refreshMaterialUI(object);
+
+        if (settings.showNotification !== false) {
+            showMaterialToast(preset.name + " material applied.");
         }
 
-        // Show success notification
-        showToast(`Material Applied Successfully`);
+        return true;
     }
 
-    /**
-     * Initialize event listeners for material buttons
-     */
     function initMaterialButtons() {
-        console.log("🟡 Initializing material buttons...");
-        
-        const buttons = document.querySelectorAll("[data-mat-preset]");
-        console.log("🟢 Found", buttons.length, "material buttons");
-
-        if (buttons.length === 0) {
-            console.error("❌ NO MATERIAL BUTTONS FOUND IN DOM");
-            console.error("Looking for elements with data-mat-preset attribute");
+        if (materialButtonsInitialized) {
             return;
         }
 
-        buttons.forEach((button, index) => {
-            const presetKey = button.getAttribute("data-mat-preset");
-            console.log(`  Button ${index}: data-mat-preset="${presetKey}"`);
-            
-            button.addEventListener("click", () => {
-                console.log(`🟡 BUTTON CLICKED: ${presetKey}`);
+        const buttons = document.querySelectorAll("[data-mat-preset]");
+        const materialSelect = document.getElementById("materialPresetSelect");
+        const applySelectedButton = document.getElementById("applySelectedMaterialBtn");
+        const materialControls = [
+            "materialRoughnessInput",
+            "materialMetalnessInput",
+            "materialOpacityInput",
+            "materialGlowInput",
+            "materialTransparentInput"
+        ];
+
+        materialButtonsInitialized = true;
+
+        buttons.forEach(function (button) {
+            button.addEventListener("click", function () {
+                const presetKey = button.getAttribute("data-mat-preset");
+                updateMaterialPanelReadout(presetKey);
                 applyMaterialPreset(presetKey);
             });
         });
 
-        console.log("🟢 Material button event listeners attached");
+        if (materialSelect) {
+            materialSelect.addEventListener("change", function () {
+                updateMaterialPanelReadout(materialSelect.value);
+            });
+        }
+
+        materialControls.forEach(function (controlId) {
+            const control = document.getElementById(controlId);
+
+            if (control) {
+                control.addEventListener("input", function () {
+                    const presetKey = materialSelect ? materialSelect.value : "default";
+                    updateMaterialPanelReadout(presetKey, getMaterialControlConfig(presetKey), {
+                        updateControls: false
+                    });
+                });
+            }
+        });
+
+        if (applySelectedButton) {
+            applySelectedButton.addEventListener("click", function () {
+                const presetKey = materialSelect ? materialSelect.value : "default";
+                applyMaterialPreset(presetKey, {
+                    materialConfig: getMaterialControlConfig(presetKey)
+                });
+            });
+        }
+
+        window.addEventListener("cad:selectionChanged", function (event) {
+            syncMaterialPanelWithObject(event.detail ? event.detail.object : null);
+        });
+
+        window.addEventListener("cad:objectChanged", function (event) {
+            if (event.detail && event.detail.object) {
+                syncMaterialPanelWithObject(event.detail.object);
+            }
+        });
+
+        syncMaterialPanelWithObject(getSelectedObject());
     }
 
-    // Export functions globally
+    window.MATERIAL_PRESETS = MATERIAL_PRESETS;
+    window.getMaterialPreset = getMaterialPreset;
+    window.getMaterialDisplayName = getMaterialDisplayName;
+    window.getMaterialPropertySummary = getMaterialPropertySummary;
     window.applyMaterialPreset = applyMaterialPreset;
 
-    // Initialize on DOM ready
     document.addEventListener("DOMContentLoaded", initMaterialButtons);
-    
-    // Also try immediately in case DOM is already loaded
-    setTimeout(initMaterialButtons, 100);
-})();
 
-console.log("🟢 applyMaterials.js SETUP COMPLETE");
+    if (document.readyState !== "loading") {
+        initMaterialButtons();
+    }
+})();

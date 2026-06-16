@@ -27,9 +27,24 @@ function getSelectableRoot(object) {
     return null;
 }
 
+function getObjectMaterialName(object) {
+    if (!object || !object.userData) {
+        return "None";
+    }
+
+    const materialType = object.userData.materialType || "default";
+
+    if (typeof window.getMaterialDisplayName === "function") {
+        return window.getMaterialDisplayName(materialType);
+    }
+
+    return object.userData.materialName || materialType.charAt(0).toUpperCase() + materialType.slice(1);
+}
+
 function updateSelectedObjectPanel(object) {
     const nameText = document.getElementById("selectedObjectName");
     const typeText = document.getElementById("selectedObjectType");
+    const materialText = document.getElementById("selectedObjectMaterial");
     const positionText = document.getElementById("selectedObjectPosition");
     const scaleText = document.getElementById("selectedObjectScale");
     const dashboardDeleteBtn = document.getElementById("dashboardDeleteBtn");
@@ -41,6 +56,7 @@ function updateSelectedObjectPanel(object) {
     if (!object) {
         nameText.textContent = "None";
         typeText.textContent = "None";
+        if (materialText) materialText.textContent = "None";
         positionText.textContent = "None";
         scaleText.textContent = "None";
 
@@ -59,6 +75,10 @@ function updateSelectedObjectPanel(object) {
     typeText.textContent = object.userData && object.userData.type
         ? object.userData.type
         : "Unknown";
+
+    if (materialText) {
+        materialText.textContent = getObjectMaterialName(object);
+    }
 
     positionText.textContent =
         "X: " + object.position.x.toFixed(2) +

@@ -709,8 +709,8 @@ a {
   border: 1px solid #374151;
 }
 
-.help-title {
-  margin-top: 18px !important;
+.card .help-title {
+  margin-top: 18px;
 }
 
 /* ================================
@@ -961,6 +961,7 @@ a {
 }
 
 .cad-icon-tool-btn {
+  width: 48px;
   height: 42px;
   min-width: 48px;
   padding: 6px;
@@ -977,10 +978,6 @@ a {
   overflow: hidden;
 }
 
-.cad-icon-tool-btn {
-  width: 48px;
-}
-
 .cad-icon-tool-btn:hover {
   background: var(--gradient-purple);
   border-color: rgba(196, 181, 253, 0.85);
@@ -989,10 +986,10 @@ a {
 }
 
 .cad-icon-tool-btn img {
-  width: 26px !important;
-  height: 26px !important;
-  max-width: 26px !important;
-  max-height: 26px !important;
+  width: 26px;
+  height: 26px;
+  max-width: 26px;
+  max-height: 26px;
   object-fit: contain;
   display: block;
 }
@@ -1056,8 +1053,8 @@ a {
 }
 
 .zoom-tool-btn img {
-  width: 25px !important;
-  height: 25px !important;
+  width: 25px;
+  height: 25px;
   object-fit: contain;
 }
 
@@ -1373,13 +1370,10 @@ a {
 }
 
 .edit-hint {
+  margin: 10px 0 0;
   color: #94a3b8;
   font-size: 12px;
   line-height: 1.4;
-}
-
-.edit-hint {
-  margin: 10px 0 0;
 }
 
 /* ================================
@@ -1438,13 +1432,60 @@ a {
   font-family: Consolas, Monaco, monospace;
 }
 
+#selectedObjectMaterial,
+.material-selected-hint span {
+  color: #bbf7d0;
+  font-weight: 700;
+}
+
+.material-properties-text {
+  margin: 8px 0 14px;
+  padding: 9px 10px;
+  border: 1px solid rgba(34, 197, 94, 0.2);
+  border-radius: 8px;
+  background: rgba(15, 23, 42, 0.72);
+  color: #cbd5e1;
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.material-property-grid {
+  display: grid;
+  grid-template-columns: 82px 1fr;
+  gap: 8px 10px;
+  align-items: center;
+  margin-top: 10px;
+}
+
+.material-property-grid label {
+  color: #e2e8f0;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.material-property-grid .edit-input {
+  height: 32px;
+}
+
+.material-toggle-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 10px;
+  color: #cbd5e1;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.material-toggle-row input {
+  width: 16px;
+  height: 16px;
+  accent-color: #22c55e;
+}
+
 /* ================================
    Resize Object Tool
 ================================ */
-
-.resize-grid {
-  grid-template-columns: repeat(2, 1fr);
-}
 
 #resizeObjectPanel .object-edit-badge {
   background: rgba(249, 115, 22, 0.18);
@@ -1588,17 +1629,19 @@ a {
 }
 
 /* ================================
-   Pan Camera Tool
+   Camera Control Grids
 ================================ */
 
-.pan-camera-grid {
+.pan-camera-grid,
+.orbit-camera-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 8px;
   margin-top: 12px;
 }
 
-.pan-camera-grid button {
+.pan-camera-grid button,
+.orbit-camera-grid button {
   min-height: 36px;
   border: 1px solid rgba(168, 85, 247, 0.38);
   border-radius: 8px;
@@ -1609,13 +1652,18 @@ a {
   transition: 0.18s ease;
 }
 
+/* ================================
+   Pan Camera Tool
+================================ */
+
 .pan-camera-grid button:hover {
   background: linear-gradient(135deg, #2563eb, #7c3aed);
   color: #ffffff;
   transform: translateY(-1px);
 }
 
-.pan-camera-grid button:active {
+.pan-camera-grid button:active,
+.orbit-camera-grid button:active {
   transform: translateY(0);
 }
 
@@ -1636,12 +1684,6 @@ a {
 #panToolBtn:hover {
   background: linear-gradient(135deg, #2563eb, #7c3aed) !important;
   border-color: rgba(216, 180, 254, 0.9) !important;
-}
-
-#panToolBtn img {
-  width: 26px !important;
-  height: 26px !important;
-  object-fit: contain;
 }
 
 /* ================================
@@ -1692,32 +1734,14 @@ a {
    Orbit Around 3D Model Tool
 ================================ */
 
-.orbit-camera-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 8px;
-  margin-top: 12px;
-}
-
 .orbit-camera-grid button {
-  min-height: 36px;
-  border: 1px solid rgba(99, 102, 241, 0.38);
-  border-radius: 8px;
-  background: rgba(30, 41, 59, 0.92);
-  color: #e2e8f0;
-  font-size: 12px;
-  font-weight: 700;
-  transition: 0.18s ease;
+  border-color: rgba(99, 102, 241, 0.38);
 }
 
 .orbit-camera-grid button:hover {
   background: linear-gradient(135deg, #4f46e5, #a855f7);
   color: #ffffff;
   transform: translateY(-1px);
-}
-
-.orbit-camera-grid button:active {
-  transform: translateY(0);
 }
 
 #orbitCameraPanel .object-edit-badge {
@@ -1737,12 +1761,6 @@ a {
 #orbitToolBtn:hover {
   background: linear-gradient(135deg, #4f46e5, #a855f7) !important;
   border-color: rgba(199, 210, 254, 0.9) !important;
-}
-
-#orbitToolBtn img {
-  width: 26px !important;
-  height: 26px !important;
-  object-fit: contain;
 }
 
 #toggleAutoOrbitBtn:hover {
@@ -1787,16 +1805,17 @@ a {
 }
 
 .toast::before {
-  content: "âœ“";
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  content: "";
   width: 20px;
   height: 20px;
-  background: #22c55e;
-  color: white;
+  background-color: #22c55e;
+  background-image: url("data:image/svg+xml,%3Csvg width='14' height='14' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M20 6L9 17L4 12' stroke='white' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: 14px 14px;
   border-radius: 50%;
-  font-size: 12px;
+  flex: 0 0 auto;
+  box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.18);
 }
 
 @keyframes toastSlideIn {

@@ -10,7 +10,6 @@ function getCADObjectsForSaving() {
             color = "#" + object.material.color.getHexString();
         }
 
-        // ✅ UPDATED: Include materialType and materialName in saved data
         return {
             id: object.userData && object.userData.id ? object.userData.id : "",
             name: object.name || "Unnamed Object",
@@ -35,14 +34,9 @@ function getCADObjectsForSaving() {
             },
 
             color: color,
-            
-            // New: Material type (e.g., "metal", "glass", "plastic")
             materialType: (object.userData && object.userData.materialType) || "default",
-            
-            // New: Material name (e.g., "Metal", "Glass", "Plastic")
             materialName: (object.userData && object.userData.materialName) || "Default",
-            
-            // Existing: Full material data for backward compatibility
+            materialDescription: (object.userData && object.userData.materialDescription) || "",
             materialData: object.userData.materialData || null
         };
     });
