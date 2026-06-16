@@ -985,6 +985,22 @@ a {
   box-shadow: 0 10px 24px rgba(124, 58, 237, 0.25);
 }
 
+.cad-icon-tool-btn:disabled,
+.cad-icon-tool-btn[aria-disabled="true"] {
+  opacity: 0.45;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.cad-icon-tool-btn:disabled:hover,
+.cad-icon-tool-btn[aria-disabled="true"]:hover {
+  background: rgba(15, 23, 42, 0.92);
+  border-color: rgba(124, 58, 237, 0.35);
+  transform: none;
+  box-shadow: none;
+}
+
 .cad-icon-tool-btn img {
   width: 26px;
   height: 26px;
@@ -992,6 +1008,29 @@ a {
   max-height: 26px;
   object-fit: contain;
   display: block;
+}
+
+.undo-tool-icon {
+  width: 28px;
+  height: 28px;
+  filter: drop-shadow(0 4px 10px rgba(147, 197, 253, 0.22));
+  transition: transform 0.18s ease, filter 0.18s ease, opacity 0.18s ease;
+}
+
+.undo-tool-btn:not(:disabled):hover {
+  background: linear-gradient(135deg, rgba(37, 99, 235, 0.92), rgba(124, 58, 237, 0.92));
+  border-color: rgba(196, 181, 253, 0.9);
+}
+
+.undo-tool-btn:not(:disabled):hover .undo-tool-icon {
+  transform: rotate(-8deg) scale(1.04);
+  filter: drop-shadow(0 8px 16px rgba(147, 197, 253, 0.32));
+}
+
+.undo-tool-btn:disabled .undo-tool-icon,
+.undo-tool-btn[aria-disabled="true"] .undo-tool-icon {
+  opacity: 0.82;
+  filter: grayscale(0.2);
 }
 
 .tool-arrow,

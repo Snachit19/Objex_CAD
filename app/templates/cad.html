@@ -41,6 +41,10 @@
         </div>
       </div>
 
+      <button id="undoToolBtn" class="cad-icon-tool-btn undo-tool-btn" title="Undo" aria-label="Undo" type="button" disabled>
+        <img class="undo-tool-icon" src="/static/assets/undo-object.svg" alt="Undo">
+      </button>
+
       <button id="moveToolBtn" class="cad-icon-tool-btn" title="Move Object" aria-label="Move Object" type="button">
         <img src="/static/assets/move-object.svg" alt="Move Object">
       </button>
@@ -571,6 +575,7 @@
 
   <script>
     document.addEventListener("DOMContentLoaded", function () {
+      const undoToolBtn = document.getElementById("undoToolBtn");
       const moveToolBtn = document.getElementById("moveToolBtn");
       const rotateToolBtn = document.getElementById("rotateToolBtn");
       const resizeToolBtn = document.getElementById("resizeToolBtn");
@@ -612,6 +617,7 @@
         ];
 
         const buttons = [
+          undoToolBtn,
           moveToolBtn,
           rotateToolBtn,
           resizeToolBtn,
@@ -638,6 +644,26 @@
             button.classList.remove("active-tool-btn");
           }
         });
+      }
+
+      function updateUndoButtonState() {
+        if (!undoToolBtn) {
+          return;
+        }
+
+        const history = window.CADHistory;
+        const state = history && typeof history.getState === "function"
+          ? history.getState()
+          : null;
+        const canUndo = state
+          ? state.canUndo
+          : Boolean(history && typeof history.canUndo === "function" && history.canUndo());
+
+        undoToolBtn.disabled = !canUndo;
+        undoToolBtn.setAttribute("aria-disabled", String(!canUndo));
+        undoToolBtn.title = state && state.nextUndoLabel
+          ? "Undo " + state.nextUndoLabel
+          : "Undo";
       }
 
       function closeAllDropdownMenus() {
@@ -677,6 +703,32 @@
       connectToolButton(axesToolBtn, axesPanel);
       connectToolButton(panToolBtn, panCameraPanel);
       connectToolButton(orbitToolBtn, orbitCameraPanel);
+
+      if (undoToolBtn) {
+        undoToolBtn.addEventListener("click", function (event) {
+          event.stopPropagation();
+          closeAllDropdownMenus();
+          hideAllToolPanels();
+
+          const history = window.CADHistory;
+          const didUndo = history && typeof history.undo === "function"
+            ? history.undo()
+            : false;
+
+          if (!didUndo) {
+            const statusText = document.getElementById("cadStatusText");
+
+            if (statusText) {
+              statusText.textContent = "Nothing to undo.";
+            }
+          }
+
+          updateUndoButtonState();
+        });
+
+        window.addEventListener("cad:historyChanged", updateUndoButtonState);
+        updateUndoButtonState();
+      }
 
       const zoomMenuOptions = document.getElementById("zoomMenuOptions");
 
