@@ -103,6 +103,66 @@ function createDuplicateObjectId(copyNumber) {
 }
 
 
+function addDuplicateToCADScene(duplicatedObject, objectIndex) {
+    if (typeof window.addObjectToCADScene === "function") {
+        return window.addObjectToCADScene(duplicatedObject, {
+            index: objectIndex
+        });
+    }
+
+    const cadScene = getCADSceneForDuplicate();
+    const cadObjects = getCADObjectListForDuplicate();
+
+    if (!cadScene || !duplicatedObject) {
+        return false;
+    }
+
+    cadScene.add(duplicatedObject);
+
+    if (cadObjects.indexOf(duplicatedObject) === -1) {
+        if (objectIndex >= 0 && objectIndex <= cadObjects.length) {
+            cadObjects.splice(objectIndex, 0, duplicatedObject);
+        } else {
+            cadObjects.push(duplicatedObject);
+        }
+    }
+
+    return true;
+}
+
+
+function removeDuplicateFromCADScene(duplicatedObject) {
+    if (typeof window.removeObjectFromCADScene === "function") {
+        return window.removeObjectFromCADScene(duplicatedObject);
+    }
+
+    const cadScene = getCADSceneForDuplicate();
+    const cadObjects = getCADObjectListForDuplicate();
+
+    if (!cadScene || !duplicatedObject) {
+        return false;
+    }
+
+    if (typeof window.getSelectedCADObject === "function" && window.getSelectedCADObject() === duplicatedObject) {
+        if (typeof window.clearSelection === "function") {
+            window.clearSelection();
+        } else {
+            window.selectedObject = null;
+        }
+    }
+
+    cadScene.remove(duplicatedObject);
+
+    const objectIndex = cadObjects.indexOf(duplicatedObject);
+
+    if (objectIndex !== -1) {
+        cadObjects.splice(objectIndex, 1);
+    }
+
+    return true;
+}
+
+
 function createDuplicatedObject(selectedObject, offset, copyNumber) {
     const duplicatedObject = new THREE.Mesh(
         selectedObject.geometry.clone(),
@@ -156,6 +216,63 @@ function selectDuplicatedObject(duplicatedObject) {
 }
 
 
+function getDuplicateHistoryLabel(sourceName, duplicateCount) {
+    if (duplicateCount === 1) {
+        return "Duplicate " + sourceName;
+    }
+
+    return "Duplicate " + sourceName + " x" + duplicateCount;
+}
+
+
+function setDuplicateSuccessStatus(sourceName, duplicatedObjectRecords) {
+    if (duplicatedObjectRecords.length === 1) {
+        setDuplicateStatus(duplicatedObjectRecords[0].object.name + " duplicated successfully.");
+        return;
+    }
+
+    setDuplicateStatus(
+        duplicatedObjectRecords.length +
+        " duplicates created from " +
+        sourceName +
+        "."
+    );
+}
+
+
+function recordDuplicateHistory(sourceName, duplicatedObjectRecords) {
+    if (!window.CADHistory || typeof window.CADHistory.push !== "function") {
+        return;
+    }
+
+    window.CADHistory.push({
+        label: getDuplicateHistoryLabel(sourceName, duplicatedObjectRecords.length),
+        undo: function () {
+            duplicatedObjectRecords.slice().reverse().forEach(function (record) {
+                removeDuplicateFromCADScene(record.object);
+            });
+
+            setDuplicateStatus("Duplicate removed.");
+        },
+        redo: function () {
+            let lastRestoredObject = null;
+
+            duplicatedObjectRecords.forEach(function (record) {
+                if (addDuplicateToCADScene(record.object, record.index)) {
+                    lastRestoredObject = record.object;
+                }
+            });
+
+            if (lastRestoredObject) {
+                selectDuplicatedObject(lastRestoredObject);
+            }
+
+            setDuplicateSuccessStatus(sourceName, duplicatedObjectRecords);
+        }
+    });
+}
+
+
 function duplicateSelectedObject() {
     const selectedObject = getDuplicateSelectedObject();
 
@@ -180,6 +297,7 @@ function duplicateSelectedObject() {
     const duplicateCount = getDuplicateCount();
 
     const cadObjects = getCADObjectListForDuplicate();
+    const duplicatedObjectRecords = [];
     let lastDuplicatedObject = null;
 
     for (let copyNumber = 1; copyNumber <= duplicateCount; copyNumber++) {
@@ -188,26 +306,30 @@ function duplicateSelectedObject() {
             offset,
             copyNumber
         );
+        const objectIndex = cadObjects.length;
 
-        cadScene.add(duplicatedObject);
-        cadObjects.push(duplicatedObject);
-        lastDuplicatedObject = duplicatedObject;
+        if (addDuplicateToCADScene(duplicatedObject, objectIndex)) {
+            duplicatedObjectRecords.push({
+                object: duplicatedObject,
+                index: objectIndex
+            });
+            lastDuplicatedObject = duplicatedObject;
+        }
+    }
+
+    if (duplicatedObjectRecords.length === 0) {
+        setDuplicateStatus("Could not duplicate selected object.");
+        return;
     }
 
     if (lastDuplicatedObject) {
         selectDuplicatedObject(lastDuplicatedObject);
     }
 
-    if (duplicateCount === 1) {
-        setDuplicateStatus(lastDuplicatedObject.name + " duplicated successfully.");
-    } else {
-        setDuplicateStatus(
-            duplicateCount +
-            " duplicates created from " +
-            (selectedObject.name || "selected object") +
-            "."
-        );
-    }
+    const sourceName = selectedObject.name || "selected object";
+
+    recordDuplicateHistory(sourceName, duplicatedObjectRecords);
+    setDuplicateSuccessStatus(sourceName, duplicatedObjectRecords);
 }
 
 
