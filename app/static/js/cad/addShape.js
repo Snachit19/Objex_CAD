@@ -45,7 +45,7 @@ function getShapeDisplayName(type) {
 }
 
 
-function addObjectToCADScene(object) {
+function addObjectToCADScene(object, options) {
     const workspace = getWorkspace();
 
     if (!workspace || !workspace.scene || !object) {
@@ -53,11 +53,18 @@ function addObjectToCADScene(object) {
     }
 
     const cadObjects = getCADObjectList();
+    const restoreIndex = options && typeof options.index === "number"
+        ? options.index
+        : -1;
 
     workspace.scene.add(object);
 
     if (cadObjects.indexOf(object) === -1) {
-        cadObjects.push(object);
+        if (restoreIndex >= 0 && restoreIndex <= cadObjects.length) {
+            cadObjects.splice(restoreIndex, 0, object);
+        } else {
+            cadObjects.push(object);
+        }
     }
 
     return true;

@@ -16,6 +16,110 @@ function setDeleteStatus(message) {
 }
 
 
+function removeObjectForDelete(object) {
+    if (typeof window.removeObjectFromCADScene === "function") {
+        return window.removeObjectFromCADScene(object);
+    }
+
+    const workspace = window.CADWorkspace;
+    const cadObjects = window.cadObjects || [];
+
+    if (!workspace || !workspace.scene || !object) {
+        return false;
+    }
+
+    workspace.scene.remove(object);
+
+    const objectIndex = cadObjects.indexOf(object);
+
+    if (objectIndex !== -1) {
+        cadObjects.splice(objectIndex, 1);
+    }
+
+    if (typeof window.clearSelection === "function") {
+        window.clearSelection();
+    } else {
+        window.selectedObject = null;
+
+        window.dispatchEvent(new CustomEvent("cad:selectionChanged", {
+            detail: { object: null }
+        }));
+    }
+
+    return true;
+}
+
+
+function restoreDeletedObject(object, objectIndex) {
+    if (typeof window.addObjectToCADScene === "function") {
+        return window.addObjectToCADScene(object, {
+            index: objectIndex
+        });
+    }
+
+    const workspace = window.CADWorkspace;
+    window.cadObjects = window.cadObjects || [];
+
+    if (!workspace || !workspace.scene || !object) {
+        return false;
+    }
+
+    workspace.scene.add(object);
+
+    if (window.cadObjects.indexOf(object) === -1) {
+        if (objectIndex >= 0 && objectIndex <= window.cadObjects.length) {
+            window.cadObjects.splice(objectIndex, 0, object);
+        } else {
+            window.cadObjects.push(object);
+        }
+    }
+
+    return true;
+}
+
+
+function selectRestoredObject(object) {
+    if (typeof window.selectObject === "function") {
+        window.selectObject(object);
+        return;
+    }
+
+    window.selectedObject = object;
+
+    if (typeof window.refreshSelectedObjectPanel === "function") {
+        window.refreshSelectedObjectPanel();
+    }
+
+    window.dispatchEvent(new CustomEvent("cad:selectionChanged", {
+        detail: {
+            object: object
+        }
+    }));
+}
+
+
+function recordDeleteHistory(object, objectName, objectIndex) {
+    if (!window.CADHistory || typeof window.CADHistory.push !== "function") {
+        return;
+    }
+
+    window.CADHistory.push({
+        label: "Delete " + objectName,
+        undo: function () {
+            if (restoreDeletedObject(object, objectIndex)) {
+                selectRestoredObject(object);
+                setDeleteStatus(objectName + " restored.");
+            }
+        },
+        redo: function () {
+            if (removeObjectForDelete(object)) {
+                setDeleteStatus(objectName + " deleted.");
+            }
+        }
+    });
+}
+
+
 function deleteSelectedObject() {
     const object = getDeleteSelectedObject();
 
@@ -33,27 +137,15 @@ function deleteSelectedObject() {
         return;
     }
 
-    const scene = workspace.scene;
     const objectName = object.name || "Object";
+    const objectIndex = cadObjects.indexOf(object);
 
-    scene.remove(object);
-
-    const objIndex = cadObjects.indexOf(object);
-
-    if (objIndex !== -1) {
-        cadObjects.splice(objIndex, 1);
+    if (!removeObjectForDelete(object)) {
+        setDeleteStatus("Could not delete " + objectName + ".");
+        return;
     }
 
-    if (typeof window.clearSelection === "function") {
-        window.clearSelection();
-    } else {
-        window.selectedObject = null;
-
-        window.dispatchEvent(new CustomEvent("cad:selectionChanged", {
-            detail: { object: null }
-        }));
-    }
-
+    recordDeleteHistory(object, objectName, objectIndex);
     setDeleteStatus(objectName + " deleted successfully.");
 }
 
