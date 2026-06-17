@@ -62,7 +62,8 @@ function initCADScene() {
 
   renderer = new THREE.WebGLRenderer({
     canvas: canvas,
-    antialias: true
+    antialias: true,
+    preserveDrawingBuffer: true
   });
 
   renderer.setSize(width, height);
