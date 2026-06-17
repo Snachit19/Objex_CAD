@@ -43,9 +43,9 @@
 
       <button id="undoToolBtn" class="cad-icon-tool-btn undo-tool-btn" title="Undo (Ctrl/Cmd+Z)" aria-label="Undo" type="button" disabled>
         <img class="undo-tool-icon" src="/static/assets/undo-object.svg" alt="Undo">
-      </button> 
+      </button>
 
-      <button id="redoToolBtn" class="cad-icon-tool-btn redo-tool-btn" title="Redo (Ctrl/Cmd+Shift+Z)" aria-label="Redo" type="button" disabled>
+      <button id="redoToolBtn" class="cad-icon-tool-btn redo-tool-btn" title="Redo (Ctrl/Cmd+Shift+Z or Ctrl/Cmd+Y)" aria-label="Redo" type="button" disabled>
         <img class="redo-tool-icon" src="/static/assets/undo-object.svg" alt="Redo">
       </button>
 
@@ -653,35 +653,35 @@
       }
 
       function updateUndoButtonState() {
-  const history = window.CADHistory;
-  const state = history && typeof history.getState === "function"
-    ? history.getState()
-    : null;
+        const history = window.CADHistory;
+        const state = history && typeof history.getState === "function"
+          ? history.getState()
+          : null;
 
-  if (undoToolBtn) {
-    const canUndo = state
-      ? state.canUndo
-      : Boolean(history && typeof history.canUndo === "function" && history.canUndo());
+        if (undoToolBtn) {
+          const canUndo = state
+            ? state.canUndo
+            : Boolean(history && typeof history.canUndo === "function" && history.canUndo());
 
-    undoToolBtn.disabled = !canUndo;
-    undoToolBtn.setAttribute("aria-disabled", String(!canUndo));
-    undoToolBtn.title = state && state.nextUndoLabel
-      ? "Undo " + state.nextUndoLabel + " (Ctrl/Cmd+Z)"
-      : "Undo (Ctrl/Cmd+Z)";
-  }
+          undoToolBtn.disabled = !canUndo;
+          undoToolBtn.setAttribute("aria-disabled", String(!canUndo));
+          undoToolBtn.title = state && state.nextUndoLabel
+            ? "Undo " + state.nextUndoLabel + " (Ctrl/Cmd+Z)"
+            : "Undo (Ctrl/Cmd+Z)";
+        }
 
-  if (redoToolBtn) {
-    const canRedo = state
-      ? state.canRedo
-      : Boolean(history && typeof history.canRedo === "function" && history.canRedo());
+        if (redoToolBtn) {
+          const canRedo = state
+            ? state.canRedo
+            : Boolean(history && typeof history.canRedo === "function" && history.canRedo());
 
-    redoToolBtn.disabled = !canRedo;
-    redoToolBtn.setAttribute("aria-disabled", String(!canRedo));
-    redoToolBtn.title = state && state.nextRedoLabel
-      ? "Redo " + state.nextRedoLabel + " (Ctrl/Cmd+Shift+Z)"
-      : "Redo (Ctrl/Cmd+Shift+Z)";
-  }
-}
+          redoToolBtn.disabled = !canRedo;
+          redoToolBtn.setAttribute("aria-disabled", String(!canRedo));
+          redoToolBtn.title = state && state.nextRedoLabel
+            ? "Redo " + state.nextRedoLabel + " (Ctrl/Cmd+Shift+Z or Ctrl/Cmd+Y)"
+            : "Redo (Ctrl/Cmd+Shift+Z or Ctrl/Cmd+Y)";
+        }
+      }
 
       function closeAllDropdownMenus() {
         document.querySelectorAll(".shape-menu-options.show, .zoom-menu-options.show")
@@ -745,30 +745,30 @@
 
         window.addEventListener("cad:historyChanged", updateUndoButtonState);
         updateUndoButtonState();
-      } 
+      }
 
       if (redoToolBtn) {
-  redoToolBtn.addEventListener("click", function (event) {
-    event.stopPropagation();
-    closeAllDropdownMenus();
-    hideAllToolPanels();
+        redoToolBtn.addEventListener("click", function (event) {
+          event.stopPropagation();
+          closeAllDropdownMenus();
+          hideAllToolPanels();
 
-    const history = window.CADHistory;
-    const didRedo = history && typeof history.redo === "function"
-      ? history.redo()
-      : false;
+          const history = window.CADHistory;
+          const didRedo = history && typeof history.redo === "function"
+            ? history.redo()
+            : false;
 
-    if (!didRedo) {
-      const statusText = document.getElementById("cadStatusText");
+          if (!didRedo) {
+            const statusText = document.getElementById("cadStatusText");
 
-      if (statusText) {
-        statusText.textContent = "Nothing to redo.";
+            if (statusText) {
+              statusText.textContent = "Nothing to redo.";
+            }
+          }
+
+          updateUndoButtonState();
+        });
       }
-    }
-
-    updateUndoButtonState();
-  });
-}
 
       const zoomMenuOptions = document.getElementById("zoomMenuOptions");
 
