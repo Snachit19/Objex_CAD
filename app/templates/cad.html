@@ -41,7 +41,7 @@
         </div>
       </div>
 
-      <button id="undoToolBtn" class="cad-icon-tool-btn undo-tool-btn" title="Undo" aria-label="Undo" type="button" disabled>
+      <button id="undoToolBtn" class="cad-icon-tool-btn undo-tool-btn" title="Undo (Ctrl/Cmd+Z)" aria-label="Undo" type="button" disabled>
         <img class="undo-tool-icon" src="/static/assets/undo-object.svg" alt="Undo">
       </button>
 
@@ -662,8 +662,8 @@
         undoToolBtn.disabled = !canUndo;
         undoToolBtn.setAttribute("aria-disabled", String(!canUndo));
         undoToolBtn.title = state && state.nextUndoLabel
-          ? "Undo " + state.nextUndoLabel
-          : "Undo";
+          ? "Undo " + state.nextUndoLabel + " (Ctrl/Cmd+Z)"
+          : "Undo (Ctrl/Cmd+Z)";
       }
 
       function closeAllDropdownMenus() {

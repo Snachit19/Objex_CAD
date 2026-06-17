@@ -130,6 +130,56 @@
         return true;
     }
 
+    function isEditableShortcutTarget(target) {
+        if (!target) {
+            return false;
+        }
+
+        const tagName = target.tagName ? target.tagName.toLowerCase() : "";
+
+        if (tagName === "input" || tagName === "textarea" || tagName === "select") {
+            return true;
+        }
+
+        if (target.isContentEditable) {
+            return true;
+        }
+
+        return Boolean(target.closest && target.closest("[contenteditable='true']"));
+    }
+
+    function isUndoShortcut(event) {
+        return (
+            (event.ctrlKey || event.metaKey) &&
+            !event.shiftKey &&
+            !event.altKey &&
+            event.key &&
+            event.key.toLowerCase() === "z"
+        );
+    }
+
+    function setHistoryShortcutStatus(message) {
+        const statusText = document.getElementById("cadStatusText");
+
+        if (statusText) {
+            statusText.textContent = message;
+        }
+    }
+
+    function handleHistoryShortcut(event) {
+        if (!isUndoShortcut(event) || isEditableShortcutTarget(event.target)) {
+            return;
+        }
+
+        event.preventDefault();
+
+        if (!undoLastAction()) {
+            setHistoryShortcutStatus("Nothing to undo.");
+        }
+    }
+
+    document.addEventListener("keydown", handleHistoryShortcut);
+
     window.CADHistory = {
         push: pushHistoryAction,
         undo: undoLastAction,

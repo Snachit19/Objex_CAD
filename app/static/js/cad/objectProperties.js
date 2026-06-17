@@ -96,6 +96,148 @@
         return input.value.trim();
     }
 
+    function clonePlainValue(value) {
+        if (value === undefined || value === null) {
+            return value;
+        }
+
+        return JSON.parse(JSON.stringify(value));
+    }
+
+    function getMaterialList(material) {
+        if (Array.isArray(material)) {
+            return material;
+        }
+
+        return material ? [material] : [];
+    }
+
+    function cloneMaterial(material) {
+        if (Array.isArray(material)) {
+            return material.map(function (singleMaterial) {
+                return singleMaterial && typeof singleMaterial.clone === "function"
+                    ? singleMaterial.clone()
+                    : singleMaterial;
+            });
+        }
+
+        if (material && typeof material.clone === "function") {
+            return material.clone();
+        }
+
+        return material;
+    }
+
+    function markMaterialForUpdate(material) {
+        getMaterialList(material).forEach(function (singleMaterial) {
+            if (singleMaterial) {
+                singleMaterial.needsUpdate = true;
+            }
+        });
+    }
+
+    function captureMaterialRenderData(material) {
+        return getMaterialList(material).map(function (singleMaterial) {
+            if (!singleMaterial) {
+                return null;
+            }
+
+            return {
+                color: singleMaterial.color ? "#" + singleMaterial.color.getHexString() : null,
+                roughness: singleMaterial.roughness,
+                metalness: singleMaterial.metalness,
+                opacity: singleMaterial.opacity,
+                transparent: singleMaterial.transparent,
+                depthWrite: singleMaterial.depthWrite,
+                emissive: singleMaterial.emissive ? "#" + singleMaterial.emissive.getHexString() : null,
+                emissiveIntensity: singleMaterial.emissiveIntensity
+            };
+        });
+    }
+
+    function captureObjectPropertyState(object) {
+        return {
+            name: object.name,
+            position: {
+                x: object.position.x,
+                y: object.position.y,
+                z: object.position.z
+            },
+            rotation: {
+                x: object.rotation.x,
+                y: object.rotation.y,
+                z: object.rotation.z,
+                order: object.rotation.order
+            },
+            scale: {
+                x: object.scale.x,
+                y: object.scale.y,
+                z: object.scale.z
+            },
+            material: cloneMaterial(object.material),
+            userData: clonePlainValue(object.userData || {})
+        };
+    }
+
+    function getComparableObjectPropertyState(state) {
+        return {
+            name: state.name,
+            position: state.position,
+            rotation: state.rotation,
+            scale: state.scale,
+            material: captureMaterialRenderData(state.material),
+            userData: state.userData
+        };
+    }
+
+    function objectPropertyStatesAreEqual(firstState, secondState) {
+        return JSON.stringify(getComparableObjectPropertyState(firstState)) ===
+            JSON.stringify(getComparableObjectPropertyState(secondState));
+    }
+
+    function applyObjectPropertyState(object, state) {
+        object.name = state.name;
+        object.position.set(state.position.x, state.position.y, state.position.z);
+        object.rotation.set(
+            state.rotation.x,
+            state.rotation.y,
+            state.rotation.z,
+            state.rotation.order
+        );
+        object.scale.set(state.scale.x, state.scale.y, state.scale.z);
+        object.material = cloneMaterial(state.material);
+        object.userData = clonePlainValue(state.userData || {});
+
+        markMaterialForUpdate(object.material);
+        updateObjectPropertiesPanel(object);
+
+        if (typeof window.refreshSelectedObjectPanel === "function") {
+            window.refreshSelectedObjectPanel();
+        } else if (typeof window.dispatchObjectChanged === "function") {
+            window.dispatchObjectChanged(object);
+        }
+    }
+
+    function recordObjectPropertiesHistory(object, previousState, nextState) {
+        if (!window.CADHistory || typeof window.CADHistory.push !== "function") {
+            return;
+        }
+
+        const objectName = previousState.name || object.name || "Selected object";
+
+        window.CADHistory.push({
+            label: "Update properties " + objectName,
+            undo: function () {
+                applyObjectPropertyState(object, previousState);
+                setStatus(objectName + " properties undone.");
+            },
+            redo: function () {
+                applyObjectPropertyState(object, nextState);
+                setStatus((nextState.name || objectName) + " properties redone.");
+            }
+        });
+    }
+
     function normaliseHexColour(value) {
         if (!value) {
             return null;
@@ -461,6 +603,7 @@
         const selectedMaterial = materialSelect
             ? materialSelect.value
             : (object.userData.materialType || "default");
+        const previousPropertyState = captureObjectPropertyState(object);
 
         const changeMessage = getObjectPropertyChanges(object, {
             name: objectName,
@@ -510,6 +653,12 @@
 
         if (typeof window.refreshSelectedObjectPanel === "function") {
             window.refreshSelectedObjectPanel();
+        }
+
+        const nextPropertyState = captureObjectPropertyState(object);
+
+        if (!objectPropertyStatesAreEqual(previousPropertyState, nextPropertyState)) {
+            recordObjectPropertiesHistory(object, previousPropertyState, nextPropertyState);
         }
 
         setStatus(object.name + " properties updated.");
