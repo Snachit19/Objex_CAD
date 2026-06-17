@@ -1010,9 +1010,11 @@ a {
   display: block;
 }
 
-.undo-tool-icon {
+.undo-tool-btn .undo-tool-icon {
   width: 28px;
   height: 28px;
+  max-width: 28px;
+  max-height: 28px;
   filter: drop-shadow(0 4px 10px rgba(147, 197, 253, 0.22));
   transition: transform 0.18s ease, filter 0.18s ease, opacity 0.18s ease;
 }
