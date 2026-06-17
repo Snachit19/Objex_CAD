@@ -177,14 +177,26 @@
     }
 
     function handleHistoryShortcut(event) {
-        if (!isUndoShortcut(event) || isEditableShortcutTarget(event.target)) {
+        if (isEditableShortcutTarget(event.target)) {
             return;
         }
 
-        event.preventDefault();
+        if (isRedoShortcut(event)) {
+            event.preventDefault();
 
-        if (!undoLastAction()) {
-            setHistoryShortcutStatus("Nothing to undo.");
+            if (!redoLastAction()) {
+                setHistoryShortcutStatus("Nothing to redo.");
+            }
+
+            return;
+        }
+
+        if (isUndoShortcut(event)) {
+            event.preventDefault();
+
+            if (!undoLastAction()) {
+                setHistoryShortcutStatus("Nothing to undo.");
+            }
         }
     }
 

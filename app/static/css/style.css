@@ -1010,7 +1010,8 @@ a {
   display: block;
 }
 
-.undo-tool-btn .undo-tool-icon {
+.undo-tool-btn .undo-tool-icon,
+.redo-tool-btn .redo-tool-icon {
   width: 28px;
   height: 28px;
   max-width: 28px;
@@ -1019,7 +1020,8 @@ a {
   transition: transform 0.18s ease, filter 0.18s ease, opacity 0.18s ease;
 }
 
-.undo-tool-btn:not(:disabled):hover {
+.undo-tool-btn:not(:disabled):hover,
+.redo-tool-btn:not(:disabled):hover {
   background: linear-gradient(135deg, rgba(37, 99, 235, 0.92), rgba(124, 58, 237, 0.92));
   border-color: rgba(196, 181, 253, 0.9);
 }
@@ -1029,8 +1031,15 @@ a {
   filter: drop-shadow(0 8px 16px rgba(147, 197, 253, 0.32));
 }
 
+.redo-tool-btn:not(:disabled):hover .redo-tool-icon {
+  transform: rotate(8deg) scale(1.04);
+  filter: drop-shadow(0 8px 16px rgba(147, 197, 253, 0.32));
+}
+
 .undo-tool-btn:disabled .undo-tool-icon,
-.undo-tool-btn[aria-disabled="true"] .undo-tool-icon {
+.undo-tool-btn[aria-disabled="true"] .undo-tool-icon,
+.redo-tool-btn:disabled .redo-tool-icon,
+.redo-tool-btn[aria-disabled="true"] .redo-tool-icon {
   opacity: 0.82;
   filter: grayscale(0.2);
 }
@@ -1930,11 +1939,7 @@ a {
     transform: translateY(0);
     filter: blur(0);
   }
-} 
-
-.redo-tool-icon {
-  transform: scaleX(-1);
-} 
+}
 
 .redo-tool-btn:disabled,
 .undo-tool-btn:disabled {
