@@ -33,6 +33,11 @@ function getMoveStep() {
 }
 
 
+function getMoveWorkspace() {
+    return window.CADWorkspace || null;
+}
+
+
 function updateMoveInputs(object) {
     const xInput = document.getElementById("moveXInput");
     const yInput = document.getElementById("moveYInput");
@@ -65,6 +70,70 @@ function refreshAfterMove(object) {
     }
 
     updateMoveInputs(object);
+}
+
+
+const dragRaycaster = new THREE.Raycaster();
+const dragPointer = new THREE.Vector2();
+const dragPlane = new THREE.Plane();
+const dragPlaneNormal = new THREE.Vector3(0, 1, 0);
+const dragIntersection = new THREE.Vector3();
+const dragOffset = new THREE.Vector3();
+
+let activeDragObject = null;
+let dragStartPosition = null;
+let dragStartPointer = null;
+let dragPointerId = null;
+let dragControlsEnabled = true;
+let hasDragMoved = false;
+let selectedObjectDragInitialized = false;
+
+
+function setDragPointerFromEvent(event, canvas) {
+    const rect = canvas.getBoundingClientRect();
+
+    dragPointer.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+    dragPointer.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+}
+
+
+function getDragPlaneIntersection(event) {
+    const workspace = getMoveWorkspace();
+
+    if (!workspace || !workspace.camera || !workspace.renderer) {
+        return null;
+    }
+
+    setDragPointerFromEvent(event, workspace.renderer.domElement);
+    dragRaycaster.setFromCamera(dragPointer, workspace.camera);
+
+    return dragRaycaster.ray.intersectPlane(dragPlane, dragIntersection);
+}
+
+
+function didPointerMoveEnough(event) {
+    if (!dragStartPointer) {
+        return false;
+    }
+
+    return (
+        Math.abs(event.clientX - dragStartPointer.x) > 3 ||
+        Math.abs(event.clientY - dragStartPointer.y) > 3
+    );
+}
+
+
+function isPointerOnObject(event, object) {
+    const workspace = getMoveWorkspace();
+
+    if (!workspace || !workspace.camera || !workspace.renderer || !object) {
+        return false;
+    }
+
+    setDragPointerFromEvent(event, workspace.renderer.domElement);
+    dragRaycaster.setFromCamera(dragPointer, workspace.camera);
+
+    return dragRaycaster.intersectObject(object, true).length > 0;
 }
 
 
@@ -144,6 +213,126 @@ function applyMoveChange(object, changePosition, successMessage) {
     refreshAfterMove(object);
     recordMoveHistory(object, previousPosition, nextPosition);
     setMoveStatus(successMessage || getMoveStatusMessage(object));
+}
+
+
+function beginSelectedObjectDrag(event) {
+    const object = getMoveSelectedObject();
+    const workspace = getMoveWorkspace();
+
+    if (!object || !workspace || !workspace.renderer || !workspace.controls) {
+        return;
+    }
+
+    if (event.button !== 0 || !isPointerOnObject(event, object)) {
+        return;
+    }
+
+    dragPlane.set(dragPlaneNormal, -object.position.y);
+
+    const intersection = getDragPlaneIntersection(event);
+
+    if (!intersection) {
+        return;
+    }
+
+    activeDragObject = object;
+    dragStartPosition = capturePosition(object);
+    dragStartPointer = {
+        x: event.clientX,
+        y: event.clientY
+    };
+    dragPointerId = event.pointerId;
+    hasDragMoved = false;
+
+    dragOffset.copy(intersection).sub(object.position);
+
+    dragControlsEnabled = workspace.controls.enabled;
+    workspace.controls.enabled = false;
+    workspace.renderer.domElement.setPointerCapture(event.pointerId);
+}
+
+
+function updateSelectedObjectDrag(event) {
+    if (!activeDragObject || event.pointerId !== dragPointerId) {
+        return;
+    }
+
+    if (!hasDragMoved && !didPointerMoveEnough(event)) {
+        return;
+    }
+
+    const intersection = getDragPlaneIntersection(event);
+
+    if (!intersection) {
+        return;
+    }
+
+    hasDragMoved = true;
+    event.preventDefault();
+
+    activeDragObject.position.copy(intersection.sub(dragOffset));
+    activeDragObject.position.y = dragStartPosition.y;
+
+    refreshAfterMove(activeDragObject);
+    setMoveStatus(getMoveStatusMessage(activeDragObject));
+}
+
+
+function finishSelectedObjectDrag(event) {
+    if (!activeDragObject || event.pointerId !== dragPointerId) {
+        return;
+    }
+
+    const workspace = getMoveWorkspace();
+    const object = activeDragObject;
+    const previousPosition = dragStartPosition;
+    const nextPosition = capturePosition(object);
+
+    if (workspace && workspace.controls) {
+        workspace.controls.enabled = dragControlsEnabled;
+    }
+
+    if (workspace && workspace.renderer && workspace.renderer.domElement.hasPointerCapture(event.pointerId)) {
+        workspace.renderer.domElement.releasePointerCapture(event.pointerId);
+    }
+
+    activeDragObject = null;
+    dragStartPosition = null;
+    dragStartPointer = null;
+    dragPointerId = null;
+
+    if (!hasDragMoved || positionsAreEqual(previousPosition, nextPosition)) {
+        hasDragMoved = false;
+        refreshAfterMove(object);
+        return;
+    }
+
+    hasDragMoved = false;
+    recordMoveHistory(object, previousPosition, nextPosition);
+    setMoveStatus(getMoveStatusMessage(object));
+}
+
+
+function initSelectedObjectDrag() {
+    if (selectedObjectDragInitialized) {
+        return;
+    }
+
+    const workspace = getMoveWorkspace();
+
+    if (!workspace || !workspace.renderer) {
+        return;
+    }
+
+    selectedObjectDragInitialized = true;
+
+    const canvas = workspace.renderer.domElement;
+
+    canvas.addEventListener("pointerdown", beginSelectedObjectDrag);
+    canvas.addEventListener("pointermove", updateSelectedObjectDrag);
+    canvas.addEventListener("pointerup", finishSelectedObjectDrag);
+    canvas.addEventListener("pointercancel", finishSelectedObjectDrag);
 }
 
 
@@ -242,6 +431,12 @@ function initMoveObjectControls() {
             updateMoveInputs(null);
         }
     });
+
+    window.addEventListener("cad:ready", initSelectedObjectDrag);
+
+    if (window.CADWorkspace) {
+        initSelectedObjectDrag();
+    }
 }
 
 
