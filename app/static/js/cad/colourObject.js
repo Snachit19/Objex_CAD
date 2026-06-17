@@ -66,6 +66,115 @@ function updateColourInputs(object) {
 }
 
 
+function getMaterialList(material) {
+    if (Array.isArray(material)) {
+        return material;
+    }
+
+    return material ? [material] : [];
+}
+
+
+function captureColourState(object) {
+    const materialColours = getMaterialList(object.material).map(function (material) {
+        if (!material || !material.color) {
+            return null;
+        }
+
+        return "#" + material.color.getHexString();
+    });
+
+    return {
+        userDataColour: object.userData && object.userData.color
+            ? normaliseHexColour(object.userData.color)
+            : null,
+        materialColours: materialColours
+    };
+}
+
+
+function colourStatesAreEqual(firstState, secondState) {
+    if (firstState.userDataColour !== secondState.userDataColour) {
+        return false;
+    }
+
+    if (firstState.materialColours.length !== secondState.materialColours.length) {
+        return false;
+    }
+
+    return firstState.materialColours.every(function (colour, index) {
+        return colour === secondState.materialColours[index];
+    });
+}
+
+
+function refreshAfterColourChange(object) {
+    updateColourInputs(object);
+
+    if (typeof window.refreshSelectedObjectPanel === "function") {
+        window.refreshSelectedObjectPanel();
+    }
+}
+
+
+function applyColourState(object, colourState) {
+    getMaterialList(object.material).forEach(function (material, index) {
+        const colour = colourState.materialColours[index];
+
+        if (material && material.color && colour) {
+            material.color.set(colour);
+            material.needsUpdate = true;
+        }
+    });
+
+    object.userData = object.userData || {};
+
+    if (colourState.userDataColour) {
+        object.userData.color = colourState.userDataColour;
+    } else {
+        delete object.userData.color;
+    }
+
+    refreshAfterColourChange(object);
+}
+
+
+function applyColourValue(object, colour) {
+    getMaterialList(object.material).forEach(function (material) {
+        if (material && material.color) {
+            material.color.set(colour);
+            material.needsUpdate = true;
+        }
+    });
+
+    object.userData = object.userData || {};
+    object.userData.color = colour;
+
+    refreshAfterColourChange(object);
+}
+
+
+function recordColourHistory(object, previousColourState, nextColourState) {
+    if (!window.CADHistory || typeof window.CADHistory.push !== "function") {
+        return;
+    }
+
+    const objectName = object.name || "Selected object";
+
+    window.CADHistory.push({
+        label: "Change colour " + objectName,
+        undo: function () {
+            applyColourState(object, previousColourState);
+            setColourStatus(objectName + " colour undone.");
+        },
+        redo: function () {
+            applyColourState(object, nextColourState);
+            setColourStatus(objectName + " colour redone.");
+        }
+    });
+}
+
+
 function applyObjectColour() {
     const object = getColourSelectedObject();
     const colourInput = document.getElementById("objectColourInput");
@@ -104,27 +213,18 @@ function applyObjectColour() {
         hexInput.value = selectedColour;
     }
 
-    if (Array.isArray(object.material)) {
-        object.material.forEach(function (material) {
-            if (material && material.color) {
-                material.color.set(selectedColour);
-                material.needsUpdate = true;
-            }
-        });
-    } else {
-        if (object.material.color) {
-            object.material.color.set(selectedColour);
-            object.material.needsUpdate = true;
-        }
+    const previousColourState = captureColourState(object);
+
+    applyColourValue(object, selectedColour);
+
+    const nextColourState = captureColourState(object);
+
+    if (colourStatesAreEqual(previousColourState, nextColourState)) {
+        setColourStatus((object.name || "Selected object") + " colour unchanged.");
+        return;
     }
 
-    object.userData = object.userData || {};
-    object.userData.color = selectedColour;
-
-    if (typeof window.refreshSelectedObjectPanel === "function") {
-        window.refreshSelectedObjectPanel();
-    }
-
+    recordColourHistory(object, previousColourState, nextColourState);
     setColourStatus(object.name + " colour changed to " + selectedColour);
 }
 
