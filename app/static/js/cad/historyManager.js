@@ -158,6 +158,16 @@
         );
     }
 
+    function isRedoShortcut(event) {
+        const key = event.key ? event.key.toLowerCase() : "";
+
+        if ((event.ctrlKey || event.metaKey) && !event.altKey && event.shiftKey && key === "z") {
+            return true;
+        }
+
+        return (event.ctrlKey || event.metaKey) && !event.altKey && !event.shiftKey && key === "y";
+    }
+
     function setHistoryShortcutStatus(message) {
         const statusText = document.getElementById("cadStatusText");
 
