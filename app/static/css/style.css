@@ -1965,3 +1965,22 @@ a {
   transform: rotate(-16deg) scale(1.04);
   filter: drop-shadow(0 8px 16px rgba(248, 113, 113, 0.34));
 }
+
+.export-image-btn .export-image-icon {
+  width: 28px;
+  height: 28px;
+  max-width: 28px;
+  max-height: 28px;
+  filter: drop-shadow(0 4px 10px rgba(96, 165, 250, 0.24));
+  transition: transform 0.18s ease, filter 0.18s ease;
+}
+
+.export-image-btn:hover {
+  background: linear-gradient(135deg, #0369a1, #2563eb);
+  border-color: rgba(186, 230, 253, 0.9);
+}
+
+.export-image-btn:hover .export-image-icon {
+  transform: translateY(-2px) scale(1.04);
+  filter: drop-shadow(0 8px 16px rgba(96, 165, 250, 0.34));
+}
