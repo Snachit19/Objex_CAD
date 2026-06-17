@@ -180,6 +180,14 @@
         }, duration || 3000);
     }
 
+    function setMaterialStatus(message) {
+        const statusText = document.getElementById("cadStatusText");
+
+        if (statusText) {
+            statusText.textContent = message;
+        }
+    }
+
     function setTextValue(elementId, value) {
         const element = document.getElementById(elementId);
 
@@ -202,6 +210,133 @@
         if (input) {
             input.checked = Boolean(value);
         }
+    }
+
+    function clonePlainValue(value) {
+        if (value === undefined || value === null) {
+            return value;
+        }
+
+        return JSON.parse(JSON.stringify(value));
+    }
+
+    function getMaterialList(material) {
+        if (Array.isArray(material)) {
+            return material;
+        }
+
+        return material ? [material] : [];
+    }
+
+    function getMaterialHexColour(material) {
+        if (material && material.color) {
+            return "#" + material.color.getHexString();
+        }
+
+        return null;
+    }
+
+    function captureMaterialRenderData(material) {
+        return getMaterialList(material).map(function (singleMaterial) {
+            if (!singleMaterial) {
+                return null;
+            }
+
+            return {
+                color: getMaterialHexColour(singleMaterial),
+                roughness: singleMaterial.roughness,
+                metalness: singleMaterial.metalness,
+                opacity: singleMaterial.opacity,
+                transparent: singleMaterial.transparent,
+                depthWrite: singleMaterial.depthWrite,
+                emissive: singleMaterial.emissive
+                    ? "#" + singleMaterial.emissive.getHexString()
+                    : null,
+                emissiveIntensity: singleMaterial.emissiveIntensity
+            };
+        });
+    }
+
+    function captureMaterialState(object) {
+        const userData = object.userData || {};
+
+        return {
+            material: object.material,
+            renderData: captureMaterialRenderData(object.material),
+            userData: {
+                materialType: userData.materialType,
+                materialName: userData.materialName,
+                materialData: clonePlainValue(userData.materialData),
+                materialDescription: userData.materialDescription,
+                color: userData.color
+            }
+        };
+    }
+
+    function materialStatesAreEqual(firstState, secondState) {
+        return JSON.stringify({
+            renderData: firstState.renderData,
+            userData: firstState.userData
+        }) === JSON.stringify({
+            renderData: secondState.renderData,
+            userData: secondState.userData
+        });
+    }
+
+    function setUserDataValue(object, key, value) {
+        object.userData = object.userData || {};
+
+        if (value === undefined) {
+            delete object.userData[key];
+            return;
+        }
+
+        object.userData[key] = clonePlainValue(value);
+    }
+
+    function markMaterialForUpdate(material) {
+        getMaterialList(material).forEach(function (singleMaterial) {
+            if (singleMaterial) {
+                singleMaterial.needsUpdate = true;
+            }
+        });
+    }
+
+    function applyMaterialState(object, materialState) {
+        object.material = materialState.material;
+        markMaterialForUpdate(object.material);
+
+        setUserDataValue(object, "materialType", materialState.userData.materialType);
+        setUserDataValue(object, "materialName", materialState.userData.materialName);
+        setUserDataValue(object, "materialData", materialState.userData.materialData);
+        setUserDataValue(object, "materialDescription", materialState.userData.materialDescription);
+        setUserDataValue(object, "color", materialState.userData.color);
+
+        updateMaterialPanelReadout(
+            object.userData.materialType || "default",
+            object.userData.materialData || null
+        );
+        refreshMaterialUI(object);
+    }
+
+    function recordMaterialHistory(object, previousMaterialState, nextMaterialState) {
+        if (!window.CADHistory || typeof window.CADHistory.push !== "function") {
+            return;
+        }
+
+        const objectName = object.name || "Selected object";
+
+        window.CADHistory.push({
+            label: "Apply material " + objectName,
+            undo: function () {
+                applyMaterialState(object, previousMaterialState);
+                setMaterialStatus(objectName + " material undone.");
+            },
+            redo: function () {
+                applyMaterialState(object, nextMaterialState);
+                setMaterialStatus(objectName + " material redone.");
+            }
+        });
     }
 
     function getInputNumber(elementId, fallback, min, max) {
@@ -354,6 +489,7 @@
             return false;
         }
 
+        const previousMaterialState = captureMaterialState(object);
         const materialConfig = normaliseMaterialConfig(Object.assign(
             {},
             preset.config,
@@ -372,6 +508,12 @@
 
         updateMaterialPanelReadout(presetKey, materialConfig);
         refreshMaterialUI(object);
+
+        const nextMaterialState = captureMaterialState(object);
+
+        if (settings.recordHistory !== false && !materialStatesAreEqual(previousMaterialState, nextMaterialState)) {
+            recordMaterialHistory(object, previousMaterialState, nextMaterialState);
+        }
 
         if (settings.showNotification !== false) {
             showMaterialToast(preset.name + " material applied.");

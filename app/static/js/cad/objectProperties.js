@@ -500,6 +500,7 @@
 
         if (selectedMaterial !== (object.userData.materialType || "default") && typeof window.applyMaterialPreset === "function") {
             window.applyMaterialPreset(selectedMaterial, {
+                recordHistory: false,
                 showNotification: false
             });
         }
