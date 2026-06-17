@@ -1934,4 +1934,10 @@ a {
 
 .redo-tool-icon {
   transform: scaleX(-1);
+} 
+
+.redo-tool-btn:disabled,
+.undo-tool-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
 }
