@@ -804,7 +804,7 @@
       }
 
       if (exportImageBtn) {
-        exportImageBtn.addEventListener("click", function (event) {
+        exportImageBtn.addEventListener("click", async function (event) {
           event.stopPropagation();
           closeAllDropdownMenus();
           hideAllToolPanels();
@@ -816,7 +816,7 @@
 
           try {
             result = typeof window.exportCADImage === "function"
-              ? window.exportCADImage()
+              ? await window.exportCADImage()
               : {
                   success: false,
                   message: "Export image is not ready."

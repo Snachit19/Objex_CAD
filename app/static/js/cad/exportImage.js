@@ -20,6 +20,12 @@
     }
   }
 
+  function showExportToast(message) {
+    if (typeof window.showToast === "function") {
+      window.showToast(message, 3200);
+    }
+  }
+
   function padDatePart(value) {
     return String(value).padStart(2, "0");
   }
@@ -67,10 +73,10 @@
     return (baseName || "cad-scene") + "-" + timestamp + ".png";
   }
 
-  function downloadImage(dataUrl, filename) {
+  function downloadImageUrl(url, filename) {
     const downloadLink = document.createElement("a");
 
-    downloadLink.href = dataUrl;
+    downloadLink.href = url;
     downloadLink.download = filename;
     downloadLink.style.display = "none";
 
@@ -79,21 +85,67 @@
     downloadLink.remove();
   }
 
-  function exportCADImage(options) {
+  function getCanvasDownloadUrl(canvas) {
+    return new Promise(function (resolve, reject) {
+      const objectUrlApi = window.URL || window.webkitURL;
+
+      if (typeof canvas.toBlob === "function" && objectUrlApi) {
+        canvas.toBlob(function (blob) {
+          if (!blob) {
+            reject(new Error("Could not create image file."));
+            return;
+          }
+
+          const objectUrl = objectUrlApi.createObjectURL(blob);
+
+          resolve({
+            url: objectUrl,
+            revoke: function () {
+              objectUrlApi.revokeObjectURL(objectUrl);
+            }
+          });
+        }, "image/png");
+
+        return;
+      }
+
+      if (typeof canvas.toDataURL === "function") {
+        resolve({
+          url: canvas.toDataURL("image/png"),
+          revoke: null
+        });
+        return;
+      }
+
+      reject(new Error("Canvas image export is not supported in this browser."));
+    });
+  }
+
+  async function exportCADImage(options) {
     const settings = options || {};
     const workspace = getCADWorkspace();
     const scene = workspace.scene;
     const camera = workspace.camera;
     const renderer = workspace.renderer;
     const controls = workspace.controls;
+    const canvas = renderer ? renderer.domElement : null;
     const filename = settings.filename || createImageFilename(settings);
 
-    if (!scene || !camera || !renderer || !renderer.domElement) {
+    if (!scene || !camera || !renderer || !canvas) {
       setExportStatus("CAD scene is not ready for image export.");
 
       return {
         success: false,
         message: "CAD scene is not ready for image export."
+      };
+    }
+
+    if (!canvas.width || !canvas.height) {
+      setExportStatus("CAD canvas is not ready for image export.");
+
+      return {
+        success: false,
+        message: "CAD canvas is not ready for image export."
       };
     }
 
@@ -106,9 +158,16 @@
 
       renderer.render(scene, camera);
 
-      const imageDataUrl = renderer.domElement.toDataURL("image/png");
-      downloadImage(imageDataUrl, filename);
+      const imageDownload = await getCanvasDownloadUrl(canvas);
+
+      downloadImageUrl(imageDownload.url, filename);
+
+      if (typeof imageDownload.revoke === "function") {
+        setTimeout(imageDownload.revoke, 1000);
+      }
+
       setExportStatus("Image exported: " + filename);
+      showExportToast("Image exported");
 
       return {
         success: true,
