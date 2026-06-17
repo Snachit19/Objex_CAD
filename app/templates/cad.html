@@ -809,12 +809,29 @@
           closeAllDropdownMenus();
           hideAllToolPanels();
 
-          const result = typeof window.exportCADImage === "function"
-            ? window.exportCADImage()
-            : {
-                success: false,
-                message: "Export image is not ready."
-              };
+          exportImageBtn.disabled = true;
+          exportImageBtn.setAttribute("aria-disabled", "true");
+
+          let result;
+
+          try {
+            result = typeof window.exportCADImage === "function"
+              ? window.exportCADImage()
+              : {
+                  success: false,
+                  message: "Export image is not ready."
+                };
+          } catch (error) {
+            console.error("Export image click error:", error);
+
+            result = {
+              success: false,
+              message: "Could not export image."
+            };
+          } finally {
+            exportImageBtn.disabled = false;
+            exportImageBtn.setAttribute("aria-disabled", "false");
+          }
 
           if (!result.success) {
             const statusText = document.getElementById("cadStatusText");
