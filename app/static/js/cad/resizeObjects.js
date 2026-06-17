@@ -102,6 +102,67 @@
         );
     }
 
+    function captureScale(object) {
+        return {
+            x: object.scale.x,
+            y: object.scale.y,
+            z: object.scale.z
+        };
+    }
+
+    function scalesAreEqual(firstScale, secondScale) {
+        const tolerance = 0.0000001;
+
+        return (
+            Math.abs(firstScale.x - secondScale.x) <= tolerance &&
+            Math.abs(firstScale.y - secondScale.y) <= tolerance &&
+            Math.abs(firstScale.z - secondScale.z) <= tolerance
+        );
+    }
+
+    function applyScaleSnapshot(object, scale) {
+        object.scale.set(scale.x, scale.y, scale.z);
+        refreshAfterResize(object);
+    }
+
+    function recordResizeHistory(object, previousScale, nextScale) {
+        if (!window.CADHistory || typeof window.CADHistory.push !== "function") {
+            return;
+        }
+
+        const objectName = object.name || "Selected object";
+
+        window.CADHistory.push({
+            label: "Resize " + objectName,
+            undo: function () {
+                applyScaleSnapshot(object, previousScale);
+                setStatus(objectName + " resize undone.");
+            },
+            redo: function () {
+                applyScaleSnapshot(object, nextScale);
+                setStatus(objectName + " resize redone.");
+            }
+        });
+    }
+
+    function applyResizeChange(object, changeScale) {
+        const previousScale = captureScale(object);
+
+        changeScale();
+
+        const nextScale = captureScale(object);
+
+        if (scalesAreEqual(previousScale, nextScale)) {
+            refreshAfterResize(object);
+            setStatus((object.name || "Selected object") + " scale unchanged.");
+            return;
+        }
+
+        refreshAfterResize(object);
+        recordResizeHistory(object, previousScale, nextScale);
+        setStatus(getScaleStatusMessage(object));
+    }
+
     function resizeSelectedObject(axis, amount) {
         const object = getSelectedObject();
 
@@ -139,10 +200,9 @@
             return;
         }
 
-        object.scale.set(newScale.x, newScale.y, newScale.z);
-
-        refreshAfterResize(object);
-        setStatus(getScaleStatusMessage(object));
+        applyResizeChange(object, function () {
+            object.scale.set(newScale.x, newScale.y, newScale.z);
+        });
     }
 
     function applyManualResize() {
@@ -180,10 +240,9 @@
             return;
         }
 
-        object.scale.set(xScale, yScale, zScale);
-
-        refreshAfterResize(object);
-        setStatus(getScaleStatusMessage(object));
+        applyResizeChange(object, function () {
+            object.scale.set(xScale, yScale, zScale);
+        });
     }
 
     function connectResizeButton(buttonId, axis, direction) {
