@@ -6,7 +6,9 @@ from app.models.project import (
     get_projects_by_user,
     find_project_by_id,
     mark_project_opened,
-    update_project_design
+    update_project_design,
+    update_project_details,
+    delete_project_by_id
 )
 
 def create_new_project():
@@ -228,3 +230,79 @@ def import_project():
             "object_count": len(design_data)
         }
     }), 201
+
+
+def rename_project(project_id):
+    user_email = session.get("user_email")
+
+    if not user_email:
+        return jsonify({
+            "success": False,
+            "message": "User not logged in"
+        }), 401
+
+    data = request.get_json(silent=True)
+
+    if not data:
+        return jsonify({
+            "success": False,
+            "message": "No data provided"
+        }), 400
+
+    name = data.get("name", "").strip()
+    description = data.get("description")
+
+    if not name:
+        return jsonify({
+            "success": False,
+            "message": "Project name is required"
+        }), 400
+
+    project = find_project_by_id(project_id, user_email)
+
+    if not project:
+        return jsonify({
+            "success": False,
+            "message": "Project not found or access denied"
+        }), 404
+
+    if description is not None:
+        description = str(description).strip()
+        update_project_details(project_id, user_email, name, description)
+    else:
+        update_project_details(project_id, user_email, name)
+
+    return jsonify({
+        "success": True,
+        "message": "Project renamed successfully",
+        "project": {
+            "id": project_id,
+            "name": name,
+            "description": description if description is not None else project.get("description", "")
+        }
+    }), 200
+
+
+def delete_project(project_id):
+    user_email = session.get("user_email")
+
+    if not user_email:
+        return jsonify({
+            "success": False,
+            "message": "User not logged in"
+        }), 401
+
+    project = find_project_by_id(project_id, user_email)
+
+    if not project:
+        return jsonify({
+            "success": False,
+            "message": "Project not found or access denied"
+        }), 404
+
+    delete_project_by_id(project_id, user_email)
+
+    return jsonify({
+        "success": True,
+        "message": "Project deleted successfully"
+    }), 200

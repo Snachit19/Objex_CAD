@@ -6,7 +6,9 @@ from app.controllers.project import (
     get_user_projects,
     get_project_by_id,
     save_project_design,
-    import_project
+    import_project,
+    rename_project,
+    delete_project
 )
 
 projects_bp = Blueprint("projects", __name__)
@@ -49,6 +51,18 @@ def import_project_route():
 @login_required
 def get_single_project_route(project_id):
     return get_project_by_id(project_id)
+
+
+@projects_bp.route("/api/projects/<int:project_id>", methods=["PATCH", "PUT"])
+@login_required
+def rename_project_route(project_id):
+    return rename_project(project_id)
+
+
+@projects_bp.route("/api/projects/<int:project_id>", methods=["DELETE"])
+@login_required
+def delete_project_route(project_id):
+    return delete_project(project_id)
 
 @projects_bp.route("/api/projects/<int:project_id>/save", methods=["POST", "PUT"])
 @login_required
