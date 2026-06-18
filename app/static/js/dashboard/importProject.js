@@ -36,6 +36,12 @@
         if (recentProjectsMeta) {
             recentProjectsMeta.textContent = message;
         }
+
+        const projectsPageMeta = document.getElementById("projectsPageMeta");
+
+        if (projectsPageMeta) {
+            projectsPageMeta.textContent = message;
+        }
     }
 
     function setImportError(message) {
