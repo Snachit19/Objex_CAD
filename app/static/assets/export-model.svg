@@ -1,0 +1,29 @@
+<svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="exportModelStroke" x1="12" y1="9" x2="53" y2="56" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#86EFAC"/>
+      <stop offset="1" stop-color="#2DD4BF"/>
+    </linearGradient>
+  </defs>
+  <path
+    d="M32 9L51 20V42L32 53L13 42V20L32 9Z"
+    stroke="url(#exportModelStroke)"
+    stroke-width="4"
+    stroke-linejoin="round"
+  />
+  <path
+    d="M13 20L32 31L51 20M32 31V53"
+    stroke="url(#exportModelStroke)"
+    stroke-width="4"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    opacity="0.82"
+  />
+  <path
+    d="M32 5V24M24 13L32 5L40 13"
+    stroke="url(#exportModelStroke)"
+    stroke-width="4"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  />
+</svg>
