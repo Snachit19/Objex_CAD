@@ -90,8 +90,13 @@
  
     <section class="dashboard-cards">
     <div class="card">
-      <h3>Recent Projects</h3>
+      <div class="card-header-row">
+        <h3>Recent Projects</h3>
+        <button id="importProjectBtn" class="import-project-btn" type="button">Import Project</button>
+      </div>
       <p id="recentProjectsMeta">Loading projects...</p>
+      <p id="importProjectError" class="import-project-error" style="display:none;"></p>
+      <input id="importProjectFileInput" type="file" accept=".json,.objex.json,application/json" hidden>
 
       <div id="projectList">
         <div class="mock-project">
@@ -193,8 +198,11 @@
 <script src="/static/js/common/api.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+<script src="/static/js/cad/designSchema.js"></script>
+<script src="/static/js/cad/designValidator.js"></script>
 <script src="/static/js/dashboard/recentProjectPreview.js"></script>
 <script src="/static/js/dashboard/createProject.js"></script>
+<script src="/static/js/dashboard/importProject.js"></script>
  
   <script>
     // On page load — check if user is logged in and load their name
