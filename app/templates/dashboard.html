@@ -34,7 +34,7 @@
  
     <nav class="side-menu">
       <a class="active">▦ Dashboard</a>
-      <a>▣ Projects <span>12</span></a>
+      <a>▣ Projects <span id="projectCountBadge">0</span></a>
       <a>⚙ Settings</a>
     </nav>
  
@@ -70,6 +70,9 @@
         <p id="recentPreviewProjectName">No recent project</p>
         <p id="recentPreviewProjectDescription">Create a project to preview it here.</p>
         <strong id="recentPreviewObjectCount">0 Objects Saved</strong>
+        <button id="openRecentProjectBtn" class="preview-open-btn" type="button" disabled>
+          Open Project
+        </button>
       </div>
  
       <div class="zoom-bar">
@@ -84,7 +87,7 @@
     <section class="dashboard-cards">
     <div class="card">
       <h3>Recent Projects</h3>
-      <p>Last updated today</p>
+      <p id="recentProjectsMeta">Loading projects...</p>
 
       <div id="projectList">
         <div class="mock-project">

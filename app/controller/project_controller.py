@@ -5,6 +5,7 @@ from app.models.project_model import (
     create_project,
     get_projects_by_user,
     find_project_by_id,
+    mark_project_opened,
     update_project_design
 )
 
@@ -40,6 +41,7 @@ def create_new_project():
         "owner_email": user_email,
         "design_data": [],
         "created_at": datetime.utcnow(),
+        "last_opened_at": datetime.utcnow(),
         "updated_at": datetime.utcnow()
     }
 
@@ -89,6 +91,8 @@ def get_project_by_id(project_id):
             "success": False,
             "message": "Project not found"
         }), 404
+
+    mark_project_opened(project_id, user_email)
 
     return jsonify({
         "success": True,

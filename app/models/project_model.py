@@ -8,8 +8,8 @@ def create_project(project_data):
     project_id = db.execute(
         """
         INSERT INTO projects 
-        (name, description, owner_email, design_data, created_at, updated_at)
-        VALUES (%s, %s, %s, %s, %s, %s)
+        (name, description, owner_email, design_data, created_at, last_opened_at, updated_at)
+        VALUES (%s, %s, %s, %s, %s, %s, %s)
         """,
         (
             project_data["name"],
@@ -17,6 +17,7 @@ def create_project(project_data):
             project_data["owner_email"],
             json.dumps(project_data.get("design_data", [])),
             project_data["created_at"],
+            project_data.get("last_opened_at", project_data["created_at"]),
             project_data["updated_at"]
         )
     )
@@ -30,10 +31,10 @@ def get_projects_by_user(email):
 
     projects = db.fetch_all(
         """
-        SELECT id, name, description, owner_email, created_at, updated_at
+        SELECT id, name, description, owner_email, created_at, last_opened_at, updated_at
         FROM projects
         WHERE owner_email = %s
-        ORDER BY created_at DESC
+        ORDER BY COALESCE(last_opened_at, updated_at, created_at) DESC
         """,
         (email,)
     )
@@ -47,7 +48,7 @@ def find_project_by_id(project_id, owner_email):
 
     project = db.fetch_one(
         """
-        SELECT id, name, description, owner_email, design_data, created_at, updated_at
+        SELECT id, name, description, owner_email, design_data, created_at, last_opened_at, updated_at
         FROM projects
         WHERE id = %s AND owner_email = %s
         """,
@@ -68,6 +69,25 @@ def find_project_by_id(project_id, owner_email):
         project["design_data"] = []
 
     return project
+
+def mark_project_opened(project_id, owner_email):
+    db = Database()
+
+    db.execute(
+        """
+        UPDATE projects
+        SET last_opened_at = NOW(),
+            updated_at = updated_at
+        WHERE id = %s AND owner_email = %s
+        """,
+        (
+            project_id,
+            owner_email
+        )
+    )
+
+    db.close()
+    return True
 
 def update_project_design(project_id, owner_email, design_data):
     db = Database()
