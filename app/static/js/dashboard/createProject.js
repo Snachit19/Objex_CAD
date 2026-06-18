@@ -8,6 +8,11 @@ const projectError = document.getElementById("projectError");
 const projectList = document.getElementById("projectList");
 const projectCountBadge = document.getElementById("projectCountBadge");
 const recentProjectsMeta = document.getElementById("recentProjectsMeta");
+const projectsPageMeta = document.getElementById("projectsPageMeta");
+
+function isProjectsPage() {
+  return document.body.classList.contains("projects-page");
+}
 
 function openProjectModal() {
   projectModal.style.display = "flex";
@@ -27,7 +32,9 @@ function showProjectError(message) {
 }
 
 function clearProjectList() {
-  projectList.textContent = "";
+  if (projectList) {
+    projectList.textContent = "";
+  }
 }
 
 function refreshRecentProjectPreview(projects) {
@@ -64,7 +71,21 @@ function getRecentProjectSummary(projects) {
     return projects.length + " projects";
   }
 
-  return "Latest: " + (latestProject.name || "Untitled Project");
+  return "Last opened: " + (latestProject.name || "Untitled Project");
+}
+
+function getAllProjectsSummary(projects) {
+  const projectCount = Array.isArray(projects) ? projects.length : 0;
+
+  if (projectCount === 0) {
+    return "No projects yet";
+  }
+
+  if (projectCount === 1) {
+    return "1 project";
+  }
+
+  return projectCount + " projects";
 }
 
 function updateProjectSummary(projects) {
@@ -72,6 +93,13 @@ function updateProjectSummary(projects) {
 
   if (projectCountBadge) {
     projectCountBadge.textContent = String(projectCount);
+  }
+
+  if (isProjectsPage()) {
+    if (projectsPageMeta) {
+      projectsPageMeta.textContent = getAllProjectsSummary(projects);
+    }
+    return;
   }
 
   if (recentProjectsMeta) {
@@ -143,53 +171,98 @@ function createEmptyProjectState() {
   return item;
 }
 
+function renderAllProjects(projects, highlightProjectId) {
+  if (!projectList) {
+    return;
+  }
+
+  let latestProject = getLatestDashboardProject(projects);
+
+  if (highlightProjectId) {
+    latestProject = projects.find(function (project) {
+      return Number(project.id) === Number(highlightProjectId);
+    }) || latestProject;
+  }
+
+  projects.forEach(function (project) {
+    const isRecentProject = Boolean(latestProject && latestProject.id === project.id);
+    projectList.appendChild(createProjectListItem(project, isRecentProject));
+  });
+}
+
+function renderRecentProjectOnly(projects) {
+  if (!projectList) {
+    return;
+  }
+
+  const latestProject = getLatestDashboardProject(projects);
+
+  if (!latestProject) {
+    projectList.appendChild(createEmptyProjectState());
+    return;
+  }
+
+  projectList.appendChild(createProjectListItem(latestProject, true));
+}
+
 async function loadProjects(highlightProjectId) {
   try {
     const response = await fetch("/api/projects");
     const data = await response.json();
 
-    if (!data.success) {
+    if (!response.ok || !data.success) {
       console.error("Could not load projects");
       updateProjectSummary([]);
       return;
     }
 
-    clearProjectList();
-    updateProjectSummary(data.projects || []);
+    const projects = data.projects || [];
 
-    if (!data.projects || data.projects.length === 0) {
-      projectList.appendChild(createEmptyProjectState());
-      refreshRecentProjectPreview([]);
+    clearProjectList();
+    updateProjectSummary(projects);
+
+    if (projects.length === 0) {
+      if (projectList) {
+        projectList.appendChild(createEmptyProjectState());
+      }
+
+      if (!isProjectsPage()) {
+        refreshRecentProjectPreview([]);
+      }
+
       return;
     }
 
-    let latestProject = getLatestDashboardProject(data.projects);
-
-    if (highlightProjectId) {
-      latestProject = data.projects.find(function (project) {
-        return Number(project.id) === Number(highlightProjectId);
-      }) || latestProject;
+    if (isProjectsPage()) {
+      renderAllProjects(projects, highlightProjectId);
+      return;
     }
 
-    data.projects.forEach((project) => {
-      const isRecentProject = Boolean(latestProject && latestProject.id === project.id);
-      projectList.appendChild(createProjectListItem(project, isRecentProject));
-    });
+    renderRecentProjectOnly(projects);
 
-    if (highlightProjectId && latestProject) {
+    const latestProject = highlightProjectId
+      ? projects.find(function (project) {
+        return Number(project.id) === Number(highlightProjectId);
+      }) || getLatestDashboardProject(projects)
+      : getLatestDashboardProject(projects);
+
+    if (latestProject) {
       refreshRecentProjectPreview([
         latestProject
-      ].concat(data.projects.filter(function (project) {
-        return Number(project.id) !== Number(highlightProjectId);
+      ].concat(projects.filter(function (project) {
+        return Number(project.id) !== Number(latestProject.id);
       })));
     } else {
-      refreshRecentProjectPreview(data.projects);
+      refreshRecentProjectPreview(projects);
     }
 
   } catch (error) {
     console.error("Could not load projects:", error);
     updateProjectSummary([]);
-    refreshRecentProjectPreview([]);
+
+    if (!isProjectsPage()) {
+      refreshRecentProjectPreview([]);
+    }
   }
 }
 
@@ -230,7 +303,12 @@ async function createProject() {
     }
 
     closeProjectModal();
-    await loadProjects();
+
+    if (isProjectsPage()) {
+      await loadProjects(data.project && data.project.id ? data.project.id : null);
+    } else {
+      window.location.assign("/cad/" + data.project.id);
+    }
 
   } catch (error) {
     console.error("Create project error:", error);
@@ -261,4 +339,6 @@ window.addEventListener("click", (event) => {
 
 window.loadProjects = loadProjects;
 
-loadProjects();
+if (projectList) {
+  loadProjects();
+}
