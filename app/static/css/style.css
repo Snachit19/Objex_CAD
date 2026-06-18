@@ -829,6 +829,46 @@ a {
   opacity: 0.9;
 }
 
+.card-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.card-header-row h3 {
+  margin: 0;
+}
+
+.import-project-btn {
+  height: 32px;
+  background: #123c73;
+  color: #93c5fd;
+  border: 1px solid #2563eb;
+  border-radius: 10px;
+  padding: 0 12px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.import-project-btn:hover {
+  background: #1d4f91;
+}
+
+.import-project-btn:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.import-project-error {
+  color: #fca5a5;
+  font-size: 12px;
+  margin: 0 0 10px;
+}
+
 .modal-overlay {
   position: fixed;
   inset: 0;
@@ -993,7 +1033,8 @@ a {
 
 .shape-menu-wrapper,
 .zoom-menu-wrapper,
-.export-model-menu-wrapper {
+.export-model-menu-wrapper,
+.import-design-menu-wrapper {
   position: relative;
   z-index: 99999;
 }
@@ -1091,7 +1132,8 @@ a {
 
 .shape-menu-options,
 .zoom-menu-options,
-.export-model-menu-options {
+.export-model-menu-options,
+.import-design-menu-options {
   display: none;
   position: absolute;
   top: 50px;
@@ -1116,9 +1158,14 @@ a {
   width: 260px;
 }
 
+.import-design-menu-options {
+  width: 260px;
+}
+
 .shape-menu-options.show,
 .zoom-menu-options.show,
-.export-model-menu-options.show {
+.export-model-menu-options.show,
+.import-design-menu-options.show {
   display: flex;
   flex-direction: column;
   gap: 6px;
@@ -1126,7 +1173,8 @@ a {
 
 .shape-menu-options button,
 .zoom-menu-options button,
-.export-model-menu-options button {
+.export-model-menu-options button,
+.import-design-menu-options button {
   width: 100%;
   min-height: 40px;
   background: transparent;
@@ -1143,7 +1191,8 @@ a {
 
 .shape-menu-options button:hover,
 .zoom-menu-options button:hover,
-.export-model-menu-options button:hover {
+.export-model-menu-options button:hover,
+.import-design-menu-options button:hover {
   background: linear-gradient(90deg, rgba(37, 99, 235, 0.35), rgba(147, 51, 234, 0.35));
   color: var(--text-main);
 }
@@ -2158,4 +2207,25 @@ a {
 .export-model-btn:hover .export-model-icon {
   transform: translateY(-2px) rotate(4deg) scale(1.04);
   filter: drop-shadow(0 8px 16px rgba(45, 212, 191, 0.34));
+}
+
+.import-design-btn .import-design-icon {
+  width: 25px;
+  height: 25px;
+  max-width: 25px;
+  max-height: 25px;
+  filter: drop-shadow(0 4px 10px rgba(99, 102, 241, 0.24));
+  transition: transform 0.18s ease, filter 0.18s ease;
+}
+
+.import-design-btn.active-tool-btn,
+.import-design-btn:hover {
+  background: linear-gradient(135deg, #1d4ed8, #4f46e5);
+  border-color: rgba(191, 219, 254, 0.9);
+}
+
+.import-design-btn.active-tool-btn .import-design-icon,
+.import-design-btn:hover .import-design-icon {
+  transform: translateY(-2px) rotate(-4deg) scale(1.04);
+  filter: drop-shadow(0 8px 16px rgba(99, 102, 241, 0.34));
 }
