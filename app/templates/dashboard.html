@@ -88,47 +88,27 @@
       </div>
     </section>
  
-    <section class="dashboard-cards">
-    <div class="card">
-      <div class="card-header-row">
-        <h3>Recent Projects</h3>
-      </div>
-      <p id="recentProjectsMeta">Loading projects...</p>
-
-      <div id="projectList">
-        <div class="mock-project">
-          <strong>No projects yet</strong>
-          <span>Create one</span>
-        </div>
-      </div>
-
-      <a href="/projects" class="view-all-projects-link">View all projects</a>
-    </div>
- 
+    <section class="dashboard-cards dashboard-cards-compact">
       <div class="card">
-        <h3>Material Palette</h3>
-        <p>Quick colour access</p>
- 
-        <div class="palette">
-          <span class="red"></span>
-          <span class="yellow"></span>
-          <span class="green"></span>
-          <span class="blue"></span>
-          <span class="purple"></span>
-          <span class="pink"></span>
-          <span class="indigo"></span>
-          <span class="teal"></span>
+        <div class="card-header-row">
+          <h3>Recent Projects</h3>
         </div>
+        <p id="recentProjectsMeta">Loading projects...</p>
+
+        <div id="projectList">
+          <div class="mock-project">
+            <strong>No projects yet</strong>
+            <span>Create one</span>
+          </div>
+        </div>
+
+        <a href="/projects" class="view-all-projects-link">View all projects</a>
       </div>
  
-      <div class="card">
-        <h3>Export</h3>
-        <p>Download project</p>
-        <button class="export-btn">Export as FBX</button>
- 
-        <h3 class="help-title">Help</h3>
+      <div class="card help-card">
+        <h3>Help</h3>
         <p>Need assistance?</p>
-        <button class="disabled-btn">View Tutorials</button>
+        <button class="help-page-btn" type="button" disabled>View Help</button>
       </div>
     </section>
  
@@ -137,6 +117,22 @@
   <aside class="properties-panel">
     <h2>Properties</h2>
     <p id="dashboardPreviewInspectorLabel">Inspector Panel</p>
+
+    <div class="property-card">
+      <h3>Object</h3>
+
+      <label>Name</label>
+      <input id="dashboardPreviewObjectName" type="text" value="No object selected" readonly>
+
+      <label>Type</label>
+      <input id="dashboardPreviewObjectType" type="text" value="-" readonly>
+
+      <label>ID</label>
+      <input id="dashboardPreviewObjectId" type="text" value="-" readonly>
+
+      <label>Source</label>
+      <input id="dashboardPreviewObjectSource" type="text" value="-" readonly>
+    </div>
  
     <div class="property-card">
       <h3>Transform</h3>
@@ -171,6 +167,21 @@
  
       <label>Material</label>
       <input id="dashboardPreviewMaterial" type="text" value="Default" readonly>
+
+      <label>Material Type</label>
+      <input id="dashboardPreviewMaterialType" type="text" value="default" readonly>
+
+      <label>Surface</label>
+      <div class="triple-hints">
+        <span>Rough</span>
+        <span>Metal</span>
+        <span>Opacity</span>
+      </div>
+      <div class="triple">
+        <input id="dashboardPreviewRoughness" type="text" value="0.50" readonly title="Roughness">
+        <input id="dashboardPreviewMetalness" type="text" value="0.00" readonly title="Metalness">
+        <input id="dashboardPreviewOpacity" type="text" value="1.00" readonly title="Opacity">
+      </div>
     </div>
   </aside>
 

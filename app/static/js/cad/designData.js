@@ -37,7 +37,9 @@
             materialType: (object.userData && object.userData.materialType) || "default",
             materialName: (object.userData && object.userData.materialName) || "Default",
             materialDescription: (object.userData && object.userData.materialDescription) || "",
-            materialData: object.userData && object.userData.materialData ? object.userData.materialData : null
+            materialData: object.userData && object.userData.materialData ? object.userData.materialData : null,
+            importFormat: object.userData && object.userData.importFormat ? object.userData.importFormat : null,
+            importPayload: object.userData && object.userData.importPayload ? object.userData.importPayload : null
         };
     }
 
@@ -82,6 +84,14 @@
 
         if (savedObject.materialDescription) {
             object.userData.materialDescription = savedObject.materialDescription;
+        }
+
+        if (savedObject.importFormat) {
+            object.userData.importFormat = savedObject.importFormat;
+        }
+
+        if (savedObject.importPayload) {
+            object.userData.importPayload = savedObject.importPayload;
         }
     }
 

@@ -110,7 +110,19 @@
         };
     }
 
-    function registerImportedMesh(mesh, filename, index) {
+    function encodeImportPayload(data) {
+        if (typeof data === "string") {
+            return data;
+        }
+
+        if (getFormatApi().arrayBufferToBase64) {
+            return getFormatApi().arrayBufferToBase64(data);
+        }
+
+        return "";
+    }
+
+    function registerImportedMesh(mesh, filename, index, importFormat, importPayload) {
         if (!mesh) {
             return null;
         }
@@ -123,6 +135,11 @@
         mesh.userData.materialType = "default";
         mesh.userData.materialName = "Default";
         mesh.userData.color = "#cccccc";
+        mesh.userData.importFormat = importFormat || "glb";
+
+        if (index === 0 && importPayload) {
+            mesh.userData.importPayload = importPayload;
+        }
 
         if (mesh.material && mesh.material.color) {
             mesh.userData.color = "#" + mesh.material.color.getHexString();
@@ -159,20 +176,19 @@
 
                 if (options && options.designDataOnly) {
                     const importFormat = normalizeFormat(options.format, filename);
-                    let payload = "";
-
-                    if (typeof data === "string") {
-                        payload = data;
-                    } else if (getFormatApi().arrayBufferToBase64) {
-                        payload = getFormatApi().arrayBufferToBase64(data);
-                    }
+                    const payload = options.importPayload || encodeImportPayload(data);
 
                     resolve([meshToDesignObject(meshes[0], 0, filename, importFormat, payload)]);
                     return;
                 }
 
+                const importFormat = normalizeFormat(options && options.format, filename);
+                const payload = options && options.importPayload
+                    ? options.importPayload
+                    : encodeImportPayload(data);
+
                 resolve(meshes.map(function (mesh, index) {
-                    return registerImportedMesh(mesh, filename, index);
+                    return registerImportedMesh(mesh, filename, index, importFormat, payload);
                 }).filter(Boolean));
             }, function (error) {
                 reject(error || new Error("Could not parse GLTF/GLB file."));
@@ -205,8 +221,10 @@
                 return;
             }
 
+            const importPayload = options && options.importPayload ? options.importPayload : text;
+
             resolve(meshes.map(function (mesh, index) {
-                return registerImportedMesh(mesh, filename, index);
+                return registerImportedMesh(mesh, filename, index, "obj", importPayload);
             }).filter(Boolean));
         });
     }
@@ -304,7 +322,9 @@
 
         return new Promise(function (resolve) {
             const registerOptions = {
-                designDataOnly: false
+                designDataOnly: false,
+                format: importFormat,
+                importPayload: payload
             };
 
             const onMeshes = function (meshes) {
@@ -391,6 +411,8 @@
         mesh.userData.type = "imported";
         mesh.userData.selectable = true;
         mesh.userData.color = savedObject.color || "#cccccc";
+        mesh.userData.importFormat = savedObject.importFormat || "glb";
+        mesh.userData.importPayload = savedObject.importPayload || null;
     }
 
     function importModelFromFile(file, options) {

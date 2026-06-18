@@ -88,6 +88,48 @@ function getDashboardObjectLabel(savedObject) {
   return "Saved Object";
 }
 
+function formatDashboardLabel(value, fallback) {
+  if (typeof value !== "string" || !value.trim()) {
+    return fallback;
+  }
+
+  return value
+    .trim()
+    .split(/[\s_-]+/)
+    .map(function (word) {
+      return word.charAt(0).toUpperCase() + word.slice(1);
+    })
+    .join(" ");
+}
+
+function getDashboardObjectTypeLabel(savedObject) {
+  return savedObject && savedObject.type
+    ? formatDashboardLabel(savedObject.type, "Saved Object")
+    : "-";
+}
+
+function getDashboardObjectSource(savedObject) {
+  if (!savedObject) {
+    return "-";
+  }
+
+  if (savedObject.type === "imported") {
+    const importFormat = typeof savedObject.importFormat === "string" && savedObject.importFormat.trim()
+      ? savedObject.importFormat.trim().toUpperCase()
+      : "3D Model";
+
+    return "Imported " + importFormat;
+  }
+
+  return "CAD Shape";
+}
+
+function getDashboardMaterialValue(savedObject, key, fallback) {
+  const materialData = savedObject && savedObject.materialData ? savedObject.materialData : {};
+
+  return formatDashboardNumber(materialData[key], fallback);
+}
+
 function getLatestProject(projects) {
   if (!Array.isArray(projects) || projects.length === 0) {
     return null;
@@ -132,11 +174,16 @@ function updateDashboardPreviewProperties(savedObject) {
   const position = savedObject && savedObject.position ? savedObject.position : {};
   const rotation = savedObject && savedObject.rotation ? savedObject.rotation : {};
   const scale = savedObject && savedObject.scale ? savedObject.scale : {};
+  const materialType = savedObject && savedObject.materialType ? savedObject.materialType : "default";
   const inspectorLabel = savedObject
     ? getDashboardObjectLabel(savedObject) + " selected"
     : "Inspector Panel";
 
   setDashboardPreviewText("dashboardPreviewInspectorLabel", inspectorLabel);
+  setDashboardPreviewValue("dashboardPreviewObjectName", savedObject ? getDashboardObjectLabel(savedObject) : "No object selected");
+  setDashboardPreviewValue("dashboardPreviewObjectType", getDashboardObjectTypeLabel(savedObject));
+  setDashboardPreviewValue("dashboardPreviewObjectId", savedObject && savedObject.id ? savedObject.id : "-");
+  setDashboardPreviewValue("dashboardPreviewObjectSource", getDashboardObjectSource(savedObject));
   setDashboardPreviewValue("dashboardPreviewPositionX", formatDashboardNumber(position.x, 0));
   setDashboardPreviewValue("dashboardPreviewPositionY", formatDashboardNumber(position.y, 0));
   setDashboardPreviewValue("dashboardPreviewPositionZ", formatDashboardNumber(position.z, 0));
@@ -151,6 +198,10 @@ function updateDashboardPreviewProperties(savedObject) {
     "dashboardPreviewMaterial",
     savedObject && savedObject.materialName ? savedObject.materialName : "Default"
   );
+  setDashboardPreviewValue("dashboardPreviewMaterialType", savedObject ? formatDashboardLabel(materialType, "Default") : "-");
+  setDashboardPreviewValue("dashboardPreviewRoughness", savedObject ? getDashboardMaterialValue(savedObject, "roughness", 0.45) : "0.45");
+  setDashboardPreviewValue("dashboardPreviewMetalness", savedObject ? getDashboardMaterialValue(savedObject, "metalness", 0.15) : "0.15");
+  setDashboardPreviewValue("dashboardPreviewOpacity", savedObject ? getDashboardMaterialValue(savedObject, "opacity", 1) : "1.00");
 }
 
 function createDashboardPreviewEmptyState(message) {
