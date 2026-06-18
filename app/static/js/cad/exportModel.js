@@ -47,6 +47,60 @@
     }
   }
 
+  function showExportModelToast(message) {
+    if (typeof window.showToast === "function") {
+      window.showToast(message, 3200);
+    }
+  }
+
+  function padDatePart(value) {
+    return String(value).padStart(2, "0");
+  }
+
+  function createTimestamp(date) {
+    return [
+      date.getFullYear(),
+      padDatePart(date.getMonth() + 1),
+      padDatePart(date.getDate())
+    ].join("-") + "_" + [
+      padDatePart(date.getHours()),
+      padDatePart(date.getMinutes()),
+      padDatePart(date.getSeconds())
+    ].join("-");
+  }
+
+  function sanitizeFilenamePart(value) {
+    return String(value || "")
+      .trim()
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "");
+  }
+
+  function getProjectNameForFilename() {
+    const projectNameText = document.getElementById("projectNameText");
+    const projectName = projectNameText
+      ? projectNameText.textContent
+      : "";
+
+    if (!projectName || projectName === "Loading...") {
+      return "";
+    }
+
+    return projectName;
+  }
+
+  function createModelFilename(options) {
+    const settings = options || {};
+    const format = settings.format || "glb";
+    const baseName = sanitizeFilenamePart(
+      settings.projectName || getProjectNameForFilename() || "cad"
+    );
+    const timestamp = createTimestamp(settings.date || new Date());
+
+    return (baseName || "cad") + "-model-" + timestamp + "." + format;
+  }
+
   function getExportModelOptions() {
     return {
       scope: exportModelOptions.scope,
@@ -448,59 +502,62 @@
     return objText;
   }
 
-  async function exportGLBModel(exportBundle) {
+  async function exportGLBModel(exportBundle, filename) {
+    const exportFilename = filename || createModelFilename({ format: "glb" });
     const glbData = await parseGLBScene(exportBundle.scene);
     const glbBlob = new Blob([glbData], {
       type: "model/gltf-binary"
     });
 
-    downloadBlob(glbBlob, "cad-model.glb");
+    downloadBlob(glbBlob, exportFilename);
 
     return {
       success: true,
-      filename: "cad-model.glb"
+      filename: exportFilename
     };
   }
 
-  async function exportGLTFModel(exportBundle) {
+  async function exportGLTFModel(exportBundle, filename) {
+    const exportFilename = filename || createModelFilename({ format: "gltf" });
     const gltfData = await parseGLTFScene(exportBundle.scene);
     const gltfBlob = new Blob([JSON.stringify(gltfData, null, 2)], {
       type: "model/gltf+json"
     });
 
-    downloadBlob(gltfBlob, "cad-model.gltf");
+    downloadBlob(gltfBlob, exportFilename);
 
     return {
       success: true,
-      filename: "cad-model.gltf"
+      filename: exportFilename
     };
   }
 
-  async function exportOBJModel(exportBundle) {
+  async function exportOBJModel(exportBundle, filename) {
+    const exportFilename = filename || createModelFilename({ format: "obj" });
     const objData = parseOBJScene(exportBundle.scene);
     const objBlob = new Blob([objData], {
       type: "text/plain"
     });
 
-    downloadBlob(objBlob, "cad-model.obj");
+    downloadBlob(objBlob, exportFilename);
 
     return {
       success: true,
-      filename: "cad-model.obj"
+      filename: exportFilename
     };
   }
 
-  async function exportPreparedModelByFormat(exportBundle, format) {
+  async function exportPreparedModelByFormat(exportBundle, format, filename) {
     if (format === "glb") {
-      return exportGLBModel(exportBundle);
+      return exportGLBModel(exportBundle, filename);
     }
 
     if (format === "gltf") {
-      return exportGLTFModel(exportBundle);
+      return exportGLTFModel(exportBundle, filename);
     }
 
     if (format === "obj") {
-      return exportOBJModel(exportBundle);
+      return exportOBJModel(exportBundle, filename);
     }
 
     return {
@@ -510,8 +567,11 @@
   }
 
   async function exportModelFromSelection(options) {
-    const settings = options || getExportModelOptions();
+    const settings = Object.assign({}, getExportModelOptions(), options || {});
+    settings.format = settings.format || "glb";
+
     const selection = getExportModelSelection(settings);
+    const filename = settings.filename || createModelFilename(settings);
     let exportBundle = null;
 
     if (!hasExporterForFormat(settings.format)) {
@@ -549,12 +609,19 @@
         };
       }
 
-      setExportModelStatus("Exporting " + getFormatLabel(settings.format) + " model...");
+      setExportModelStatus(
+        "Exporting " +
+        getFormatLabel(settings.format) +
+        " model (" +
+        selection.countLabel +
+        ")..."
+      );
 
-      const result = await exportPreparedModelByFormat(exportBundle, settings.format);
+      const result = await exportPreparedModelByFormat(exportBundle, settings.format, filename);
 
       if (result.success) {
-        setExportModelStatus(getFormatLabel(settings.format) + " model exported: " + result.filename);
+        setExportModelStatus("Model exported: " + result.filename);
+        showExportModelToast("Model exported");
       }
 
       return result;
@@ -777,6 +844,7 @@
     collectExportableObjects: collectExportableCADObjects,
     createExportSceneBundle: createExportSceneBundle,
     disposeExportSceneBundle: disposeExportSceneBundle,
+    createFilename: createModelFilename,
     getExportSelection: getExportModelSelection,
     getExporterAvailability: getExporterAvailability,
     getOptions: getExportModelOptions,
