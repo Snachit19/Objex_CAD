@@ -433,6 +433,21 @@
     });
   }
 
+  function parseOBJScene(exportScene) {
+    if (!window.THREE || typeof THREE.OBJExporter !== "function") {
+      throw new Error("OBJ exporter is not loaded.");
+    }
+
+    const exporter = new THREE.OBJExporter();
+    const objText = exporter.parse(exportScene);
+
+    if (typeof objText !== "string" || objText.trim() === "") {
+      throw new Error("OBJ export did not return text data.");
+    }
+
+    return objText;
+  }
+
   async function exportGLBModel(exportBundle) {
     const glbData = await parseGLBScene(exportBundle.scene);
     const glbBlob = new Blob([glbData], {
@@ -461,6 +476,20 @@
     };
   }
 
+  async function exportOBJModel(exportBundle) {
+    const objData = parseOBJScene(exportBundle.scene);
+    const objBlob = new Blob([objData], {
+      type: "text/plain"
+    });
+
+    downloadBlob(objBlob, "cad-model.obj");
+
+    return {
+      success: true,
+      filename: "cad-model.obj"
+    };
+  }
+
   async function exportPreparedModelByFormat(exportBundle, format) {
     if (format === "glb") {
       return exportGLBModel(exportBundle);
@@ -468,6 +497,10 @@
 
     if (format === "gltf") {
       return exportGLTFModel(exportBundle);
+    }
+
+    if (format === "obj") {
+      return exportOBJModel(exportBundle);
     }
 
     return {
@@ -495,7 +528,11 @@
       };
     }
 
-    if (settings.format !== "glb" && settings.format !== "gltf") {
+    if (
+      settings.format !== "glb" &&
+      settings.format !== "gltf" &&
+      settings.format !== "obj"
+    ) {
       return {
         success: false,
         message: getFormatLabel(settings.format) + " export will be connected next."
@@ -748,6 +785,7 @@
     cloneObjectForExport: cloneObjectForExport,
     exportGLBModel: exportGLBModel,
     exportGLTFModel: exportGLTFModel,
+    exportOBJModel: exportOBJModel,
     exportModel: exportModelFromSelection,
     setStatus: setExportModelStatus
   };
