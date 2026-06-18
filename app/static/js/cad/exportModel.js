@@ -401,6 +401,38 @@
     });
   }
 
+  function parseGLTFScene(exportScene) {
+    return new Promise(function (resolve, reject) {
+      if (!window.THREE || typeof THREE.GLTFExporter !== "function") {
+        reject(new Error("GLTF exporter is not loaded."));
+        return;
+      }
+
+      const exporter = new THREE.GLTFExporter();
+
+      try {
+        exporter.parse(
+          exportScene,
+          function (result) {
+            if (!result || result instanceof ArrayBuffer) {
+              reject(new Error("GLTF export did not return JSON data."));
+              return;
+            }
+
+            resolve(result);
+          },
+          {
+            binary: false,
+            onlyVisible: true,
+            truncateDrawRange: true
+          }
+        );
+      } catch (error) {
+        reject(error);
+      }
+    });
+  }
+
   async function exportGLBModel(exportBundle) {
     const glbData = await parseGLBScene(exportBundle.scene);
     const glbBlob = new Blob([glbData], {
@@ -412,6 +444,35 @@
     return {
       success: true,
       filename: "cad-model.glb"
+    };
+  }
+
+  async function exportGLTFModel(exportBundle) {
+    const gltfData = await parseGLTFScene(exportBundle.scene);
+    const gltfBlob = new Blob([JSON.stringify(gltfData, null, 2)], {
+      type: "model/gltf+json"
+    });
+
+    downloadBlob(gltfBlob, "cad-model.gltf");
+
+    return {
+      success: true,
+      filename: "cad-model.gltf"
+    };
+  }
+
+  async function exportPreparedModelByFormat(exportBundle, format) {
+    if (format === "glb") {
+      return exportGLBModel(exportBundle);
+    }
+
+    if (format === "gltf") {
+      return exportGLTFModel(exportBundle);
+    }
+
+    return {
+      success: false,
+      message: getFormatLabel(format) + " export will be connected next."
     };
   }
 
@@ -434,7 +495,7 @@
       };
     }
 
-    if (settings.format !== "glb") {
+    if (settings.format !== "glb" && settings.format !== "gltf") {
       return {
         success: false,
         message: getFormatLabel(settings.format) + " export will be connected next."
@@ -451,11 +512,13 @@
         };
       }
 
-      setExportModelStatus("Exporting GLB model...");
+      setExportModelStatus("Exporting " + getFormatLabel(settings.format) + " model...");
 
-      const result = await exportGLBModel(exportBundle);
+      const result = await exportPreparedModelByFormat(exportBundle, settings.format);
 
-      setExportModelStatus("GLB model exported: " + result.filename);
+      if (result.success) {
+        setExportModelStatus(getFormatLabel(settings.format) + " model exported: " + result.filename);
+      }
 
       return result;
     } catch (error) {
@@ -463,7 +526,7 @@
 
       return {
         success: false,
-        message: "Could not export GLB model."
+        message: "Could not export " + getFormatLabel(settings.format) + " model."
       };
     } finally {
       if (exportBundle) {
@@ -684,6 +747,7 @@
     isExportableObject: isExportableCADObject,
     cloneObjectForExport: cloneObjectForExport,
     exportGLBModel: exportGLBModel,
+    exportGLTFModel: exportGLTFModel,
     exportModel: exportModelFromSelection,
     setStatus: setExportModelStatus
   };
