@@ -57,9 +57,36 @@
         <img class="export-image-icon" src="/static/assets/export-image.svg" alt="Export Image">
       </button>
 
-      <button id="exportModelBtn" class="cad-icon-tool-btn export-model-btn" title="Export 3D Model" aria-label="Export 3D Model" type="button">
-        <img class="export-model-icon" src="/static/assets/export-model.svg" alt="Export 3D Model">
-      </button>
+      <div class="export-model-menu-wrapper">
+        <button id="exportModelBtn" class="cad-icon-tool-btn export-model-btn" title="Export 3D Model" aria-label="Export 3D Model" aria-haspopup="menu" aria-expanded="false" type="button">
+          <img class="export-model-icon" src="/static/assets/export-model.svg" alt="Export 3D Model">
+          <span class="tool-arrow">▾</span>
+        </button>
+
+        <div id="exportModelMenuOptions" class="export-model-menu-options" role="menu" aria-label="Export 3D Model options">
+          <div class="export-model-option-group" role="group" aria-label="Model export scope">
+            <button class="export-model-scope-option active-export-model-option" type="button" data-export-model-scope="all" aria-pressed="true">
+              All Objects
+            </button>
+            <button class="export-model-scope-option" type="button" data-export-model-scope="selected" aria-pressed="false">
+              Selected Object
+            </button>
+          </div>
+
+          <label class="export-model-format-field" for="exportModelFormatSelect">
+            <span>Format</span>
+            <select id="exportModelFormatSelect">
+              <option value="glb">GLB</option>
+              <option value="gltf">GLTF</option>
+              <option value="obj">OBJ</option>
+            </select>
+          </label>
+
+          <button id="exportModelConfirmBtn" class="export-model-confirm-btn" type="button">
+            Export Model
+          </button>
+        </div>
+      </div>
 
       <button id="moveToolBtn" class="cad-icon-tool-btn" title="Move Object" aria-label="Move Object" type="button">
         <img src="/static/assets/move-object.svg" alt="Move Object">
@@ -598,6 +625,7 @@
       const redoToolBtn = document.getElementById("redoToolBtn");
       const resetWorkspaceBtn = document.getElementById("resetWorkspaceBtn");
       const exportImageBtn = document.getElementById("exportImageBtn");
+      const exportModelBtn = document.getElementById("exportModelBtn");
       const moveToolBtn = document.getElementById("moveToolBtn");
       const rotateToolBtn = document.getElementById("rotateToolBtn");
       const resizeToolBtn = document.getElementById("resizeToolBtn");
@@ -643,6 +671,7 @@
           redoToolBtn,
           resetWorkspaceBtn,
           exportImageBtn,
+          exportModelBtn,
           moveToolBtn,
           rotateToolBtn,
           resizeToolBtn,
@@ -703,11 +732,18 @@
       }
 
       function closeAllDropdownMenus() {
-        document.querySelectorAll(".shape-menu-options.show, .zoom-menu-options.show")
+        document.querySelectorAll(".shape-menu-options.show, .zoom-menu-options.show, .export-model-menu-options.show")
           .forEach(function (menu) {
             menu.classList.remove("show");
           });
+
+        if (exportModelBtn) {
+          exportModelBtn.setAttribute("aria-expanded", "false");
+        }
       }
+
+      window.closeCADDropdownMenus = closeAllDropdownMenus;
+      window.hideCADToolPanels = hideAllToolPanels;
 
       function connectToolButton(button, panel) {
         if (!button || !panel) {

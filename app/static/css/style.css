@@ -955,7 +955,8 @@ a {
 }
 
 .shape-menu-wrapper,
-.zoom-menu-wrapper {
+.zoom-menu-wrapper,
+.export-model-menu-wrapper {
   position: relative;
   z-index: 99999;
 }
@@ -1052,7 +1053,8 @@ a {
 }
 
 .shape-menu-options,
-.zoom-menu-options {
+.zoom-menu-options,
+.export-model-menu-options {
   display: none;
   position: absolute;
   top: 50px;
@@ -1073,15 +1075,21 @@ a {
   width: 250px;
 }
 
+.export-model-menu-options {
+  width: 260px;
+}
+
 .shape-menu-options.show,
-.zoom-menu-options.show {
+.zoom-menu-options.show,
+.export-model-menu-options.show {
   display: flex;
   flex-direction: column;
   gap: 6px;
 }
 
 .shape-menu-options button,
-.zoom-menu-options button {
+.zoom-menu-options button,
+.export-model-menu-options button {
   width: 100%;
   min-height: 40px;
   background: transparent;
@@ -1097,7 +1105,8 @@ a {
 }
 
 .shape-menu-options button:hover,
-.zoom-menu-options button:hover {
+.zoom-menu-options button:hover,
+.export-model-menu-options button:hover {
   background: linear-gradient(90deg, rgba(37, 99, 235, 0.35), rgba(147, 51, 234, 0.35));
   color: var(--text-main);
 }
@@ -1147,6 +1156,59 @@ a {
 
 .zoom-action-row button {
   justify-content: center;
+}
+
+.export-model-option-group {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.export-model-option-group button {
+  justify-content: center;
+  min-height: 38px;
+  padding: 8px 10px;
+  text-align: center;
+  font-size: 12px;
+}
+
+.export-model-option-group .active-export-model-option {
+  background: linear-gradient(135deg, rgba(20, 184, 166, 0.34), rgba(37, 99, 235, 0.34));
+  border: 1px solid rgba(153, 246, 228, 0.42);
+  color: #f8fafc;
+}
+
+.export-model-format-field {
+  display: grid;
+  gap: 7px;
+  padding: 8px 2px 4px;
+  color: #cbd5e1;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+#exportModelFormatSelect {
+  width: 100%;
+  min-height: 38px;
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-radius: 10px;
+  background: rgba(15, 23, 42, 0.92);
+  color: #f8fafc;
+  padding: 8px 10px;
+  font: inherit;
+  cursor: pointer;
+}
+
+#exportModelFormatSelect:focus {
+  outline: 2px solid rgba(45, 212, 191, 0.45);
+  outline-offset: 2px;
+}
+
+.export-model-confirm-btn {
+  justify-content: center;
+  background: linear-gradient(135deg, rgba(5, 150, 105, 0.52), rgba(8, 145, 178, 0.52)) !important;
+  border: 1px solid rgba(153, 246, 228, 0.36) !important;
+  color: #f8fafc !important;
 }
 
 #zoomToolBtn.active-tool-btn,
@@ -1986,10 +2048,10 @@ a {
 }
 
 .export-model-btn .export-model-icon {
-  width: 28px;
-  height: 28px;
-  max-width: 28px;
-  max-height: 28px;
+  width: 25px;
+  height: 25px;
+  max-width: 25px;
+  max-height: 25px;
   filter: drop-shadow(0 4px 10px rgba(45, 212, 191, 0.24));
   transition: transform 0.18s ease, filter 0.18s ease;
 }
