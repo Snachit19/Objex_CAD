@@ -92,21 +92,8 @@
     <div class="card">
       <div class="card-header-row">
         <h3>Recent Projects</h3>
-        <button id="importProjectBtn" class="import-project-btn" type="button">Import Project</button>
       </div>
       <p id="recentProjectsMeta">Loading projects...</p>
-      <p id="importProjectError" class="import-project-error" style="display:none;"></p>
-
-      <label class="dashboard-import-format-field" for="importProjectFormatSelect">
-        <span>Format</span>
-        <select id="importProjectFormatSelect">
-          <option value="glb">GLB</option>
-          <option value="gltf">GLTF</option>
-          <option value="obj">OBJ</option>
-        </select>
-      </label>
-
-      <input id="importProjectFileInput" type="file" accept=".glb,model/gltf-binary" hidden>
 
       <div id="projectList">
         <div class="mock-project">
@@ -114,6 +101,8 @@
           <span>Create one</span>
         </div>
       </div>
+
+      <a href="/projects" class="view-all-projects-link">View all projects</a>
     </div>
  
       <div class="card">
@@ -214,7 +203,6 @@
 <script src="/static/js/cad/importModel.js"></script>
 <script src="/static/js/dashboard/recentProjectPreview.js"></script>
 <script src="/static/js/dashboard/createProject.js"></script>
-<script src="/static/js/dashboard/importProject.js"></script>
  
   <script>
     // On page load — check if user is logged in and load their name
