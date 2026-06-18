@@ -28,6 +28,12 @@ function clearProjectList() {
   projectList.textContent = "";
 }
 
+function refreshRecentProjectPreview(projects) {
+  if (typeof window.loadRecentProjectPreview === "function") {
+    window.loadRecentProjectPreview(projects);
+  }
+}
+
 function createProjectListItem(project) {
   const item = document.createElement("div");
   item.className = "mock-project";
@@ -79,12 +85,15 @@ async function loadProjects() {
 
     if (!data.projects || data.projects.length === 0) {
       projectList.appendChild(createEmptyProjectState());
+      refreshRecentProjectPreview([]);
       return;
     }
 
     data.projects.forEach((project) => {
       projectList.appendChild(createProjectListItem(project));
     });
+
+    refreshRecentProjectPreview(data.projects);
 
   } catch (error) {
     console.error("Could not load projects:", error);

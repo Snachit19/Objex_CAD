@@ -43,9 +43,9 @@
  
   <main class="dashboard-layout">
  
-    <section class="hero-preview">
+    <section class="hero-preview" id="recentProjectPreview" aria-live="polite">
       <div class="preview-top">
-        <span>Perspective View</span>
+        <span id="recentPreviewTitle">Perspective View</span>
       </div>
  
       <div class="fake-toolbar">
@@ -58,7 +58,7 @@
         <span>□</span>
       </div>
  
-      <div class="shape-scene">
+      <div class="shape-scene" id="dashboardPreviewScene">
         <div class="shape cube"></div>
         <div class="shape sphere"></div>
         <div class="shape cylinder"></div>
@@ -67,9 +67,9 @@
       </div>
  
       <div class="status-box">
-        <p>X: 0.00 | Y: 0.00 | Z: 0.00</p>
-        <p>Grid: 1.0m</p>
-        <strong>5 Objects Selected</strong>
+        <p id="recentPreviewProjectName">No recent project</p>
+        <p id="recentPreviewProjectDescription">Create a project to preview it here.</p>
+        <strong id="recentPreviewObjectCount">0 Objects Saved</strong>
       </div>
  
       <div class="zoom-bar">
@@ -132,23 +132,23 @@
  
       <label>Position</label>
       <div class="triple">
-        <input value="0.00" readonly>
-        <input value="0.00" readonly>
-        <input value="0.00" readonly>
+        <input id="dashboardPreviewPositionX" value="0.00" readonly>
+        <input id="dashboardPreviewPositionY" value="0.00" readonly>
+        <input id="dashboardPreviewPositionZ" value="0.00" readonly>
       </div>
  
       <label>Rotation</label>
       <div class="triple">
-        <input value="0.00" readonly>
-        <input value="0.00" readonly>
-        <input value="0.00" readonly>
+        <input id="dashboardPreviewRotationX" value="0.00" readonly>
+        <input id="dashboardPreviewRotationY" value="0.00" readonly>
+        <input id="dashboardPreviewRotationZ" value="0.00" readonly>
       </div>
  
       <label>Scale</label>
       <div class="triple">
-        <input value="1.00" readonly>
-        <input value="1.00" readonly>
-        <input value="1.00" readonly>
+        <input id="dashboardPreviewScaleX" value="1.00" readonly>
+        <input id="dashboardPreviewScaleY" value="1.00" readonly>
+        <input id="dashboardPreviewScaleZ" value="1.00" readonly>
       </div>
     </div>
  
@@ -156,10 +156,10 @@
       <h3>Appearance</h3>
  
       <label>Color</label>
-      <input type="text" value="#6366f1" readonly>
+      <input id="dashboardPreviewColor" type="text" value="#6366f1" readonly>
  
       <label>Material</label>
-      <input type="text" value="Default" readonly>
+      <input id="dashboardPreviewMaterial" type="text" value="Default" readonly>
     </div>
   </aside>
 
@@ -184,6 +184,7 @@
     </div>
   </div>
 <script src="/static/js/common/api.js"></script>
+<script src="/static/js/dashboard/recentProjectPreview.js"></script>
 <script src="/static/js/dashboard/createProject.js"></script>
  
   <script>
