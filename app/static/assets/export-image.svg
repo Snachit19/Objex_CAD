@@ -1,32 +1,39 @@
 <svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
   <defs>
-    <linearGradient id="exportImageStroke" x1="12" y1="10" x2="52" y2="56" gradientUnits="userSpaceOnUse">
+    <linearGradient id="exportImageStroke" x1="9" y1="12" x2="55" y2="54" gradientUnits="userSpaceOnUse">
       <stop stop-color="#7DD3FC"/>
       <stop offset="1" stop-color="#60A5FA"/>
     </linearGradient>
   </defs>
   <rect
-    x="10"
-    y="14"
-    width="44"
-    height="36"
+    x="9"
+    y="24"
+    width="32"
+    height="26"
     rx="6"
     stroke="url(#exportImageStroke)"
     stroke-width="4"
   />
   <path
-    d="M16 42L27 31L35 39L40 34L48 42"
+    d="M15 44L23 36L30 43L35 38L39 42"
+    stroke="url(#exportImageStroke)"
+    stroke-width="3.3"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  />
+  <circle cx="31" cy="31" r="3.2" fill="#BAE6FD"/>
+  <path
+    d="M44 20L55 9M47 9H55V17"
     stroke="url(#exportImageStroke)"
     stroke-width="4"
     stroke-linecap="round"
     stroke-linejoin="round"
   />
-  <circle cx="42" cy="25" r="4" fill="#BAE6FD"/>
   <path
-    d="M32 8V30M23 17L32 8L41 17"
+    d="M16 55H39"
     stroke="url(#exportImageStroke)"
     stroke-width="4"
     stroke-linecap="round"
-    stroke-linejoin="round"
+    opacity="0.72"
   />
 </svg>

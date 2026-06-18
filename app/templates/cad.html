@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -41,34 +42,43 @@
         </div>
       </div>
 
-      <button id="undoToolBtn" class="cad-icon-tool-btn undo-tool-btn" title="Undo (Ctrl/Cmd+Z)" aria-label="Undo" type="button" disabled>
+      <button id="undoToolBtn" class="cad-icon-tool-btn undo-tool-btn" title="Undo (Ctrl/Cmd+Z)" aria-label="Undo"
+        type="button" disabled>
         <img class="undo-tool-icon" src="/static/assets/undo-object.svg" alt="Undo">
       </button>
 
-      <button id="redoToolBtn" class="cad-icon-tool-btn redo-tool-btn" title="Redo (Ctrl/Cmd+Shift+Z or Ctrl/Cmd+Y)" aria-label="Redo" aria-keyshortcuts="Control+Shift+Z Meta+Shift+Z Control+Y Meta+Y" type="button" disabled>
+      <button id="redoToolBtn" class="cad-icon-tool-btn redo-tool-btn" title="Redo (Ctrl/Cmd+Shift+Z or Ctrl/Cmd+Y)"
+        aria-label="Redo" aria-keyshortcuts="Control+Shift+Z Meta+Shift+Z Control+Y Meta+Y" type="button" disabled>
         <img class="redo-tool-icon" src="/static/assets/redo-object.svg" alt="Redo">
       </button>
 
-      <button id="resetWorkspaceBtn" class="cad-icon-tool-btn reset-workspace-btn" title="Reset Workspace" aria-label="Reset Workspace" type="button">
+      <button id="resetWorkspaceBtn" class="cad-icon-tool-btn reset-workspace-btn" title="Reset Workspace"
+        aria-label="Reset Workspace" type="button">
         <img class="reset-workspace-icon" src="/static/assets/reset-workspace.svg" alt="Reset Workspace">
       </button>
 
-      <button id="exportImageBtn" class="cad-icon-tool-btn export-image-btn" title="Export Image" aria-label="Export Image" type="button">
+      <button id="exportImageBtn" class="cad-icon-tool-btn export-image-btn" title="Export Image"
+        aria-label="Export Image" type="button">
         <img class="export-image-icon" src="/static/assets/export-image.svg" alt="Export Image">
       </button>
 
       <div class="export-model-menu-wrapper">
-        <button id="exportModelBtn" class="cad-icon-tool-btn export-model-btn" title="Export 3D Model" aria-label="Export 3D Model" aria-haspopup="menu" aria-expanded="false" aria-controls="exportModelMenuOptions" type="button">
+        <button id="exportModelBtn" class="cad-icon-tool-btn export-model-btn" title="Export 3D Model"
+          aria-label="Export 3D Model" aria-haspopup="menu" aria-expanded="false" aria-controls="exportModelMenuOptions"
+          type="button">
           <img class="export-model-icon" src="/static/assets/export-model.svg" alt="Export 3D Model">
           <span class="tool-arrow">▾</span>
         </button>
 
-        <div id="exportModelMenuOptions" class="export-model-menu-options" role="menu" aria-label="Export 3D Model options">
+        <div id="exportModelMenuOptions" class="export-model-menu-options" role="menu"
+          aria-label="Export 3D Model options">
           <div class="export-model-option-group" role="group" aria-label="Model export scope">
-            <button class="export-model-scope-option active-export-model-option" type="button" role="menuitemradio" data-export-model-scope="all" aria-checked="true">
+            <button class="export-model-scope-option active-export-model-option" type="button" role="menuitemradio"
+              data-export-model-scope="all" aria-checked="true">
               All Objects
             </button>
-            <button class="export-model-scope-option" type="button" role="menuitemradio" data-export-model-scope="selected" aria-checked="false">
+            <button class="export-model-scope-option" type="button" role="menuitemradio"
+              data-export-model-scope="selected" aria-checked="false">
               Selected Object
             </button>
           </div>
@@ -92,27 +102,33 @@
         <img src="/static/assets/move-object.svg" alt="Move Object">
       </button>
 
-      <button id="rotateToolBtn" class="cad-icon-tool-btn" title="Rotate Object" aria-label="Rotate Object" type="button">
+      <button id="rotateToolBtn" class="cad-icon-tool-btn" title="Rotate Object" aria-label="Rotate Object"
+        type="button">
         <img src="/static/assets/rotate-object.svg" alt="Rotate Object">
       </button>
 
-      <button id="resizeToolBtn" class="cad-icon-tool-btn" title="Resize Object" aria-label="Resize Object" type="button">
+      <button id="resizeToolBtn" class="cad-icon-tool-btn" title="Resize Object" aria-label="Resize Object"
+        type="button">
         <img src="/static/assets/resize-object.svg" alt="Resize Object">
       </button>
 
-      <button id="duplicateToolBtn" class="cad-icon-tool-btn" title="Duplicate Object" aria-label="Duplicate Object" type="button">
+      <button id="duplicateToolBtn" class="cad-icon-tool-btn" title="Duplicate Object" aria-label="Duplicate Object"
+        type="button">
         <img src="/static/assets/duplicate-object.svg" alt="Duplicate Object">
       </button>
 
-      <button id="deleteToolBtn" class="cad-icon-tool-btn" title="Delete Object" aria-label="Delete Object" type="button">
+      <button id="deleteToolBtn" class="cad-icon-tool-btn" title="Delete Object" aria-label="Delete Object"
+        type="button">
         <img src="/static/assets/delete-object.svg" alt="Delete Object">
       </button>
 
-      <button id="colourToolBtn" class="cad-icon-tool-btn" title="Change Object Colour" aria-label="Change Object Colour" type="button">
+      <button id="colourToolBtn" class="cad-icon-tool-btn" title="Change Object Colour"
+        aria-label="Change Object Colour" type="button">
         <img src="/static/assets/colour-object.svg" alt="Change Object Colour">
       </button>
 
-      <button id="materialsToolBtn" class="cad-icon-tool-btn" title="Apply Material" aria-label="Apply Material" type="button">
+      <button id="materialsToolBtn" class="cad-icon-tool-btn" title="Apply Material" aria-label="Apply Material"
+        type="button">
         <span style="font-size: 20px; line-height: 1;">✨</span>
       </button>
 
@@ -120,7 +136,8 @@
         <img src="/static/assets/grid-object.svg" alt="Show Grid">
       </button>
 
-      <button id="axesToolBtn" class="cad-icon-tool-btn" title="Show X, Y and Z Axes" aria-label="Show X, Y and Z Axes" type="button">
+      <button id="axesToolBtn" class="cad-icon-tool-btn" title="Show X, Y and Z Axes" aria-label="Show X, Y and Z Axes"
+        type="button">
         <img src="/static/assets/axes-object.svg" alt="Show X Y Z Axes">
       </button>
 
@@ -157,7 +174,8 @@
         <img src="/static/assets/pan-camera.svg" alt="Pan Camera">
       </button>
 
-      <button id="orbitToolBtn" class="cad-icon-tool-btn" title="Orbit Around 3D Model" aria-label="Orbit Around 3D Model" type="button">
+      <button id="orbitToolBtn" class="cad-icon-tool-btn" title="Orbit Around 3D Model"
+        aria-label="Orbit Around 3D Model" type="button">
         <img src="/static/assets/orbit-camera.svg" alt="Orbit Around 3D Model">
       </button>
 
@@ -240,24 +258,26 @@
 
         <p class="edit-subtitle">Colour</p>
         <input id="propertyColourInput" class="edit-input colour-input" type="color" value="#ffffff">
-        <input id="propertyHexInput" class="edit-input hex-input" type="text" value="#ffffff" maxlength="7" placeholder="#ffffff">
+        <input id="propertyHexInput" class="edit-input hex-input" type="text" value="#ffffff" maxlength="7"
+          placeholder="#ffffff">
 
         <p class="edit-subtitle">Material</p>
-          <select id="propertyMaterialSelect" class="edit-input">
-            <option value="default">Default</option>
-            <option value="solid">Solid</option>
-            <option value="plastic">Plastic</option>
-            <option value="metal">Metal</option>
-            <option value="glass">Glass</option>
-            <option value="wood">Wood</option>
-            <option value="neon">Neon</option>
-            <option value="transparent">Transparent</option>
-          </select>
+        <select id="propertyMaterialSelect" class="edit-input">
+          <option value="default">Default</option>
+          <option value="solid">Solid</option>
+          <option value="plastic">Plastic</option>
+          <option value="metal">Metal</option>
+          <option value="glass">Glass</option>
+          <option value="wood">Wood</option>
+          <option value="neon">Neon</option>
+          <option value="transparent">Transparent</option>
+        </select>
 
         <p class="edit-hint material-selected-hint">
           <strong>Selected Material:</strong> <span id="propertyMaterialNameText">None</span>
         </p>
-        <p id="propertyMaterialDetailsText" class="material-properties-text">Select an object to view material properties.</p>
+        <p id="propertyMaterialDetailsText" class="material-properties-text">Select an object to view material
+          properties.</p>
 
         <p class="edit-hint">
           <strong>Dimensions:</strong> <span id="propertyDimensionsText">None</span>
@@ -404,7 +424,8 @@
         </div>
 
         <p class="edit-hint">
-          This will remove the selected object from the CAD workspace. Click Save Design after deleting to keep the change.
+          This will remove the selected object from the CAD workspace. Click Save Design after deleting to keep the
+          change.
         </p>
 
         <button id="deleteObjectBtn" class="edit-danger-btn" type="button">Delete Selected Object</button>
@@ -421,7 +442,8 @@
         <input id="objectColourInput" class="edit-input colour-input" type="color" value="#ff0000">
 
         <label class="edit-label hex-label" for="objectHexInput">Hex Colour Value</label>
-        <input id="objectHexInput" class="edit-input hex-input" type="text" value="#ff0000" maxlength="7" placeholder="#ff0000">
+        <input id="objectHexInput" class="edit-input hex-input" type="text" value="#ff0000" maxlength="7"
+          placeholder="#ff0000">
 
         <button id="applyColourBtn" class="edit-primary-btn" type="button">Apply Colour</button>
         <p id="colourObjectHint" class="edit-hint">Select an object first, then choose or type a hex colour.</p>
@@ -448,7 +470,8 @@
         <p class="edit-hint material-selected-hint">
           <strong>Selected Material:</strong> <span id="materialsPanelMaterialName">Default</span>
         </p>
-        <p id="materialsPanelMaterialDetails" class="material-properties-text">Balanced matte surface | Roughness 0.45 | Metalness 0.15 | Opacity 1.00</p>
+        <p id="materialsPanelMaterialDetails" class="material-properties-text">Balanced matte surface | Roughness 0.45 |
+          Metalness 0.15 | Opacity 1.00</p>
 
         <p class="edit-subtitle">Material Properties</p>
         <div class="material-property-grid">
@@ -862,9 +885,9 @@
             result = typeof window.exportCADImage === "function"
               ? await window.exportCADImage()
               : {
-                  success: false,
-                  message: "Export image is not ready."
-                };
+                success: false,
+                message: "Export image is not ready."
+              };
           } catch (error) {
             console.error("Export image click error:", error);
 
@@ -925,4 +948,5 @@
     });
   </script>
 </body>
+
 </html>
