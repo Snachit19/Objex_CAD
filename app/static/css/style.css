@@ -514,11 +514,28 @@ a {
   --dashboard-object-scale: 1;
   position: absolute;
   color: var(--dashboard-object-color);
+  cursor: pointer;
   filter: drop-shadow(0 0 25px currentColor);
   transform:
     translate(-50%, -50%)
     scale(var(--dashboard-object-scale));
   transform-origin: center;
+  transition:
+    filter 0.2s ease,
+    opacity 0.2s ease;
+}
+
+.dashboard-preview-object:hover,
+.dashboard-preview-object:focus-visible,
+.dashboard-preview-object.is-selected {
+  filter:
+    drop-shadow(0 0 25px currentColor)
+    drop-shadow(0 0 12px rgba(255, 255, 255, 0.78));
+}
+
+.dashboard-preview-object:focus-visible {
+  outline: 2px solid rgba(255, 255, 255, 0.86);
+  outline-offset: 8px;
 }
 
 .dashboard-preview-cube {

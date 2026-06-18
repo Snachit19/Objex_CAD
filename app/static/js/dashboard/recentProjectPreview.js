@@ -57,6 +57,22 @@ function getDashboardObjectColor(savedObject) {
   return "#6366f1";
 }
 
+function getDashboardObjectLabel(savedObject) {
+  if (!savedObject) {
+    return "Inspector Panel";
+  }
+
+  if (savedObject.name) {
+    return savedObject.name;
+  }
+
+  if (savedObject.type) {
+    return savedObject.type.charAt(0).toUpperCase() + savedObject.type.slice(1);
+  }
+
+  return "Saved Object";
+}
+
 function getDashboardPreviewType(type) {
   const supportedTypes = [
     "cube",
@@ -99,14 +115,30 @@ function createDashboardPreviewObject(savedObject, index, totalObjects) {
   const objectElement = document.createElement("div");
   const position = getDashboardPreviewPosition(savedObject, index, totalObjects);
   const scale = getDashboardScale(savedObject);
+  const objectLabel = getDashboardObjectLabel(savedObject);
 
   objectElement.className = "dashboard-preview-object dashboard-preview-" + objectType;
+  objectElement.setAttribute("role", "button");
+  objectElement.setAttribute("tabindex", "0");
+  objectElement.setAttribute("aria-label", "Inspect " + objectLabel);
+  objectElement.dataset.previewObjectIndex = String(index);
   objectElement.style.left = position.left + "%";
   objectElement.style.top = position.top + "%";
   objectElement.style.setProperty("--dashboard-object-color", getDashboardObjectColor(savedObject));
   objectElement.style.setProperty("--dashboard-object-scale", scale);
   objectElement.style.zIndex = String(index + 1);
-  objectElement.title = savedObject.name || objectType;
+  objectElement.title = objectLabel;
+
+  objectElement.addEventListener("click", function () {
+    selectDashboardPreviewObject(index);
+  });
+
+  objectElement.addEventListener("keydown", function (event) {
+    if (event.key === "Enter" || event.key === " ") {
+      event.preventDefault();
+      selectDashboardPreviewObject(index);
+    }
+  });
 
   return objectElement;
 }
@@ -129,6 +161,8 @@ function renderDashboardPreviewObjects(projectDesignData) {
   previewScene.textContent = "";
 
   if (!Array.isArray(projectDesignData) || projectDesignData.length === 0) {
+    window.dashboardPreviewSelectedObject = null;
+    updateDashboardPreviewProperties(null);
     previewScene.appendChild(createDashboardPreviewEmptyState("No saved objects yet"));
     return;
   }
@@ -138,6 +172,8 @@ function renderDashboardPreviewObjects(projectDesignData) {
   }).slice(0, 12);
 
   if (savedObjects.length === 0) {
+    window.dashboardPreviewSelectedObject = null;
+    updateDashboardPreviewProperties(null);
     previewScene.appendChild(createDashboardPreviewEmptyState("No previewable objects"));
     return;
   }
@@ -149,6 +185,7 @@ function renderDashboardPreviewObjects(projectDesignData) {
   });
 
   previewScene.appendChild(fragment);
+  selectDashboardPreviewObject(0);
 }
 
 function getLatestProject(projects) {
@@ -178,7 +215,11 @@ function updateDashboardPreviewProperties(savedObject) {
   const position = savedObject && savedObject.position ? savedObject.position : {};
   const rotation = savedObject && savedObject.rotation ? savedObject.rotation : {};
   const scale = savedObject && savedObject.scale ? savedObject.scale : {};
+  const inspectorLabel = savedObject
+    ? getDashboardObjectLabel(savedObject) + " selected"
+    : "Inspector Panel";
 
+  setDashboardPreviewText("dashboardPreviewInspectorLabel", inspectorLabel);
   setDashboardPreviewValue("dashboardPreviewPositionX", formatDashboardNumber(position.x, 0));
   setDashboardPreviewValue("dashboardPreviewPositionY", formatDashboardNumber(position.y, 0));
   setDashboardPreviewValue("dashboardPreviewPositionZ", formatDashboardNumber(position.z, 0));
@@ -198,11 +239,39 @@ function updateDashboardPreviewProperties(savedObject) {
   );
 }
 
+function selectDashboardPreviewObject(index) {
+  const previewScene = document.getElementById("dashboardPreviewScene");
+
+  if (!previewScene || !Array.isArray(window.dashboardPreviewObjects)) {
+    return;
+  }
+
+  const selectedObject = window.dashboardPreviewObjects[index] || null;
+
+  previewScene.querySelectorAll(".dashboard-preview-object").forEach(function (objectElement) {
+    const isSelected = Number(objectElement.dataset.previewObjectIndex) === index;
+    objectElement.classList.toggle("is-selected", isSelected);
+    objectElement.setAttribute("aria-pressed", String(isSelected));
+  });
+
+  window.dashboardPreviewSelectedObject = selectedObject;
+  updateDashboardPreviewProperties(selectedObject);
+
+  window.dispatchEvent(new CustomEvent("dashboard:preview-object-selected", {
+    detail: {
+      selectedObject: selectedObject,
+      selectedIndex: index
+    }
+  }));
+}
+
 function showEmptyDashboardPreview() {
   setDashboardPreviewText("recentPreviewTitle", "Perspective View");
   setDashboardPreviewText("recentPreviewProjectName", "No recent project");
   setDashboardPreviewText("recentPreviewProjectDescription", "Create a project to preview it here.");
   setDashboardPreviewText("recentPreviewObjectCount", "0 Objects Saved");
+  window.dashboardPreviewObjects = [];
+  window.dashboardPreviewSelectedObject = null;
   updateDashboardPreviewProperties(null);
   renderDashboardPreviewObjects([]);
 }
@@ -223,8 +292,14 @@ function updateDashboardPreview(project) {
     project.description || "No description added."
   );
   setDashboardPreviewText("recentPreviewObjectCount", getObjectCountLabel(projectDesignData.length));
-  updateDashboardPreviewProperties(previewObject);
+  window.dashboardPreviewObjects = projectDesignData.filter(function (savedObject) {
+    return savedObject && savedObject.type;
+  }).slice(0, 12);
   renderDashboardPreviewObjects(projectDesignData);
+
+  if (!window.dashboardPreviewSelectedObject) {
+    updateDashboardPreviewProperties(previewObject);
+  }
 
   window.dispatchEvent(new CustomEvent("dashboard:recent-project-preview", {
     detail: {
@@ -261,3 +336,4 @@ async function loadRecentProjectPreview(projects) {
 
 window.loadRecentProjectPreview = loadRecentProjectPreview;
 window.updateDashboardPreview = updateDashboardPreview;
+window.selectDashboardPreviewObject = selectDashboardPreviewObject;
