@@ -23,6 +23,18 @@
     return document.getElementById("exportModelConfirmBtn");
   }
 
+  function getCADObjectList() {
+    return Array.isArray(window.cadObjects) ? window.cadObjects : [];
+  }
+
+  function getSelectedCADObjectForExport() {
+    if (typeof window.getSelectedCADObject === "function") {
+      return window.getSelectedCADObject();
+    }
+
+    return window.selectedObject || null;
+  }
+
   function getStatusElement() {
     return document.getElementById("cadStatusText");
   }
@@ -73,6 +85,122 @@
     }
 
     return "GLTF exporter is not loaded.";
+  }
+
+  function isSystemObject(object) {
+    if (!object) {
+      return true;
+    }
+
+    if (object.userData && object.userData.systemObject) {
+      return true;
+    }
+
+    if (object.isLight || object.isCamera) {
+      return true;
+    }
+
+    return (
+      object.name === "CADGridHelper" ||
+      object.name === "CADAxesHelper" ||
+      object.name === "DefaultAmbientLight" ||
+      object.name === "DefaultDirectionalLight" ||
+      object.type === "GridHelper" ||
+      object.type === "AxesHelper" ||
+      object.type === "BoxHelper"
+    );
+  }
+
+  function hasExportableGeometry(object) {
+    let hasGeometry = false;
+
+    if (!object || typeof object.traverse !== "function") {
+      return false;
+    }
+
+    object.traverse(function (child) {
+      if (child && child.isMesh && child.geometry) {
+        hasGeometry = true;
+      }
+    });
+
+    return hasGeometry;
+  }
+
+  function isExportableCADObject(object) {
+    if (!object || isSystemObject(object)) {
+      return false;
+    }
+
+    if (object.visible === false) {
+      return false;
+    }
+
+    return hasExportableGeometry(object);
+  }
+
+  function collectExportableCADObjects() {
+    const objects = getCADObjectList();
+    const exportableObjects = [];
+
+    objects.forEach(function (object) {
+      if (
+        isExportableCADObject(object) &&
+        exportableObjects.indexOf(object) === -1
+      ) {
+        exportableObjects.push(object);
+      }
+    });
+
+    return exportableObjects;
+  }
+
+  function collectSelectedExportableObject() {
+    const selectedObject = getSelectedCADObjectForExport();
+
+    if (!isExportableCADObject(selectedObject)) {
+      return [];
+    }
+
+    return [selectedObject];
+  }
+
+  function collectObjectsForExport(options) {
+    const settings = options || getExportModelOptions();
+    const scope = settings.scope || "all";
+
+    if (scope === "selected") {
+      return collectSelectedExportableObject();
+    }
+
+    return collectExportableCADObjects();
+  }
+
+  function getObjectCountLabel(count) {
+    return count === 1 ? "1 object" : count + " objects";
+  }
+
+  function getExportModelSelection(options) {
+    const settings = options || getExportModelOptions();
+    const scope = settings.scope || "all";
+    const format = settings.format || "glb";
+    const objects = collectObjectsForExport(settings);
+
+    return {
+      scope: scope,
+      format: format,
+      objects: objects,
+      count: objects.length,
+      countLabel: getObjectCountLabel(objects.length)
+    };
+  }
+
+  function getNoObjectsMessage(scope) {
+    if (scope === "selected") {
+      return "Select an object before exporting a 3D model.";
+    }
+
+    return "Add an object before exporting a 3D model.";
   }
 
   function syncScopeButtons() {
@@ -238,11 +366,20 @@
           return;
         }
 
+        const selection = getExportModelSelection(exportModelOptions);
+
+        if (selection.count === 0) {
+          setExportModelStatus(getNoObjectsMessage(selection.scope));
+          return;
+        }
+
         setExportModelStatus(
-          "Export " +
-          getScopeLabel(exportModelOptions.scope) +
+          "Ready to export " +
+          selection.countLabel +
+          " from " +
+          getScopeLabel(selection.scope) +
           " as " +
-          getFormatLabel(exportModelOptions.format) +
+          getFormatLabel(selection.format) +
           " will be connected next."
         );
         closeExportModelMenu();
@@ -266,9 +403,13 @@
   window.CADModelExport = {
     init: initExportModelFeature,
     closeMenu: closeExportModelMenu,
+    collectObjects: collectObjectsForExport,
+    collectExportableObjects: collectExportableCADObjects,
+    getExportSelection: getExportModelSelection,
     getExporterAvailability: getExporterAvailability,
     getOptions: getExportModelOptions,
     hasExporterForFormat: hasExporterForFormat,
+    isExportableObject: isExportableCADObject,
     setStatus: setExportModelStatus
   };
 })();
