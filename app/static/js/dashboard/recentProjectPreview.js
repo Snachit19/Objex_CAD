@@ -45,6 +45,112 @@ function formatDashboardNumber(value, fallback) {
   return normaliseDashboardNumber(value, fallback).toFixed(2);
 }
 
+function clampDashboardValue(value, min, max) {
+  return Math.min(Math.max(value, min), max);
+}
+
+function getDashboardObjectColor(savedObject) {
+  if (savedObject && typeof savedObject.color === "string" && savedObject.color.trim()) {
+    return savedObject.color;
+  }
+
+  return "#6366f1";
+}
+
+function getDashboardPreviewType(type) {
+  const supportedTypes = [
+    "cube",
+    "sphere",
+    "cylinder",
+    "cone",
+    "torus",
+    "pyramid",
+    "plane"
+  ];
+
+  return supportedTypes.indexOf(type) !== -1 ? type : "cube";
+}
+
+function getDashboardScale(savedObject) {
+  const scale = savedObject && savedObject.scale ? savedObject.scale : {};
+  const scaleX = normaliseDashboardNumber(scale.x, 1);
+  const scaleY = normaliseDashboardNumber(scale.y, 1);
+  const scaleZ = normaliseDashboardNumber(scale.z, 1);
+  const averageScale = (Math.abs(scaleX) + Math.abs(scaleY) + Math.abs(scaleZ)) / 3;
+
+  return clampDashboardValue(averageScale || 1, 0.55, 1.9);
+}
+
+function getDashboardPreviewPosition(savedObject, index, totalObjects) {
+  const position = savedObject && savedObject.position ? savedObject.position : {};
+  const fallbackStep = totalObjects > 1 ? index / (totalObjects - 1) : 0.5;
+  const x = normaliseDashboardNumber(position.x, (fallbackStep - 0.5) * 6);
+  const y = normaliseDashboardNumber(position.y, 0);
+  const z = normaliseDashboardNumber(position.z, 0);
+
+  return {
+    left: clampDashboardValue(50 + (x * 11), 12, 88),
+    top: clampDashboardValue(54 - (z * 9) - (y * 3), 16, 84)
+  };
+}
+
+function createDashboardPreviewObject(savedObject, index, totalObjects) {
+  const objectType = getDashboardPreviewType(savedObject.type);
+  const objectElement = document.createElement("div");
+  const position = getDashboardPreviewPosition(savedObject, index, totalObjects);
+  const scale = getDashboardScale(savedObject);
+
+  objectElement.className = "dashboard-preview-object dashboard-preview-" + objectType;
+  objectElement.style.left = position.left + "%";
+  objectElement.style.top = position.top + "%";
+  objectElement.style.setProperty("--dashboard-object-color", getDashboardObjectColor(savedObject));
+  objectElement.style.setProperty("--dashboard-object-scale", scale);
+  objectElement.style.zIndex = String(index + 1);
+  objectElement.title = savedObject.name || objectType;
+
+  return objectElement;
+}
+
+function createDashboardPreviewEmptyState(message) {
+  const emptyState = document.createElement("div");
+  emptyState.className = "dashboard-preview-empty";
+  emptyState.textContent = message;
+
+  return emptyState;
+}
+
+function renderDashboardPreviewObjects(projectDesignData) {
+  const previewScene = document.getElementById("dashboardPreviewScene");
+
+  if (!previewScene) {
+    return;
+  }
+
+  previewScene.textContent = "";
+
+  if (!Array.isArray(projectDesignData) || projectDesignData.length === 0) {
+    previewScene.appendChild(createDashboardPreviewEmptyState("No saved objects yet"));
+    return;
+  }
+
+  const savedObjects = projectDesignData.filter(function (savedObject) {
+    return savedObject && savedObject.type;
+  }).slice(0, 12);
+
+  if (savedObjects.length === 0) {
+    previewScene.appendChild(createDashboardPreviewEmptyState("No previewable objects"));
+    return;
+  }
+
+  const fragment = document.createDocumentFragment();
+
+  savedObjects.forEach(function (savedObject, index) {
+    fragment.appendChild(createDashboardPreviewObject(savedObject, index, savedObjects.length));
+  });
+
+  previewScene.appendChild(fragment);
+}
+
 function getLatestProject(projects) {
   if (!Array.isArray(projects) || projects.length === 0) {
     return null;
@@ -98,6 +204,7 @@ function showEmptyDashboardPreview() {
   setDashboardPreviewText("recentPreviewProjectDescription", "Create a project to preview it here.");
   setDashboardPreviewText("recentPreviewObjectCount", "0 Objects Saved");
   updateDashboardPreviewProperties(null);
+  renderDashboardPreviewObjects([]);
 }
 
 function updateDashboardPreview(project) {
@@ -117,6 +224,7 @@ function updateDashboardPreview(project) {
   );
   setDashboardPreviewText("recentPreviewObjectCount", getObjectCountLabel(projectDesignData.length));
   updateDashboardPreviewProperties(previewObject);
+  renderDashboardPreviewObjects(projectDesignData);
 
   window.dispatchEvent(new CustomEvent("dashboard:recent-project-preview", {
     detail: {

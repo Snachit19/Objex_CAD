@@ -498,6 +498,105 @@ a {
   z-index: 1;
 }
 
+.dashboard-preview-empty {
+  position: absolute;
+  inset: 50% auto auto 50%;
+  transform: translate(-50%, -50%);
+  color: var(--text-muted);
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0;
+  text-align: center;
+}
+
+.dashboard-preview-object {
+  --dashboard-object-color: #6366f1;
+  --dashboard-object-scale: 1;
+  position: absolute;
+  color: var(--dashboard-object-color);
+  filter: drop-shadow(0 0 25px currentColor);
+  transform:
+    translate(-50%, -50%)
+    scale(var(--dashboard-object-scale));
+  transform-origin: center;
+}
+
+.dashboard-preview-cube {
+  width: 120px;
+  height: 90px;
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.28), transparent 36%),
+    var(--dashboard-object-color);
+  transform:
+    translate(-50%, -50%)
+    skewY(-10deg)
+    scale(var(--dashboard-object-scale));
+}
+
+.dashboard-preview-sphere {
+  width: 145px;
+  height: 145px;
+  background:
+    radial-gradient(circle at 35% 32%, rgba(255, 255, 255, 0.45), transparent 24%),
+    var(--dashboard-object-color);
+  border-radius: 50%;
+}
+
+.dashboard-preview-cylinder {
+  width: 92px;
+  height: 116px;
+  background:
+    linear-gradient(90deg, rgba(0, 0, 0, 0.18), transparent 38%, rgba(255, 255, 255, 0.2)),
+    var(--dashboard-object-color);
+}
+
+.dashboard-preview-cylinder::before {
+  content: "";
+  position: absolute;
+  top: -22px;
+  left: 0;
+  width: 92px;
+  height: 42px;
+  background:
+    radial-gradient(circle at 35% 30%, rgba(255, 255, 255, 0.35), transparent 34%),
+    var(--dashboard-object-color);
+  border-radius: 50%;
+}
+
+.dashboard-preview-cone,
+.dashboard-preview-pyramid {
+  width: 0;
+  height: 0;
+  border-left: 68px solid transparent;
+  border-right: 68px solid transparent;
+  border-bottom: 145px solid var(--dashboard-object-color);
+  filter: drop-shadow(0 0 25px currentColor);
+}
+
+.dashboard-preview-pyramid {
+  border-left-width: 78px;
+  border-right-width: 38px;
+}
+
+.dashboard-preview-torus {
+  width: 115px;
+  height: 58px;
+  border: 16px solid var(--dashboard-object-color);
+  border-radius: 999px;
+}
+
+.dashboard-preview-plane {
+  width: 150px;
+  height: 68px;
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.28), transparent 35%),
+    var(--dashboard-object-color);
+  transform:
+    translate(-50%, -50%)
+    skewY(-8deg)
+    scale(var(--dashboard-object-scale));
+}
+
 .shape {
   position: absolute;
   filter: drop-shadow(0 0 25px currentColor);
