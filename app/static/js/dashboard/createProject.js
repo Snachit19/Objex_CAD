@@ -79,10 +79,20 @@ function updateProjectSummary(projects) {
   }
 }
 
+function openProject(projectId) {
+  if (!projectId) {
+    return;
+  }
+
+  window.location.assign("/cad/" + projectId);
+}
+
 function createProjectListItem(project, isRecentProject) {
   const item = document.createElement("div");
   item.className = "mock-project";
   item.style.cursor = "pointer";
+  item.setAttribute("role", "button");
+  item.setAttribute("tabindex", "0");
 
   if (isRecentProject) {
     item.classList.add("is-recent-project");
@@ -91,14 +101,27 @@ function createProjectListItem(project, isRecentProject) {
   const name = document.createElement("strong");
   name.textContent = project.name || "Untitled Project";
 
-  const action = document.createElement("span");
+  const action = document.createElement("button");
+  action.type = "button";
   action.textContent = "Open";
 
   item.appendChild(name);
   item.appendChild(action);
 
-  item.addEventListener("click", () => {
-    window.location.href = `/cad/${project.id}`;
+  item.addEventListener("click", function () {
+    openProject(project.id);
+  });
+
+  item.addEventListener("keydown", function (event) {
+    if (event.key === "Enter" || event.key === " ") {
+      event.preventDefault();
+      openProject(project.id);
+    }
+  });
+
+  action.addEventListener("click", function (event) {
+    event.stopPropagation();
+    openProject(project.id);
   });
 
   return item;

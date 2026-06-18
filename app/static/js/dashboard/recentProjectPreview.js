@@ -3,16 +3,18 @@ const dashboardPreviewState = {
   camera: null,
   renderer: null,
   controls: null,
-  canvas: null,
-  grid: null,
   objectGroup: null,
-  selectionHelper: null,
-  objects: [],
-  selectedMesh: null,
+  grid: null,
+  axes: null,
+  selectedHelper: null,
+  meshes: [],
+  selectedIndex: -1,
   zoom: 1,
   mode: "pan",
   controlsBound: false,
-  isAnimating: false
+  isAnimating: false,
+  raycaster: null,
+  pointer: null
 };
 
 function setDashboardPreviewText(elementId, text) {
@@ -51,11 +53,7 @@ function parseProjectDesignData(designData) {
 function normaliseDashboardNumber(value, fallback) {
   const numberValue = Number(value);
 
-  if (Number.isFinite(numberValue)) {
-    return numberValue;
-  }
-
-  return fallback;
+  return Number.isFinite(numberValue) ? numberValue : fallback;
 }
 
 function formatDashboardNumber(value, fallback) {
@@ -90,40 +88,6 @@ function getDashboardObjectLabel(savedObject) {
   return "Saved Object";
 }
 
-function createDashboardPreviewEmptyState(message) {
-  const emptyState = document.createElement("div");
-  emptyState.className = "dashboard-preview-empty";
-  emptyState.textContent = message;
-
-  return emptyState;
-}
-
-function showDashboardPreviewMessage(message) {
-  const previewScene = document.getElementById("dashboardPreviewScene");
-
-  if (!previewScene) {
-    return;
-  }
-
-  previewScene.querySelectorAll(".dashboard-preview-empty").forEach(function (emptyState) {
-    emptyState.remove();
-  });
-
-  previewScene.appendChild(createDashboardPreviewEmptyState(message));
-}
-
-function clearDashboardPreviewMessage() {
-  const previewScene = document.getElementById("dashboardPreviewScene");
-
-  if (!previewScene) {
-    return;
-  }
-
-  previewScene.querySelectorAll(".dashboard-preview-empty").forEach(function (emptyState) {
-    emptyState.remove();
-  });
-}
-
 function getLatestProject(projects) {
   if (!Array.isArray(projects) || projects.length === 0) {
     return null;
@@ -153,7 +117,7 @@ function updateRecentProjectOpenAction(project) {
   openButton.textContent = hasProject ? "Open Project" : "No Project";
   openButton.onclick = hasProject
     ? function () {
-        window.location.href = "/cad/" + project.id;
+        window.location.assign("/cad/" + project.id);
       }
     : null;
 }
@@ -176,15 +140,12 @@ function updateDashboardPreviewProperties(savedObject) {
   setDashboardPreviewValue("dashboardPreviewPositionX", formatDashboardNumber(position.x, 0));
   setDashboardPreviewValue("dashboardPreviewPositionY", formatDashboardNumber(position.y, 0));
   setDashboardPreviewValue("dashboardPreviewPositionZ", formatDashboardNumber(position.z, 0));
-
   setDashboardPreviewValue("dashboardPreviewRotationX", formatDashboardNumber(rotation.x, 0));
   setDashboardPreviewValue("dashboardPreviewRotationY", formatDashboardNumber(rotation.y, 0));
   setDashboardPreviewValue("dashboardPreviewRotationZ", formatDashboardNumber(rotation.z, 0));
-
   setDashboardPreviewValue("dashboardPreviewScaleX", formatDashboardNumber(scale.x, 1));
   setDashboardPreviewValue("dashboardPreviewScaleY", formatDashboardNumber(scale.y, 1));
   setDashboardPreviewValue("dashboardPreviewScaleZ", formatDashboardNumber(scale.z, 1));
-
   setDashboardPreviewValue("dashboardPreviewColor", savedObject && savedObject.color ? savedObject.color : "#6366f1");
   setDashboardPreviewValue(
     "dashboardPreviewMaterial",
@@ -192,15 +153,38 @@ function updateDashboardPreviewProperties(savedObject) {
   );
 }
 
-function createDashboardPreviewGeometry(type) {
-  if (!window.THREE) {
-    return null;
+function createDashboardPreviewEmptyState(message) {
+  const emptyState = document.createElement("div");
+  emptyState.className = "dashboard-preview-empty";
+  emptyState.textContent = message;
+
+  return emptyState;
+}
+
+function clearDashboardPreviewMessage() {
+  const previewScene = document.getElementById("dashboardPreviewScene");
+
+  if (!previewScene) {
+    return;
   }
 
-  if (type === "cube") {
-    return new THREE.BoxGeometry(1.4, 1.4, 1.4);
+  previewScene.querySelectorAll(".dashboard-preview-empty").forEach(function (emptyState) {
+    emptyState.remove();
+  });
+}
+
+function showDashboardPreviewMessage(message) {
+  const previewScene = document.getElementById("dashboardPreviewScene");
+
+  if (!previewScene) {
+    return;
   }
 
+  clearDashboardPreviewMessage();
+  previewScene.appendChild(createDashboardPreviewEmptyState(message));
+}
+
+function createDashboardGeometry(type) {
   if (type === "sphere") {
     return new THREE.SphereGeometry(0.8, 32, 32);
   }
@@ -225,10 +209,10 @@ function createDashboardPreviewGeometry(type) {
     return new THREE.BoxGeometry(2.2, 0.08, 1.4);
   }
 
-  return new THREE.BoxGeometry(1.2, 1.2, 1.2);
+  return new THREE.BoxGeometry(1.4, 1.4, 1.4);
 }
 
-function createDashboardPreviewMaterial(savedObject) {
+function createDashboardMaterial(savedObject) {
   const materialData = savedObject && savedObject.materialData ? savedObject.materialData : {};
   const objectColor = getDashboardObjectColor(savedObject);
   const opacity = materialData.opacity === undefined
@@ -240,22 +224,21 @@ function createDashboardPreviewMaterial(savedObject) {
   return new THREE.MeshStandardMaterial({
     color: objectColor,
     roughness: materialData.roughness === undefined
-      ? 0.45
-      : clampDashboardValue(normaliseDashboardNumber(materialData.roughness, 0.45), 0, 1),
+      ? 0.42
+      : clampDashboardValue(normaliseDashboardNumber(materialData.roughness, 0.42), 0, 1),
     metalness: materialData.metalness === undefined
-      ? 0.15
-      : clampDashboardValue(normaliseDashboardNumber(materialData.metalness, 0.15), 0, 1),
+      ? 0.16
+      : clampDashboardValue(normaliseDashboardNumber(materialData.metalness, 0.16), 0, 1),
     opacity: opacity,
     transparent: opacity < 1 || Boolean(materialData.transparent),
     emissive: new THREE.Color(emissiveColor || "#000000"),
     emissiveIntensity: materialData.emissiveIntensity === undefined
       ? (isNeon ? 0.55 : 0)
-      : normaliseDashboardNumber(materialData.emissiveIntensity, isNeon ? 0.55 : 0),
-    depthWrite: materialData.depthWrite !== undefined ? Boolean(materialData.depthWrite) : true
+      : normaliseDashboardNumber(materialData.emissiveIntensity, isNeon ? 0.55 : 0)
   });
 }
 
-function applyDashboardPreviewTransform(mesh, savedObject) {
+function applyDashboardMeshTransform(mesh, savedObject) {
   const position = savedObject && savedObject.position ? savedObject.position : {};
   const rotation = savedObject && savedObject.rotation ? savedObject.rotation : {};
   const scale = savedObject && savedObject.scale ? savedObject.scale : {};
@@ -265,13 +248,11 @@ function applyDashboardPreviewTransform(mesh, savedObject) {
     normaliseDashboardNumber(position.y, 0),
     normaliseDashboardNumber(position.z, 0)
   );
-
   mesh.rotation.set(
     normaliseDashboardNumber(rotation.x, 0),
     normaliseDashboardNumber(rotation.y, 0),
     normaliseDashboardNumber(rotation.z, 0)
   );
-
   mesh.scale.set(
     normaliseDashboardNumber(scale.x, 1),
     normaliseDashboardNumber(scale.y, 1),
@@ -279,9 +260,9 @@ function applyDashboardPreviewTransform(mesh, savedObject) {
   );
 }
 
-function disposeDashboardPreviewMaterial(material) {
+function disposeDashboardMaterial(material) {
   if (Array.isArray(material)) {
-    material.forEach(disposeDashboardPreviewMaterial);
+    material.forEach(disposeDashboardMaterial);
     return;
   }
 
@@ -290,28 +271,30 @@ function disposeDashboardPreviewMaterial(material) {
   }
 }
 
-function clearDashboardThreeObjects() {
-  if (!dashboardPreviewState.objectGroup) {
+function clearDashboardPreviewMeshes() {
+  const state = dashboardPreviewState;
+
+  if (!state.objectGroup) {
     return;
   }
 
-  if (dashboardPreviewState.selectionHelper) {
-    dashboardPreviewState.scene.remove(dashboardPreviewState.selectionHelper);
-    dashboardPreviewState.selectionHelper = null;
+  if (state.selectedHelper) {
+    state.scene.remove(state.selectedHelper);
+    state.selectedHelper = null;
   }
 
-  dashboardPreviewState.objectGroup.children.slice().forEach(function (object) {
-    dashboardPreviewState.objectGroup.remove(object);
+  state.objectGroup.children.slice().forEach(function (mesh) {
+    state.objectGroup.remove(mesh);
 
-    if (object.geometry && typeof object.geometry.dispose === "function") {
-      object.geometry.dispose();
+    if (mesh.geometry && typeof mesh.geometry.dispose === "function") {
+      mesh.geometry.dispose();
     }
 
-    disposeDashboardPreviewMaterial(object.material);
+    disposeDashboardMaterial(mesh.material);
   });
 
-  dashboardPreviewState.objects = [];
-  dashboardPreviewState.selectedMesh = null;
+  state.meshes = [];
+  state.selectedIndex = -1;
 }
 
 function resizeDashboardPreviewRenderer() {
@@ -325,15 +308,15 @@ function resizeDashboardPreviewRenderer() {
   const width = previewScene.clientWidth || 640;
   const height = previewScene.clientHeight || 360;
 
+  state.renderer.setSize(width, height, false);
   state.camera.aspect = width / height;
   state.camera.updateProjectionMatrix();
-  state.renderer.setSize(width, height, false);
 }
 
 function animateDashboardPreview() {
   const state = dashboardPreviewState;
 
-  if (!state.renderer || !state.scene || !state.camera) {
+  if (!state.scene || !state.camera || !state.renderer) {
     state.isAnimating = false;
     return;
   }
@@ -345,8 +328,8 @@ function animateDashboardPreview() {
     state.controls.update();
   }
 
-  if (state.selectionHelper) {
-    state.selectionHelper.update();
+  if (state.selectedHelper) {
+    state.selectedHelper.update();
   }
 
   state.renderer.render(state.scene, state.camera);
@@ -354,13 +337,12 @@ function animateDashboardPreview() {
 
 function addDashboardPreviewLights() {
   const state = dashboardPreviewState;
-  const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
-  const keyLight = new THREE.DirectionalLight(0xffffff, 1.1);
+  const ambientLight = new THREE.AmbientLight(0xffffff, 0.68);
+  const keyLight = new THREE.DirectionalLight(0xffffff, 1.05);
   const fillLight = new THREE.DirectionalLight(0x8ec5ff, 0.55);
 
-  keyLight.position.set(5, 8, 6);
-  fillLight.position.set(-4, 5, -5);
-
+  keyLight.position.set(6, 9, 7);
+  fillLight.position.set(-5, 4, -6);
   state.scene.add(ambientLight);
   state.scene.add(keyLight);
   state.scene.add(fillLight);
@@ -376,7 +358,7 @@ function ensureDashboardThreePreview() {
 
   if (typeof THREE === "undefined" || typeof THREE.WebGLRenderer !== "function") {
     previewScene.textContent = "";
-    previewScene.appendChild(createDashboardPreviewEmptyState("3D preview is not ready"));
+    previewScene.appendChild(createDashboardPreviewEmptyState("3D preview library is loading"));
     return false;
   }
 
@@ -388,47 +370,53 @@ function ensureDashboardThreePreview() {
 
   previewScene.textContent = "";
 
-  state.canvas = document.createElement("canvas");
-  state.canvas.className = "dashboard-preview-canvas";
-  state.canvas.setAttribute("aria-label", "Recent project 3D preview");
-
-  previewScene.appendChild(state.canvas);
+  const canvas = document.createElement("canvas");
+  canvas.className = "dashboard-preview-canvas";
+  canvas.setAttribute("aria-label", "Recent project 3D preview");
+  previewScene.appendChild(canvas);
 
   state.scene = new THREE.Scene();
-  state.objectGroup = new THREE.Group();
-  state.scene.add(state.objectGroup);
-
-  state.camera = new THREE.PerspectiveCamera(42, 1, 0.1, 1000);
-  state.camera.position.set(5, 4, 7);
-
+  state.scene.background = null;
+  state.camera = new THREE.PerspectiveCamera(46, 1, 0.1, 1000);
+  state.camera.position.set(6, 5, 8);
   state.renderer = new THREE.WebGLRenderer({
-    canvas: state.canvas,
+    canvas: canvas,
     antialias: true,
     alpha: true
   });
   state.renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
 
+  state.objectGroup = new THREE.Group();
+  state.scene.add(state.objectGroup);
+
+  state.grid = new THREE.GridHelper(40, 40, 0x3b82f6, 0x25304a);
+  state.grid.material.opacity = 0.58;
+  state.grid.material.transparent = true;
+  state.scene.add(state.grid);
+
+  state.axes = new THREE.AxesHelper(4.8);
+  state.scene.add(state.axes);
+
+  state.raycaster = new THREE.Raycaster();
+  state.pointer = new THREE.Vector2();
+
   if (typeof THREE.OrbitControls === "function") {
-    state.controls = new THREE.OrbitControls(state.camera, state.canvas);
+    state.controls = new THREE.OrbitControls(state.camera, state.renderer.domElement);
     state.controls.enableDamping = true;
     state.controls.dampingFactor = 0.08;
-    state.controls.enableZoom = true;
     state.controls.enablePan = true;
+    state.controls.enableRotate = false;
+    state.controls.enableZoom = true;
     state.controls.screenSpacePanning = true;
   }
 
   addDashboardPreviewLights();
-
-  state.grid = new THREE.GridHelper(16, 16, 0x355078, 0x1d263b);
-  state.grid.position.y = -0.02;
-  state.scene.add(state.grid);
-
-  state.canvas.addEventListener("pointerdown", handleDashboardPreviewPointerDown);
-  window.addEventListener("resize", resizeDashboardPreviewRenderer);
-
   resizeDashboardPreviewRenderer();
   initDashboardPreviewControls();
   setDashboardPreviewMode("pan");
+
+  state.renderer.domElement.addEventListener("pointerdown", handleDashboardPreviewPointerDown);
+  window.addEventListener("resize", resizeDashboardPreviewRenderer);
 
   if (!state.isAnimating) {
     animateDashboardPreview();
@@ -438,14 +426,15 @@ function ensureDashboardThreePreview() {
 }
 
 function createDashboardPreviewMesh(savedObject, index) {
-  const geometry = createDashboardPreviewGeometry(savedObject.type);
-  const material = createDashboardPreviewMaterial(savedObject);
-  const mesh = new THREE.Mesh(geometry, material);
+  const mesh = new THREE.Mesh(
+    createDashboardGeometry(savedObject.type),
+    createDashboardMaterial(savedObject)
+  );
 
   mesh.name = getDashboardObjectLabel(savedObject);
   mesh.userData.previewObjectIndex = index;
   mesh.userData.savedObject = savedObject;
-  applyDashboardPreviewTransform(mesh, savedObject);
+  applyDashboardMeshTransform(mesh, savedObject);
 
   return mesh;
 }
@@ -464,7 +453,6 @@ function getDashboardPreviewBounds(targetObject) {
   box.getSize(size);
 
   return {
-    box: box,
     center: center,
     size: size,
     maxSize: Math.max(size.x, size.y, size.z, 1)
@@ -503,7 +491,7 @@ function fitDashboardPreviewView(targetObject, resetZoom) {
   const bounds = getDashboardPreviewBounds(objectToFit);
 
   if (!bounds) {
-    state.camera.position.set(5, 4, 7);
+    state.camera.position.set(6, 5, 8);
 
     if (state.controls) {
       state.controls.target.set(0, 0, 0);
@@ -518,8 +506,8 @@ function fitDashboardPreviewView(targetObject, resetZoom) {
   }
 
   const fitDistance = bounds.maxSize / (2 * Math.tan((state.camera.fov * Math.PI) / 360));
-  const viewDirection = new THREE.Vector3(1.25, 0.85, 1.35).normalize();
-  const distance = Math.max(fitDistance * 1.55, 4);
+  const viewDirection = new THREE.Vector3(1.35, 0.9, 1.45).normalize();
+  const distance = Math.max(fitDistance * 1.7, 5);
 
   state.camera.position.copy(bounds.center).addScaledVector(viewDirection, distance);
   state.camera.near = Math.max(distance / 100, 0.01);
@@ -538,36 +526,25 @@ function fitDashboardPreviewView(targetObject, resetZoom) {
 }
 
 function renderDashboardPreviewObjects(projectDesignData) {
-  const previewScene = document.getElementById("dashboardPreviewScene");
-
-  if (!previewScene || !ensureDashboardThreePreview()) {
+  if (!ensureDashboardThreePreview()) {
     return;
   }
 
   clearDashboardPreviewMessage();
-  clearDashboardThreeObjects();
+  clearDashboardPreviewMeshes();
 
-  if (!Array.isArray(projectDesignData) || projectDesignData.length === 0) {
-    window.dashboardPreviewObjects = [];
-    window.dashboardPreviewSelectedObject = null;
-    updateDashboardPreviewProperties(null);
-    showDashboardPreviewMessage("No saved objects yet");
-    fitDashboardPreviewView(null, true);
-    updateDashboardPreviewControlAvailability();
-    return;
-  }
-
-  const savedObjects = projectDesignData.filter(function (savedObject) {
-    return savedObject && savedObject.type;
-  });
+  const savedObjects = Array.isArray(projectDesignData)
+    ? projectDesignData.filter(function (savedObject) {
+        return savedObject && savedObject.type;
+      })
+    : [];
 
   window.dashboardPreviewObjects = savedObjects;
 
   if (savedObjects.length === 0) {
     window.dashboardPreviewSelectedObject = null;
     updateDashboardPreviewProperties(null);
-    showDashboardPreviewMessage("No previewable objects");
-    fitDashboardPreviewView(null, true);
+    showDashboardPreviewMessage("No saved objects yet");
     updateDashboardPreviewControlAvailability();
     return;
   }
@@ -575,7 +552,7 @@ function renderDashboardPreviewObjects(projectDesignData) {
   savedObjects.forEach(function (savedObject, index) {
     const mesh = createDashboardPreviewMesh(savedObject, index);
 
-    dashboardPreviewState.objects.push(mesh);
+    dashboardPreviewState.meshes.push(mesh);
     dashboardPreviewState.objectGroup.add(mesh);
   });
 
@@ -586,34 +563,27 @@ function renderDashboardPreviewObjects(projectDesignData) {
 
 function selectDashboardPreviewObject(index) {
   const state = dashboardPreviewState;
+  const selectedMesh = state.meshes[index] || null;
+  const selectedObject = selectedMesh ? selectedMesh.userData.savedObject : null;
 
-  if (!Array.isArray(window.dashboardPreviewObjects)) {
-    return;
-  }
-
-  const selectedObject = window.dashboardPreviewObjects[index] || null;
-  const selectedMesh = state.objects.find(function (mesh) {
-    return mesh.userData.previewObjectIndex === index;
-  }) || null;
-
-  if (state.selectionHelper) {
-    state.scene.remove(state.selectionHelper);
-    state.selectionHelper = null;
+  if (state.selectedHelper) {
+    state.scene.remove(state.selectedHelper);
+    state.selectedHelper = null;
   }
 
   if (selectedMesh) {
-    state.selectionHelper = new THREE.BoxHelper(selectedMesh, 0x60a5fa);
-    state.scene.add(state.selectionHelper);
+    state.selectedHelper = new THREE.BoxHelper(selectedMesh, 0x93c5fd);
+    state.scene.add(state.selectedHelper);
   }
 
-  state.selectedMesh = selectedMesh;
+  state.selectedIndex = selectedMesh ? index : -1;
   window.dashboardPreviewSelectedObject = selectedObject;
   updateDashboardPreviewProperties(selectedObject);
 
   window.dispatchEvent(new CustomEvent("dashboard:preview-object-selected", {
     detail: {
       selectedObject: selectedObject,
-      selectedIndex: index
+      selectedIndex: state.selectedIndex
     }
   }));
 }
@@ -621,23 +591,19 @@ function selectDashboardPreviewObject(index) {
 function handleDashboardPreviewPointerDown(event) {
   const state = dashboardPreviewState;
 
-  if (!state.camera || !state.canvas || state.objects.length === 0) {
+  if (!state.renderer || !state.camera || !state.raycaster || !state.pointer || state.meshes.length === 0) {
     return;
   }
 
-  const rect = state.canvas.getBoundingClientRect();
-  const pointer = new THREE.Vector2(
-    ((event.clientX - rect.left) / rect.width) * 2 - 1,
-    -(((event.clientY - rect.top) / rect.height) * 2 - 1)
-  );
-  const raycaster = new THREE.Raycaster();
+  const rect = state.renderer.domElement.getBoundingClientRect();
+  state.pointer.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+  state.pointer.y = -(((event.clientY - rect.top) / rect.height) * 2 - 1);
+  state.raycaster.setFromCamera(state.pointer, state.camera);
 
-  raycaster.setFromCamera(pointer, state.camera);
+  const intersection = state.raycaster.intersectObjects(state.meshes, false)[0];
 
-  const selectedIntersection = raycaster.intersectObjects(state.objects, false)[0];
-
-  if (selectedIntersection && selectedIntersection.object) {
-    selectDashboardPreviewObject(selectedIntersection.object.userData.previewObjectIndex);
+  if (intersection && intersection.object) {
+    selectDashboardPreviewObject(intersection.object.userData.previewObjectIndex);
   }
 }
 
@@ -653,8 +619,10 @@ function setDashboardPreviewMode(mode) {
     state.controls.enablePan = true;
 
     if (state.controls.mouseButtons && THREE.MOUSE) {
-      state.controls.mouseButtons.LEFT = mode === "pan" ? THREE.MOUSE.PAN : THREE.MOUSE.ROTATE;
+      state.controls.mouseButtons.LEFT = mode === "orbit" ? THREE.MOUSE.ROTATE : THREE.MOUSE.PAN;
     }
+
+    state.controls.update();
   }
 
   if (panButton) {
@@ -667,18 +635,17 @@ function setDashboardPreviewMode(mode) {
 }
 
 function focusDashboardPreviewType(type) {
-  const savedObjects = window.dashboardPreviewObjects || [];
-  const objectIndex = savedObjects.findIndex(function (savedObject) {
-    return savedObject && savedObject.type === type;
+  const mesh = dashboardPreviewState.meshes.find(function (previewMesh) {
+    return previewMesh.userData.savedObject && previewMesh.userData.savedObject.type === type;
   });
 
-  if (objectIndex === -1) {
+  if (!mesh) {
     fitDashboardPreviewView(null, false);
     return;
   }
 
-  selectDashboardPreviewObject(objectIndex);
-  fitDashboardPreviewView(dashboardPreviewState.selectedMesh, false);
+  selectDashboardPreviewObject(mesh.userData.previewObjectIndex);
+  fitDashboardPreviewView(mesh, false);
 }
 
 function updateDashboardPreviewControlAvailability() {
@@ -785,13 +752,17 @@ function initDashboardPreviewControls() {
       }
 
       dashboardPreviewState.grid.visible = !dashboardPreviewState.grid.visible;
+      if (dashboardPreviewState.axes) {
+        dashboardPreviewState.axes.visible = dashboardPreviewState.grid.visible;
+      }
       gridButton.classList.toggle("active-preview-control", dashboardPreviewState.grid.visible);
     });
   }
 
   if (fitButton) {
     fitButton.addEventListener("click", function () {
-      fitDashboardPreviewView(dashboardPreviewState.selectedMesh || null, false);
+      const selectedMesh = dashboardPreviewState.meshes[dashboardPreviewState.selectedIndex] || null;
+      fitDashboardPreviewView(selectedMesh, false);
     });
   }
 

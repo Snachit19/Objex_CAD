@@ -486,7 +486,7 @@ a {
   grid-template-columns: repeat(3, 1fr);
   gap: 15px;
   color: var(--text-soft);
-  z-index: 2;
+  z-index: 4;
 }
 
 .fake-toolbar hr {
@@ -532,9 +532,8 @@ a {
 }
 
 .shape-scene {
-  width: min(78%, 920px);
-  height: min(64%, 420px);
-  position: relative;
+  position: absolute;
+  inset: 0;
   z-index: 1;
 }
 
@@ -542,6 +541,12 @@ a {
   width: 100%;
   height: 100%;
   display: block;
+  cursor: grab;
+  touch-action: none;
+}
+
+.dashboard-preview-canvas:active {
+  cursor: grabbing;
 }
 
 .dashboard-preview-empty {
@@ -562,6 +567,7 @@ a {
   border: 1px solid #252938;
   border-radius: 14px;
   color: var(--text-muted);
+  z-index: 3;
 }
 
 .status-box {
@@ -661,12 +667,16 @@ a {
   justify-content: space-between;
 }
 
-.mock-project span {
+.mock-project span,
+.mock-project button {
   background: #123c73;
+  border: none;
   color: #93c5fd;
+  cursor: pointer;
   border-radius: 999px;
   padding: 3px 9px;
   font-size: 12px;
+  font-weight: 800;
 }
 
 .mock-project.is-recent-project {
@@ -1930,8 +1940,8 @@ a {
   }
 
   .shape-scene {
-    width: min(100%, 520px);
-    height: 300px;
+    width: auto;
+    height: auto;
   }
 
   .status-box {

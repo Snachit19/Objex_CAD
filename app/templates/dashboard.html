@@ -23,7 +23,7 @@
   <aside class="sidebar">
     <div class="sidebar-brand">
       <div class="brand-logo-small">
-        <img src="/static/assets/logo.png" alt="Objex Logo">
+        <img src="/static/images/logo.png" alt="Objex Logo">
       </div>
  
       <div>
@@ -48,23 +48,23 @@
         <span id="recentPreviewTitle">Perspective View</span>
       </div>
  
-      <div class="fake-toolbar">
-        <span>✋</span>
-        <span>✥</span>
-        <span>↻</span>
+      <div class="fake-toolbar" role="toolbar" aria-label="Preview controls">
+        <button id="previewPanBtn" class="preview-control-btn active-preview-control" type="button" title="Pan preview"
+          aria-label="Pan preview">✋</button>
+        <button id="previewOrbitBtn" class="preview-control-btn" type="button" title="Orbit preview"
+          aria-label="Orbit preview">✥</button>
+        <button id="previewResetViewBtn" class="preview-control-btn" type="button" title="Reset preview view"
+          aria-label="Reset preview view">↻</button>
         <hr>
-        <span>◇</span>
-        <span>○</span>
-        <span>□</span>
+        <button id="previewFocusAllBtn" class="preview-control-btn" type="button" title="Fit all objects"
+          aria-label="Fit all objects">◇</button>
+        <button id="previewFocusSphereBtn" class="preview-control-btn" type="button" title="Focus first sphere"
+          aria-label="Focus first sphere">○</button>
+        <button id="previewFocusCubeBtn" class="preview-control-btn" type="button" title="Focus first cube"
+          aria-label="Focus first cube">□</button>
       </div>
  
-      <div class="shape-scene" id="dashboardPreviewScene">
-        <div class="shape cube"></div>
-        <div class="shape sphere"></div>
-        <div class="shape cylinder"></div>
-        <div class="shape ring"></div>
-        <div class="shape pill"></div>
-      </div>
+      <div class="shape-scene" id="dashboardPreviewScene"></div>
  
       <div class="status-box">
         <p id="recentPreviewProjectName">No recent project</p>
@@ -75,12 +75,16 @@
         </button>
       </div>
  
-      <div class="zoom-bar">
-        <span>−</span>
-        <strong>100%</strong>
-        <span>＋</span>
-        <span>▦</span>
-        <span>◉</span>
+      <div class="zoom-bar" role="toolbar" aria-label="Preview zoom controls">
+        <button id="previewZoomOutBtn" class="preview-control-btn" type="button" title="Zoom out"
+          aria-label="Zoom out">−</button>
+        <strong id="previewZoomValue">100%</strong>
+        <button id="previewZoomInBtn" class="preview-control-btn" type="button" title="Zoom in"
+          aria-label="Zoom in">＋</button>
+        <button id="previewGridToggleBtn" class="preview-control-btn active-preview-control" type="button"
+          title="Toggle preview grid" aria-label="Toggle preview grid">▦</button>
+        <button id="previewFitViewBtn" class="preview-control-btn" type="button" title="Fit selected object"
+          aria-label="Fit selected object">◉</button>
       </div>
     </section>
  
@@ -187,6 +191,8 @@
     </div>
   </div>
 <script src="/static/js/common/api.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
 <script src="/static/js/dashboard/recentProjectPreview.js"></script>
 <script src="/static/js/dashboard/createProject.js"></script>
  

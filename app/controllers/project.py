@@ -1,7 +1,7 @@
 from flask import request, jsonify, session
 from datetime import datetime
 
-from app.models.project_model import (
+from app.models.project import (
     create_project,
     get_projects_by_user,
     find_project_by_id,
