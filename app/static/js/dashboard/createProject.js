@@ -143,7 +143,7 @@ function createEmptyProjectState() {
   return item;
 }
 
-async function loadProjects() {
+async function loadProjects(highlightProjectId) {
   try {
     const response = await fetch("/api/projects");
     const data = await response.json();
@@ -163,14 +163,28 @@ async function loadProjects() {
       return;
     }
 
-    const latestProject = getLatestDashboardProject(data.projects);
+    let latestProject = getLatestDashboardProject(data.projects);
+
+    if (highlightProjectId) {
+      latestProject = data.projects.find(function (project) {
+        return Number(project.id) === Number(highlightProjectId);
+      }) || latestProject;
+    }
 
     data.projects.forEach((project) => {
       const isRecentProject = Boolean(latestProject && latestProject.id === project.id);
       projectList.appendChild(createProjectListItem(project, isRecentProject));
     });
 
-    refreshRecentProjectPreview(data.projects);
+    if (highlightProjectId && latestProject) {
+      refreshRecentProjectPreview([
+        latestProject
+      ].concat(data.projects.filter(function (project) {
+        return Number(project.id) !== Number(highlightProjectId);
+      })));
+    } else {
+      refreshRecentProjectPreview(data.projects);
+    }
 
   } catch (error) {
     console.error("Could not load projects:", error);
@@ -244,5 +258,7 @@ window.addEventListener("click", (event) => {
     closeProjectModal();
   }
 });
+
+window.loadProjects = loadProjects;
 
 loadProjects();
