@@ -346,6 +346,132 @@
     });
   }
 
+  function downloadBlob(blob, filename) {
+    const objectUrlApi = window.URL || window.webkitURL;
+
+    if (!objectUrlApi || typeof objectUrlApi.createObjectURL !== "function") {
+      throw new Error("File download is not supported in this browser.");
+    }
+
+    const downloadUrl = objectUrlApi.createObjectURL(blob);
+    const downloadLink = document.createElement("a");
+
+    downloadLink.href = downloadUrl;
+    downloadLink.download = filename;
+    downloadLink.style.display = "none";
+
+    document.body.appendChild(downloadLink);
+    downloadLink.click();
+    downloadLink.remove();
+
+    setTimeout(function () {
+      objectUrlApi.revokeObjectURL(downloadUrl);
+    }, 1000);
+  }
+
+  function parseGLBScene(exportScene) {
+    return new Promise(function (resolve, reject) {
+      if (!window.THREE || typeof THREE.GLTFExporter !== "function") {
+        reject(new Error("GLTF exporter is not loaded."));
+        return;
+      }
+
+      const exporter = new THREE.GLTFExporter();
+
+      try {
+        exporter.parse(
+          exportScene,
+          function (result) {
+            if (!(result instanceof ArrayBuffer)) {
+              reject(new Error("GLB export did not return binary data."));
+              return;
+            }
+
+            resolve(result);
+          },
+          {
+            binary: true,
+            onlyVisible: true,
+            truncateDrawRange: true
+          }
+        );
+      } catch (error) {
+        reject(error);
+      }
+    });
+  }
+
+  async function exportGLBModel(exportBundle) {
+    const glbData = await parseGLBScene(exportBundle.scene);
+    const glbBlob = new Blob([glbData], {
+      type: "model/gltf-binary"
+    });
+
+    downloadBlob(glbBlob, "cad-model.glb");
+
+    return {
+      success: true,
+      filename: "cad-model.glb"
+    };
+  }
+
+  async function exportModelFromSelection(options) {
+    const settings = options || getExportModelOptions();
+    const selection = getExportModelSelection(settings);
+    let exportBundle = null;
+
+    if (!hasExporterForFormat(settings.format)) {
+      return {
+        success: false,
+        message: getMissingExporterMessage(settings.format)
+      };
+    }
+
+    if (selection.count === 0) {
+      return {
+        success: false,
+        message: getNoObjectsMessage(selection.scope)
+      };
+    }
+
+    if (settings.format !== "glb") {
+      return {
+        success: false,
+        message: getFormatLabel(settings.format) + " export will be connected next."
+      };
+    }
+
+    try {
+      exportBundle = createExportSceneBundle(settings);
+
+      if (!exportBundle.scene || exportBundle.count === 0) {
+        return {
+          success: false,
+          message: "Could not prepare the 3D model export scene."
+        };
+      }
+
+      setExportModelStatus("Exporting GLB model...");
+
+      const result = await exportGLBModel(exportBundle);
+
+      setExportModelStatus("GLB model exported: " + result.filename);
+
+      return result;
+    } catch (error) {
+      console.error("Export model error:", error);
+
+      return {
+        success: false,
+        message: "Could not export GLB model."
+      };
+    } finally {
+      if (exportBundle) {
+        disposeExportSceneBundle(exportBundle);
+      }
+    }
+  }
+
   function syncScopeButtons() {
     const menu = getExportModelMenu();
 
@@ -503,35 +629,29 @@
     }
 
     if (confirmButton) {
-      confirmButton.addEventListener("click", function () {
-        if (!hasExporterForFormat(exportModelOptions.format)) {
-          setExportModelStatus(getMissingExporterMessage(exportModelOptions.format));
+      confirmButton.addEventListener("click", async function () {
+        confirmButton.disabled = true;
+
+        let result;
+
+        try {
+          result = await exportModelFromSelection(exportModelOptions);
+        } catch (error) {
+          console.error("Export model click error:", error);
+
+          result = {
+            success: false,
+            message: "Could not export 3D model."
+          };
+        } finally {
+          confirmButton.disabled = false;
+        }
+
+        if (!result.success) {
+          setExportModelStatus(result.message || "Could not export 3D model.");
           return;
         }
 
-        const selection = getExportModelSelection(exportModelOptions);
-
-        if (selection.count === 0) {
-          setExportModelStatus(getNoObjectsMessage(selection.scope));
-          return;
-        }
-
-        const exportBundle = createExportSceneBundle(exportModelOptions);
-
-        if (!exportBundle.scene || exportBundle.count === 0) {
-          setExportModelStatus("Could not prepare the 3D model export scene.");
-          return;
-        }
-
-        setExportModelStatus(
-          "Prepared " +
-          getObjectCountLabel(exportBundle.count) +
-          " for " +
-          getFormatLabel(exportBundle.selection.format) +
-          " export. File generation will be connected next."
-        );
-
-        disposeExportSceneBundle(exportBundle);
         closeExportModelMenu();
       });
     }
@@ -563,6 +683,8 @@
     hasExporterForFormat: hasExporterForFormat,
     isExportableObject: isExportableCADObject,
     cloneObjectForExport: cloneObjectForExport,
+    exportGLBModel: exportGLBModel,
+    exportModel: exportModelFromSelection,
     setStatus: setExportModelStatus
   };
 })();
