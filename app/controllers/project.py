@@ -145,3 +145,86 @@ def save_project_design(project_id):
         "message": "Design saved successfully",
         "object_count": len(design_data)
     }), 200
+
+
+SUPPORTED_IMPORT_TYPES = {
+    "cube", "sphere", "cylinder", "cone", "torus", "pyramid", "plane", "imported"
+}
+
+
+def validate_import_design_data(design_data):
+    if not isinstance(design_data, list):
+        return False, "design_data must be a list of CAD objects"
+
+    for index, item in enumerate(design_data):
+        if not isinstance(item, dict):
+            return False, "Object at index {} is not a valid object".format(index)
+
+        object_type = str(item.get("type", "")).strip().lower()
+
+        if not object_type:
+            return False, "Object at index {} is missing a type".format(index)
+
+        if object_type not in SUPPORTED_IMPORT_TYPES:
+            return False, "Object at index {} has unsupported type".format(index)
+
+    return True, ""
+
+
+def import_project():
+    user_email = session.get("user_email")
+
+    if not user_email:
+        return jsonify({
+            "success": False,
+            "message": "User not logged in"
+        }), 401
+
+    data = request.get_json()
+
+    if not data:
+        return jsonify({
+            "success": False,
+            "message": "No data provided"
+        }), 400
+
+    name = data.get("name", "").strip()
+    description = data.get("description", "").strip()
+    design_data = data.get("design_data", [])
+
+    if not name:
+        return jsonify({
+            "success": False,
+            "message": "Project name is required"
+        }), 400
+
+    is_valid, validation_message = validate_import_design_data(design_data)
+
+    if not is_valid:
+        return jsonify({
+            "success": False,
+            "message": validation_message
+        }), 400
+
+    project_data = {
+        "name": name,
+        "description": description,
+        "owner_email": user_email,
+        "design_data": design_data,
+        "created_at": datetime.utcnow(),
+        "last_opened_at": datetime.utcnow(),
+        "updated_at": datetime.utcnow()
+    }
+
+    project_id = create_project(project_data)
+
+    return jsonify({
+        "success": True,
+        "message": "Project imported successfully",
+        "project": {
+            "id": project_id,
+            "name": name,
+            "description": description,
+            "object_count": len(design_data)
+        }
+    }), 201

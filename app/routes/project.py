@@ -5,7 +5,8 @@ from app.controllers.project import (
     create_new_project,
     get_user_projects,
     get_project_by_id,
-    save_project_design
+    save_project_design,
+    import_project
 )
 
 projects_bp = Blueprint("projects", __name__)
@@ -36,6 +37,12 @@ def create_project_route():
 @login_required
 def create_project_create_route():
     return create_new_project()
+
+
+@projects_bp.route("/api/projects/import", methods=["POST"])
+@login_required
+def import_project_route():
+    return import_project()
 
 
 @projects_bp.route("/api/projects/<int:project_id>", methods=["GET"])
