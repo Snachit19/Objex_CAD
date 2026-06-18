@@ -203,6 +203,149 @@
     return "Add an object before exporting a 3D model.";
   }
 
+  function clonePlainValue(value) {
+    if (value === null || value === undefined) {
+      return value;
+    }
+
+    try {
+      return JSON.parse(JSON.stringify(value));
+    } catch (error) {
+      return value;
+    }
+  }
+
+  function cloneMaterialForExport(material) {
+    if (Array.isArray(material)) {
+      return material.map(cloneMaterialForExport);
+    }
+
+    if (material && typeof material.clone === "function") {
+      return material.clone();
+    }
+
+    return material;
+  }
+
+  function prepareMeshCloneForExport(meshClone) {
+    if (!meshClone || !meshClone.isMesh) {
+      return;
+    }
+
+    if (meshClone.geometry && typeof meshClone.geometry.clone === "function") {
+      meshClone.geometry = meshClone.geometry.clone();
+    }
+
+    meshClone.material = cloneMaterialForExport(meshClone.material);
+    meshClone.userData = clonePlainValue(meshClone.userData || {});
+  }
+
+  function prepareObjectCloneForExport(objectClone) {
+    if (!objectClone || typeof objectClone.traverse !== "function") {
+      return objectClone;
+    }
+
+    objectClone.traverse(function (child) {
+      child.userData = clonePlainValue(child.userData || {});
+      prepareMeshCloneForExport(child);
+    });
+
+    return objectClone;
+  }
+
+  function cloneObjectForExport(object) {
+    if (!object || typeof object.clone !== "function") {
+      return null;
+    }
+
+    const objectClone = object.clone(true);
+
+    objectClone.name = object.name || "CAD Object";
+    objectClone.userData = clonePlainValue(object.userData || {});
+    objectClone.userData.exportSourceId =
+      object.userData && object.userData.id ? object.userData.id : "";
+    objectClone.userData.exportSourceName = object.name || "";
+
+    return prepareObjectCloneForExport(objectClone);
+  }
+
+  function createTemporaryExportScene(name) {
+    if (!window.THREE || typeof window.THREE.Scene !== "function") {
+      return null;
+    }
+
+    const exportScene = new THREE.Scene();
+
+    exportScene.name = name || "CADModelExportScene";
+    exportScene.userData = {
+      temporaryExportScene: true
+    };
+
+    return exportScene;
+  }
+
+  function createExportSceneBundle(options) {
+    const selection = getExportModelSelection(options);
+    const exportScene = createTemporaryExportScene();
+    const clonedObjects = [];
+
+    if (!exportScene) {
+      return {
+        scene: null,
+        objects: [],
+        sourceObjects: selection.objects,
+        selection: selection,
+        count: 0
+      };
+    }
+
+    selection.objects.forEach(function (object) {
+      const objectClone = cloneObjectForExport(object);
+
+      if (objectClone) {
+        exportScene.add(objectClone);
+        clonedObjects.push(objectClone);
+      }
+    });
+
+    return {
+      scene: exportScene,
+      objects: clonedObjects,
+      sourceObjects: selection.objects,
+      selection: selection,
+      count: clonedObjects.length
+    };
+  }
+
+  function disposeMaterialClone(material) {
+    if (Array.isArray(material)) {
+      material.forEach(disposeMaterialClone);
+      return;
+    }
+
+    if (material && typeof material.dispose === "function") {
+      material.dispose();
+    }
+  }
+
+  function disposeExportSceneBundle(bundle) {
+    if (!bundle || !bundle.scene || typeof bundle.scene.traverse !== "function") {
+      return;
+    }
+
+    bundle.scene.traverse(function (child) {
+      if (!child || !child.isMesh) {
+        return;
+      }
+
+      if (child.geometry && typeof child.geometry.dispose === "function") {
+        child.geometry.dispose();
+      }
+
+      disposeMaterialClone(child.material);
+    });
+  }
+
   function syncScopeButtons() {
     const menu = getExportModelMenu();
 
@@ -373,15 +516,22 @@
           return;
         }
 
+        const exportBundle = createExportSceneBundle(exportModelOptions);
+
+        if (!exportBundle.scene || exportBundle.count === 0) {
+          setExportModelStatus("Could not prepare the 3D model export scene.");
+          return;
+        }
+
         setExportModelStatus(
-          "Ready to export " +
-          selection.countLabel +
-          " from " +
-          getScopeLabel(selection.scope) +
-          " as " +
-          getFormatLabel(selection.format) +
-          " will be connected next."
+          "Prepared " +
+          getObjectCountLabel(exportBundle.count) +
+          " for " +
+          getFormatLabel(exportBundle.selection.format) +
+          " export. File generation will be connected next."
         );
+
+        disposeExportSceneBundle(exportBundle);
         closeExportModelMenu();
       });
     }
@@ -405,11 +555,14 @@
     closeMenu: closeExportModelMenu,
     collectObjects: collectObjectsForExport,
     collectExportableObjects: collectExportableCADObjects,
+    createExportSceneBundle: createExportSceneBundle,
+    disposeExportSceneBundle: disposeExportSceneBundle,
     getExportSelection: getExportModelSelection,
     getExporterAvailability: getExporterAvailability,
     getOptions: getExportModelOptions,
     hasExporterForFormat: hasExporterForFormat,
     isExportableObject: isExportableCADObject,
+    cloneObjectForExport: cloneObjectForExport,
     setStatus: setExportModelStatus
   };
 })();
