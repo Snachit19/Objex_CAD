@@ -58,17 +58,17 @@
       </button>
 
       <div class="export-model-menu-wrapper">
-        <button id="exportModelBtn" class="cad-icon-tool-btn export-model-btn" title="Export 3D Model" aria-label="Export 3D Model" aria-haspopup="menu" aria-expanded="false" type="button">
+        <button id="exportModelBtn" class="cad-icon-tool-btn export-model-btn" title="Export 3D Model" aria-label="Export 3D Model" aria-haspopup="menu" aria-expanded="false" aria-controls="exportModelMenuOptions" type="button">
           <img class="export-model-icon" src="/static/assets/export-model.svg" alt="Export 3D Model">
           <span class="tool-arrow">▾</span>
         </button>
 
         <div id="exportModelMenuOptions" class="export-model-menu-options" role="menu" aria-label="Export 3D Model options">
           <div class="export-model-option-group" role="group" aria-label="Model export scope">
-            <button class="export-model-scope-option active-export-model-option" type="button" data-export-model-scope="all" aria-pressed="true">
+            <button class="export-model-scope-option active-export-model-option" type="button" role="menuitemradio" data-export-model-scope="all" aria-checked="true">
               All Objects
             </button>
-            <button class="export-model-scope-option" type="button" data-export-model-scope="selected" aria-pressed="false">
+            <button class="export-model-scope-option" type="button" role="menuitemradio" data-export-model-scope="selected" aria-checked="false">
               Selected Object
             </button>
           </div>
@@ -740,6 +740,7 @@
           });
 
         if (exportModelBtn) {
+          exportModelBtn.classList.remove("active-tool-btn");
           exportModelBtn.setAttribute("aria-expanded", "false");
         }
       }

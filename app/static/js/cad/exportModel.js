@@ -750,7 +750,7 @@
       const isActive = button.getAttribute("data-export-model-scope") === activeScope;
 
       button.classList.toggle("active-export-model-option", isActive);
-      button.setAttribute("aria-pressed", String(isActive));
+      button.setAttribute("aria-checked", String(isActive));
     });
   }
 

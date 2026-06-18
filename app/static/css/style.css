@@ -1218,6 +1218,12 @@ a {
   filter: grayscale(0.25);
 }
 
+.export-model-confirm-btn:disabled:hover,
+.export-model-confirm-btn[aria-disabled="true"]:hover {
+  background: linear-gradient(135deg, rgba(5, 150, 105, 0.52), rgba(8, 145, 178, 0.52)) !important;
+  color: #f8fafc !important;
+}
+
 #zoomToolBtn.active-tool-btn,
 #zoomToolBtn:hover {
   background: linear-gradient(135deg, #2563eb, #7c3aed) !important;
@@ -2063,11 +2069,13 @@ a {
   transition: transform 0.18s ease, filter 0.18s ease;
 }
 
+.export-model-btn.active-tool-btn,
 .export-model-btn:hover {
   background: linear-gradient(135deg, #047857, #0891b2);
   border-color: rgba(153, 246, 228, 0.9);
 }
 
+.export-model-btn.active-tool-btn .export-model-icon,
 .export-model-btn:hover .export-model-icon {
   transform: translateY(-2px) rotate(4deg) scale(1.04);
   filter: drop-shadow(0 8px 16px rgba(45, 212, 191, 0.34));
