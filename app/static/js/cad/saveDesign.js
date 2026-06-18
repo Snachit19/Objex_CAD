@@ -1,48 +1,3 @@
-function getCADObjectsForSaving() {
-    const objects = window.cadObjects || [];
-
-    return objects.map(function (object) {
-        let color = "#ffffff";
-
-        if (object.userData && object.userData.color) {
-            color = object.userData.color;
-        } else if (object.material && object.material.color) {
-            color = "#" + object.material.color.getHexString();
-        }
-
-        return {
-            id: object.userData && object.userData.id ? object.userData.id : "",
-            name: object.name || "Unnamed Object",
-            type: object.userData && object.userData.type ? object.userData.type : "unknown",
-
-            position: {
-                x: object.position.x,
-                y: object.position.y,
-                z: object.position.z
-            },
-
-            rotation: {
-                x: object.rotation.x,
-                y: object.rotation.y,
-                z: object.rotation.z
-            },
-
-            scale: {
-                x: object.scale.x,
-                y: object.scale.y,
-                z: object.scale.z
-            },
-
-            color: color,
-            materialType: (object.userData && object.userData.materialType) || "default",
-            materialName: (object.userData && object.userData.materialName) || "Default",
-            materialDescription: (object.userData && object.userData.materialDescription) || "",
-            materialData: object.userData.materialData || null
-        };
-    });
-}
-
-
 async function saveDesign() {
     const saveButton = document.getElementById("saveDesignBtn");
     const statusText = document.getElementById("cadStatusText");
@@ -55,7 +10,9 @@ async function saveDesign() {
         return;
     }
 
-    const designData = getCADObjectsForSaving();
+    const designData = typeof window.getCADObjectsForSaving === "function"
+        ? window.getCADObjectsForSaving()
+        : [];
 
     try {
         if (saveButton) {

@@ -108,3 +108,59 @@ def update_project_design(project_id, owner_email, design_data):
 
     db.close()
     return True
+
+
+def update_project_details(project_id, owner_email, name, description=None):
+    db = Database()
+
+    if description is None:
+        db.execute(
+            """
+            UPDATE projects
+            SET name = %s,
+                updated_at = NOW()
+            WHERE id = %s AND owner_email = %s
+            """,
+            (
+                name,
+                project_id,
+                owner_email
+            )
+        )
+    else:
+        db.execute(
+            """
+            UPDATE projects
+            SET name = %s,
+                description = %s,
+                updated_at = NOW()
+            WHERE id = %s AND owner_email = %s
+            """,
+            (
+                name,
+                description,
+                project_id,
+                owner_email
+            )
+        )
+
+    db.close()
+    return True
+
+
+def delete_project_by_id(project_id, owner_email):
+    db = Database()
+
+    db.execute(
+        """
+        DELETE FROM projects
+        WHERE id = %s AND owner_email = %s
+        """,
+        (
+            project_id,
+            owner_email
+        )
+    )
+
+    db.close()
+    return True

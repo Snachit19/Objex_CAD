@@ -8,6 +8,11 @@ const projectError = document.getElementById("projectError");
 const projectList = document.getElementById("projectList");
 const projectCountBadge = document.getElementById("projectCountBadge");
 const recentProjectsMeta = document.getElementById("recentProjectsMeta");
+const projectsPageMeta = document.getElementById("projectsPageMeta");
+
+function isProjectsPage() {
+  return document.body.classList.contains("projects-page");
+}
 
 function openProjectModal() {
   projectModal.style.display = "flex";
@@ -27,7 +32,9 @@ function showProjectError(message) {
 }
 
 function clearProjectList() {
-  projectList.textContent = "";
+  if (projectList) {
+    projectList.textContent = "";
+  }
 }
 
 function refreshRecentProjectPreview(projects) {
@@ -64,7 +71,21 @@ function getRecentProjectSummary(projects) {
     return projects.length + " projects";
   }
 
-  return "Latest: " + (latestProject.name || "Untitled Project");
+  return "Last opened: " + (latestProject.name || "Untitled Project");
+}
+
+function getAllProjectsSummary(projects) {
+  const projectCount = Array.isArray(projects) ? projects.length : 0;
+
+  if (projectCount === 0) {
+    return "No projects yet";
+  }
+
+  if (projectCount === 1) {
+    return "1 project";
+  }
+
+  return projectCount + " projects";
 }
 
 function updateProjectSummary(projects) {
@@ -72,6 +93,13 @@ function updateProjectSummary(projects) {
 
   if (projectCountBadge) {
     projectCountBadge.textContent = String(projectCount);
+  }
+
+  if (isProjectsPage()) {
+    if (projectsPageMeta) {
+      projectsPageMeta.textContent = getAllProjectsSummary(projects);
+    }
+    return;
   }
 
   if (recentProjectsMeta) {
@@ -85,6 +113,153 @@ function openProject(projectId) {
   }
 
   window.location.assign("/cad/" + projectId);
+}
+
+function createProjectActionButton(className, label, iconSrc) {
+  const button = document.createElement("button");
+  button.type = "button";
+  button.className = "project-action-btn " + className;
+  button.title = label;
+  button.setAttribute("aria-label", label);
+
+  const icon = document.createElement("img");
+  icon.src = iconSrc;
+  icon.alt = "";
+  icon.setAttribute("aria-hidden", "true");
+
+  button.appendChild(icon);
+  return button;
+}
+
+function openRenameProjectModal(project) {
+  const renameModal = document.getElementById("renameProjectModal");
+  const renameProjectIdInput = document.getElementById("renameProjectId");
+  const renameProjectNameInput = document.getElementById("renameProjectName");
+  const renameProjectDescriptionInput = document.getElementById("renameProjectDescription");
+  const renameProjectError = document.getElementById("renameProjectError");
+
+  if (!renameModal || !renameProjectIdInput || !renameProjectNameInput) {
+    const fallbackName = window.prompt("Rename project:", project.name || "Untitled Project");
+    if (fallbackName && fallbackName.trim()) {
+      renameProject(project.id, fallbackName.trim(), project.description || "");
+    }
+    return;
+  }
+
+  renameProjectIdInput.value = String(project.id);
+  renameProjectNameInput.value = project.name || "";
+
+  if (renameProjectDescriptionInput) {
+    renameProjectDescriptionInput.value = project.description || "";
+  }
+
+  if (renameProjectError) {
+    renameProjectError.style.display = "none";
+    renameProjectError.textContent = "";
+  }
+
+  renameModal.style.display = "flex";
+  renameProjectNameInput.focus();
+}
+
+function closeRenameProjectModal() {
+  const renameModal = document.getElementById("renameProjectModal");
+
+  if (renameModal) {
+    renameModal.style.display = "none";
+  }
+}
+
+function showRenameProjectError(message) {
+  const renameProjectError = document.getElementById("renameProjectError");
+
+  if (renameProjectError) {
+    renameProjectError.textContent = message;
+    renameProjectError.style.display = "block";
+  }
+}
+
+async function renameProject(projectId, name, description) {
+  const response = await fetch("/api/projects/" + projectId, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      name: name,
+      description: description
+    })
+  });
+
+  const data = await response.json();
+
+  if (!response.ok || !data.success) {
+    throw new Error(data.message || "Could not rename project.");
+  }
+
+  return data;
+}
+
+async function deleteProject(projectId, projectName) {
+  const confirmed = window.confirm(
+    "Delete \"" + (projectName || "this project") + "\"? This cannot be undone."
+  );
+
+  if (!confirmed) {
+    return;
+  }
+
+  const response = await fetch("/api/projects/" + projectId, {
+    method: "DELETE"
+  });
+
+  const data = await response.json();
+
+  if (!response.ok || !data.success) {
+    throw new Error(data.message || "Could not delete project.");
+  }
+
+  return data;
+}
+
+async function handleRenameProjectSubmit() {
+  const renameProjectIdInput = document.getElementById("renameProjectId");
+  const renameProjectNameInput = document.getElementById("renameProjectName");
+  const renameProjectDescriptionInput = document.getElementById("renameProjectDescription");
+  const saveRenameProjectBtn = document.getElementById("saveRenameProjectBtn");
+
+  if (!renameProjectIdInput || !renameProjectNameInput) {
+    return;
+  }
+
+  const projectId = renameProjectIdInput.value;
+  const name = renameProjectNameInput.value.trim();
+  const description = renameProjectDescriptionInput
+    ? renameProjectDescriptionInput.value.trim()
+    : "";
+
+  if (!name) {
+    showRenameProjectError("Project name is required.");
+    return;
+  }
+
+  if (saveRenameProjectBtn) {
+    saveRenameProjectBtn.disabled = true;
+    saveRenameProjectBtn.textContent = "Saving...";
+  }
+
+  try {
+    await renameProject(projectId, name, description);
+    closeRenameProjectModal();
+    await loadProjects(Number(projectId));
+  } catch (error) {
+    showRenameProjectError(error.message || "Could not rename project.");
+  }
+
+  if (saveRenameProjectBtn) {
+    saveRenameProjectBtn.disabled = false;
+    saveRenameProjectBtn.textContent = "Save Changes";
+  }
 }
 
 function createProjectListItem(project, isRecentProject) {
@@ -101,12 +276,41 @@ function createProjectListItem(project, isRecentProject) {
   const name = document.createElement("strong");
   name.textContent = project.name || "Untitled Project";
 
-  const action = document.createElement("button");
-  action.type = "button";
-  action.textContent = "Open";
+  const actions = document.createElement("div");
+  actions.className = "project-row-actions";
+
+  const renameButton = createProjectActionButton(
+    "project-rename-btn",
+    "Rename project",
+    "/static/images/project-rename.svg"
+  );
+  const deleteButton = createProjectActionButton(
+    "project-delete-btn",
+    "Delete project",
+    "/static/images/project-delete.svg"
+  );
+
+  renameButton.addEventListener("click", function (event) {
+    event.stopPropagation();
+    openRenameProjectModal(project);
+  });
+
+  deleteButton.addEventListener("click", async function (event) {
+    event.stopPropagation();
+
+    try {
+      await deleteProject(project.id, project.name);
+      await loadProjects();
+    } catch (error) {
+      window.alert(error.message || "Could not delete project.");
+    }
+  });
+
+  actions.appendChild(renameButton);
+  actions.appendChild(deleteButton);
 
   item.appendChild(name);
-  item.appendChild(action);
+  item.appendChild(actions);
 
   item.addEventListener("click", function () {
     openProject(project.id);
@@ -117,11 +321,6 @@ function createProjectListItem(project, isRecentProject) {
       event.preventDefault();
       openProject(project.id);
     }
-  });
-
-  action.addEventListener("click", function (event) {
-    event.stopPropagation();
-    openProject(project.id);
   });
 
   return item;
@@ -143,39 +342,98 @@ function createEmptyProjectState() {
   return item;
 }
 
-async function loadProjects() {
+function renderAllProjects(projects, highlightProjectId) {
+  if (!projectList) {
+    return;
+  }
+
+  let latestProject = getLatestDashboardProject(projects);
+
+  if (highlightProjectId) {
+    latestProject = projects.find(function (project) {
+      return Number(project.id) === Number(highlightProjectId);
+    }) || latestProject;
+  }
+
+  projects.forEach(function (project) {
+    const isRecentProject = Boolean(latestProject && latestProject.id === project.id);
+    projectList.appendChild(createProjectListItem(project, isRecentProject));
+  });
+}
+
+function renderRecentProjectOnly(projects) {
+  if (!projectList) {
+    return;
+  }
+
+  const latestProject = getLatestDashboardProject(projects);
+
+  if (!latestProject) {
+    projectList.appendChild(createEmptyProjectState());
+    return;
+  }
+
+  projectList.appendChild(createProjectListItem(latestProject, true));
+}
+
+async function loadProjects(highlightProjectId) {
   try {
     const response = await fetch("/api/projects");
     const data = await response.json();
 
-    if (!data.success) {
+    if (!response.ok || !data.success) {
       console.error("Could not load projects");
       updateProjectSummary([]);
       return;
     }
 
-    clearProjectList();
-    updateProjectSummary(data.projects || []);
+    const projects = data.projects || [];
 
-    if (!data.projects || data.projects.length === 0) {
-      projectList.appendChild(createEmptyProjectState());
-      refreshRecentProjectPreview([]);
+    clearProjectList();
+    updateProjectSummary(projects);
+
+    if (projects.length === 0) {
+      if (projectList) {
+        projectList.appendChild(createEmptyProjectState());
+      }
+
+      if (!isProjectsPage()) {
+        refreshRecentProjectPreview([]);
+      }
+
       return;
     }
 
-    const latestProject = getLatestDashboardProject(data.projects);
+    if (isProjectsPage()) {
+      renderAllProjects(projects, highlightProjectId);
+      return;
+    }
 
-    data.projects.forEach((project) => {
-      const isRecentProject = Boolean(latestProject && latestProject.id === project.id);
-      projectList.appendChild(createProjectListItem(project, isRecentProject));
-    });
+    renderRecentProjectOnly(projects);
 
-    refreshRecentProjectPreview(data.projects);
+    const latestProject = highlightProjectId
+      ? projects.find(function (project) {
+        return Number(project.id) === Number(highlightProjectId);
+      }) || getLatestDashboardProject(projects)
+      : getLatestDashboardProject(projects);
+
+    if (latestProject) {
+      refreshRecentProjectPreview([
+        latestProject
+      ].concat(projects.filter(function (project) {
+        return Number(project.id) !== Number(latestProject.id);
+      })));
+    } else {
+      refreshRecentProjectPreview(projects);
+    }
 
   } catch (error) {
     console.error("Could not load projects:", error);
     updateProjectSummary([]);
-    refreshRecentProjectPreview([]);
+
+    if (!isProjectsPage()) {
+      refreshRecentProjectPreview([]);
+    }
   }
 }
 
@@ -216,7 +474,12 @@ async function createProject() {
     }
 
     closeProjectModal();
-    await loadProjects();
+
+    if (isProjectsPage()) {
+      await loadProjects(data.project && data.project.id ? data.project.id : null);
+    } else {
+      window.location.assign("/cad/" + data.project.id);
+    }
 
   } catch (error) {
     console.error("Create project error:", error);
@@ -243,6 +506,38 @@ window.addEventListener("click", (event) => {
   if (event.target === projectModal) {
     closeProjectModal();
   }
+
+  const renameModal = document.getElementById("renameProjectModal");
+
+  if (renameModal && event.target === renameModal) {
+    closeRenameProjectModal();
+  }
 });
 
-loadProjects();
+const cancelRenameProjectBtn = document.getElementById("cancelRenameProjectBtn");
+const saveRenameProjectBtn = document.getElementById("saveRenameProjectBtn");
+
+if (cancelRenameProjectBtn) {
+  cancelRenameProjectBtn.addEventListener("click", closeRenameProjectModal);
+}
+
+if (saveRenameProjectBtn) {
+  saveRenameProjectBtn.addEventListener("click", handleRenameProjectSubmit);
+}
+
+const renameProjectNameInput = document.getElementById("renameProjectName");
+
+if (renameProjectNameInput) {
+  renameProjectNameInput.addEventListener("keydown", function (event) {
+    if (event.key === "Enter") {
+      event.preventDefault();
+      handleRenameProjectSubmit();
+    }
+  });
+}
+
+window.loadProjects = loadProjects;
+
+if (projectList) {
+  loadProjects();
+}
