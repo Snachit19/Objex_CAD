@@ -187,10 +187,31 @@
 
       <div id="projectError" class="error-msg" style="display:none;"></div>
 
-        <div class="modal-actions">
-          <button id="cancelProjectBtn" class="cancel-btn">Cancel</button>
-          <button id="saveProjectBtn" class="save-btn">Create Project</button>
-        </div>
+      <div class="modal-actions">
+        <button id="cancelProjectBtn" class="cancel-btn">Cancel</button>
+        <button id="saveProjectBtn" class="save-btn">Create Project</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="renameProjectModal" class="modal-overlay">
+    <div class="modal-card">
+      <h2>Rename Project</h2>
+      <p>Update the project name and description.</p>
+
+      <input type="hidden" id="renameProjectId">
+
+      <label for="renameProjectName">Project Name</label>
+      <input type="text" id="renameProjectName" placeholder="Project name">
+
+      <label for="renameProjectDescription">Description</label>
+      <textarea id="renameProjectDescription" placeholder="Short project description"></textarea>
+
+      <div id="renameProjectError" class="error-msg" style="display:none;"></div>
+
+      <div class="modal-actions">
+        <button id="cancelRenameProjectBtn" class="cancel-btn" type="button">Cancel</button>
+        <button id="saveRenameProjectBtn" class="save-btn" type="button">Save Changes</button>
       </div>
     </div>
   </div>
