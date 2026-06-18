@@ -50,6 +50,31 @@
     return String(format || "glb").toUpperCase();
   }
 
+  function getExporterAvailability() {
+    const three = window.THREE || {};
+    const hasGLTFExporter = typeof three.GLTFExporter === "function";
+
+    return {
+      glb: hasGLTFExporter,
+      gltf: hasGLTFExporter,
+      obj: typeof three.OBJExporter === "function"
+    };
+  }
+
+  function hasExporterForFormat(format) {
+    const availability = getExporterAvailability();
+
+    return Boolean(availability[format]);
+  }
+
+  function getMissingExporterMessage(format) {
+    if (format === "obj") {
+      return "OBJ exporter is not loaded.";
+    }
+
+    return "GLTF exporter is not loaded.";
+  }
+
   function syncScopeButtons() {
     const menu = getExportModelMenu();
 
@@ -63,6 +88,34 @@
       button.classList.toggle("active-export-model-option", isActive);
       button.setAttribute("aria-pressed", String(isActive));
     });
+  }
+
+  function syncFormatAvailability() {
+    const formatSelect = getFormatSelect();
+
+    if (!formatSelect) {
+      return;
+    }
+
+    const availability = getExporterAvailability();
+    let firstAvailableFormat = "";
+
+    Array.prototype.forEach.call(formatSelect.options, function (option) {
+      const isAvailable = Boolean(availability[option.value]);
+
+      option.disabled = !isAvailable;
+      option.textContent = getFormatLabel(option.value) + (isAvailable ? "" : " (unavailable)");
+
+      if (!firstAvailableFormat && isAvailable) {
+        firstAvailableFormat = option.value;
+      }
+    });
+
+    if (!availability[formatSelect.value] && firstAvailableFormat) {
+      formatSelect.value = firstAvailableFormat;
+    }
+
+    exportModelOptions.format = formatSelect.value || exportModelOptions.format;
   }
 
   function closeExportModelMenu() {
@@ -94,6 +147,8 @@
     if (typeof window.hideCADToolPanels === "function") {
       window.hideCADToolPanels();
     }
+
+    syncFormatAvailability();
 
     exportModelMenu.classList.add("show");
     exportModelButton.classList.add("active-tool-btn");
@@ -164,12 +219,25 @@
       exportModelOptions.format = formatSelect.value || exportModelOptions.format;
 
       formatSelect.addEventListener("change", function () {
-        exportModelOptions.format = formatSelect.value || "glb";
+        const nextFormat = formatSelect.value || "glb";
+
+        if (!hasExporterForFormat(nextFormat)) {
+          setExportModelStatus(getMissingExporterMessage(nextFormat));
+          syncFormatAvailability();
+          return;
+        }
+
+        exportModelOptions.format = nextFormat;
       });
     }
 
     if (confirmButton) {
       confirmButton.addEventListener("click", function () {
+        if (!hasExporterForFormat(exportModelOptions.format)) {
+          setExportModelStatus(getMissingExporterMessage(exportModelOptions.format));
+          return;
+        }
+
         setExportModelStatus(
           "Export " +
           getScopeLabel(exportModelOptions.scope) +
@@ -189,6 +257,7 @@
     });
 
     syncScopeButtons();
+    syncFormatAvailability();
     exportModelInitialized = true;
   }
 
@@ -197,7 +266,9 @@
   window.CADModelExport = {
     init: initExportModelFeature,
     closeMenu: closeExportModelMenu,
+    getExporterAvailability: getExporterAvailability,
     getOptions: getExportModelOptions,
+    hasExporterForFormat: hasExporterForFormat,
     setStatus: setExportModelStatus
   };
 })();
