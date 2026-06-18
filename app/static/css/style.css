@@ -1211,6 +1211,13 @@ a {
   color: #f8fafc !important;
 }
 
+.export-model-confirm-btn:disabled,
+.export-model-confirm-btn[aria-disabled="true"] {
+  opacity: 0.52;
+  cursor: not-allowed;
+  filter: grayscale(0.25);
+}
+
 #zoomToolBtn.active-tool-btn,
 #zoomToolBtn:hover {
   background: linear-gradient(135deg, #2563eb, #7c3aed) !important;

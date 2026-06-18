@@ -2,6 +2,9 @@
   "use strict";
 
   let exportModelInitialized = false;
+  const SUPPORTED_EXPORT_SCOPES = ["all", "selected"];
+  const SUPPORTED_EXPORT_FORMATS = ["glb", "gltf", "obj"];
+
   const exportModelOptions = {
     scope: "all",
     format: "glb"
@@ -45,6 +48,18 @@
     if (statusText) {
       statusText.textContent = message;
     }
+  }
+
+  function normaliseExportScope(scope) {
+    const value = String(scope || "all").toLowerCase();
+
+    return SUPPORTED_EXPORT_SCOPES.indexOf(value) !== -1 ? value : "";
+  }
+
+  function normaliseExportFormat(format) {
+    const value = String(format || "glb").toLowerCase();
+
+    return SUPPORTED_EXPORT_FORMATS.indexOf(value) !== -1 ? value : "";
   }
 
   function showExportModelToast(message) {
@@ -92,7 +107,7 @@
 
   function createModelFilename(options) {
     const settings = options || {};
-    const format = settings.format || "glb";
+    const format = normaliseExportFormat(settings.format) || "glb";
     const baseName = sanitizeFilenamePart(
       settings.projectName || getProjectNameForFilename() || "cad"
     );
@@ -103,13 +118,15 @@
 
   function getExportModelOptions() {
     return {
-      scope: exportModelOptions.scope,
-      format: exportModelOptions.format
+      scope: normaliseExportScope(exportModelOptions.scope) || "all",
+      format: normaliseExportFormat(exportModelOptions.format) || "glb"
     };
   }
 
   function getScopeLabel(scope) {
-    return scope === "selected" ? "selected object" : "all objects";
+    const exportScope = normaliseExportScope(scope);
+
+    return exportScope === "selected" ? "selected object" : "all objects";
   }
 
   function getFormatLabel(format) {
@@ -128,17 +145,57 @@
   }
 
   function hasExporterForFormat(format) {
+    const exportFormat = normaliseExportFormat(format);
+
+    if (!exportFormat) {
+      return false;
+    }
+
     const availability = getExporterAvailability();
 
-    return Boolean(availability[format]);
+    return Boolean(availability[exportFormat]);
   }
 
   function getMissingExporterMessage(format) {
-    if (format === "obj") {
+    const exportFormat = normaliseExportFormat(format);
+
+    if (!exportFormat) {
+      return "Unsupported model export format.";
+    }
+
+    if (exportFormat === "obj") {
       return "OBJ exporter is not loaded.";
     }
 
     return "GLTF exporter is not loaded.";
+  }
+
+  function validateExportOptions(options) {
+    const settings = Object.assign({}, getExportModelOptions(), options || {});
+    const scope = normaliseExportScope(settings.scope);
+    const format = normaliseExportFormat(settings.format);
+
+    if (!scope) {
+      return {
+        valid: false,
+        message: "Unsupported model export scope."
+      };
+    }
+
+    if (!format) {
+      return {
+        valid: false,
+        message: "Unsupported model export format."
+      };
+    }
+
+    return {
+      valid: true,
+      options: Object.assign({}, settings, {
+        scope: scope,
+        format: format
+      })
+    };
   }
 
   function isSystemObject(object) {
@@ -221,7 +278,7 @@
 
   function collectObjectsForExport(options) {
     const settings = options || getExportModelOptions();
-    const scope = settings.scope || "all";
+    const scope = normaliseExportScope(settings.scope) || "all";
 
     if (scope === "selected") {
       return collectSelectedExportableObject();
@@ -235,9 +292,9 @@
   }
 
   function getExportModelSelection(options) {
-    const settings = options || getExportModelOptions();
-    const scope = settings.scope || "all";
-    const format = settings.format || "glb";
+    const settings = Object.assign({}, getExportModelOptions(), options || {});
+    const scope = normaliseExportScope(settings.scope) || "all";
+    const format = normaliseExportFormat(settings.format) || "glb";
     const objects = collectObjectsForExport(settings);
 
     return {
@@ -255,6 +312,23 @@
     }
 
     return "Add an object before exporting a 3D model.";
+  }
+
+  function isFileDownloadSupported() {
+    const objectUrlApi = typeof window !== "undefined"
+      ? window.URL || window.webkitURL
+      : null;
+
+    return (
+      typeof Blob === "function" &&
+      typeof document !== "undefined" &&
+      Boolean(document.body) &&
+      Boolean(objectUrlApi && typeof objectUrlApi.createObjectURL === "function")
+    );
+  }
+
+  function getFileDownloadSupportMessage() {
+    return "File download is not supported in this browser.";
   }
 
   function clonePlainValue(value) {
@@ -401,10 +475,20 @@
   }
 
   function downloadBlob(blob, filename) {
-    const objectUrlApi = window.URL || window.webkitURL;
+    const objectUrlApi = typeof window !== "undefined"
+      ? window.URL || window.webkitURL
+      : null;
+
+    if (typeof Blob !== "function") {
+      throw new Error("File creation is not supported in this browser.");
+    }
 
     if (!objectUrlApi || typeof objectUrlApi.createObjectURL !== "function") {
       throw new Error("File download is not supported in this browser.");
+    }
+
+    if (typeof document === "undefined" || !document.body) {
+      throw new Error("Document body is not ready for file download.");
     }
 
     const downloadUrl = objectUrlApi.createObjectURL(blob);
@@ -567,12 +651,27 @@
   }
 
   async function exportModelFromSelection(options) {
-    const settings = Object.assign({}, getExportModelOptions(), options || {});
-    settings.format = settings.format || "glb";
+    const validation = validateExportOptions(options);
+
+    if (!validation.valid) {
+      return {
+        success: false,
+        message: validation.message
+      };
+    }
+
+    const settings = validation.options;
 
     const selection = getExportModelSelection(settings);
     const filename = settings.filename || createModelFilename(settings);
     let exportBundle = null;
+
+    if (!isFileDownloadSupported()) {
+      return {
+        success: false,
+        message: getFileDownloadSupportMessage()
+      };
+    }
 
     if (!hasExporterForFormat(settings.format)) {
       return {
@@ -641,23 +740,38 @@
 
   function syncScopeButtons() {
     const menu = getExportModelMenu();
+    const activeScope = normaliseExportScope(exportModelOptions.scope) || "all";
 
     if (!menu) {
       return;
     }
 
     menu.querySelectorAll("[data-export-model-scope]").forEach(function (button) {
-      const isActive = button.getAttribute("data-export-model-scope") === exportModelOptions.scope;
+      const isActive = button.getAttribute("data-export-model-scope") === activeScope;
 
       button.classList.toggle("active-export-model-option", isActive);
       button.setAttribute("aria-pressed", String(isActive));
     });
   }
 
+  function syncConfirmButtonAvailability() {
+    const confirmButton = getConfirmButton();
+    const exportFormat = normaliseExportFormat(exportModelOptions.format);
+    const canExportFormat = Boolean(exportFormat && hasExporterForFormat(exportFormat));
+
+    if (!confirmButton) {
+      return;
+    }
+
+    confirmButton.disabled = !canExportFormat;
+    confirmButton.setAttribute("aria-disabled", String(!canExportFormat));
+  }
+
   function syncFormatAvailability() {
     const formatSelect = getFormatSelect();
 
     if (!formatSelect) {
+      syncConfirmButtonAvailability();
       return;
     }
 
@@ -679,7 +793,8 @@
       formatSelect.value = firstAvailableFormat;
     }
 
-    exportModelOptions.format = formatSelect.value || exportModelOptions.format;
+    exportModelOptions.format = normaliseExportFormat(formatSelect.value) || exportModelOptions.format;
+    syncConfirmButtonAvailability();
   }
 
   function closeExportModelMenu() {
@@ -773,17 +888,25 @@
 
       exportModelMenu.querySelectorAll("[data-export-model-scope]").forEach(function (button) {
         button.addEventListener("click", function () {
-          exportModelOptions.scope = button.getAttribute("data-export-model-scope") || "all";
+          exportModelOptions.scope =
+            normaliseExportScope(button.getAttribute("data-export-model-scope")) || "all";
           syncScopeButtons();
         });
       });
     }
 
     if (formatSelect) {
-      exportModelOptions.format = formatSelect.value || exportModelOptions.format;
+      exportModelOptions.format =
+        normaliseExportFormat(formatSelect.value) || exportModelOptions.format;
 
       formatSelect.addEventListener("change", function () {
-        const nextFormat = formatSelect.value || "glb";
+        const nextFormat = normaliseExportFormat(formatSelect.value);
+
+        if (!nextFormat) {
+          setExportModelStatus("Unsupported model export format.");
+          syncFormatAvailability();
+          return;
+        }
 
         if (!hasExporterForFormat(nextFormat)) {
           setExportModelStatus(getMissingExporterMessage(nextFormat));
@@ -798,6 +921,7 @@
     if (confirmButton) {
       confirmButton.addEventListener("click", async function () {
         confirmButton.disabled = true;
+        confirmButton.setAttribute("aria-disabled", "true");
 
         let result;
 
@@ -812,6 +936,8 @@
           };
         } finally {
           confirmButton.disabled = false;
+          confirmButton.setAttribute("aria-disabled", "false");
+          syncConfirmButtonAvailability();
         }
 
         if (!result.success) {
@@ -849,12 +975,14 @@
     getExporterAvailability: getExporterAvailability,
     getOptions: getExportModelOptions,
     hasExporterForFormat: hasExporterForFormat,
+    isDownloadSupported: isFileDownloadSupported,
     isExportableObject: isExportableCADObject,
     cloneObjectForExport: cloneObjectForExport,
     exportGLBModel: exportGLBModel,
     exportGLTFModel: exportGLTFModel,
     exportOBJModel: exportOBJModel,
     exportModel: exportModelFromSelection,
+    validateOptions: validateExportOptions,
     setStatus: setExportModelStatus
   };
 })();
