@@ -91,8 +91,6 @@ async function saveDesign() {
                 "Design saved successfully. Objects saved: " + data.object_count;
         }
 
-        console.log("Saved design:", designData);
-
     } catch (error) {
         console.error("Save design error:", error);
 

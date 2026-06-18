@@ -59,8 +59,6 @@ async function loadProject() {
 
         restoreSavedCADObjects();
 
-        console.log("Loaded project:", project);
-
     } catch (error) {
         console.error("Project loading error:", error);
         setTextById("cadStatusText", "Server error while opening project.");

@@ -71,7 +71,7 @@ async function loadProjects() {
     const data = await response.json();
 
     if (!data.success) {
-      console.log("Could not load projects");
+      console.error("Could not load projects");
       return;
     }
 
@@ -87,7 +87,7 @@ async function loadProjects() {
     });
 
   } catch (error) {
-    console.log("Could not load projects:", error);
+    console.error("Could not load projects:", error);
   }
 }
 
@@ -131,7 +131,7 @@ async function createProject() {
     await loadProjects();
 
   } catch (error) {
-    console.log("Create project error:", error);
+    console.error("Create project error:", error);
     showProjectError("Server error. Please try again.");
   }
 
