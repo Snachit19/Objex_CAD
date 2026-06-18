@@ -869,6 +869,27 @@ a {
   margin: 0 0 10px;
 }
 
+.dashboard-import-format-field {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin: 0 0 12px;
+  color: #cbd5e1;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.dashboard-import-format-field select {
+  min-width: 110px;
+  height: 32px;
+  background: #0d101a;
+  color: #e2e8f0;
+  border: 1px solid #2563eb;
+  border-radius: 8px;
+  padding: 0 10px;
+}
+
 .modal-overlay {
   position: fixed;
   inset: 0;

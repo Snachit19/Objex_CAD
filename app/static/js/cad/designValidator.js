@@ -91,7 +91,9 @@
                 materialDescription: typeof entry.materialDescription === "string" ? entry.materialDescription : "",
                 materialData: entry.materialData && typeof entry.materialData === "object"
                     ? entry.materialData
-                    : null
+                    : null,
+                importFormat: typeof entry.importFormat === "string" ? entry.importFormat : null,
+                importPayload: typeof entry.importPayload === "string" ? entry.importPayload : null
             }
         };
     }

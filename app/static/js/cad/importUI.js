@@ -2,9 +2,6 @@
     "use strict";
 
     let importUiInitialized = false;
-    const importOptions = {
-        mode: "merge"
-    };
 
     function getImportDesignButton() {
         return document.getElementById("importDesignBtn");
@@ -14,12 +11,39 @@
         return document.getElementById("importDesignMenuOptions");
     }
 
-    function getImportDesignFileInput() {
-        return document.getElementById("importDesignFileInput");
-    }
-
     function getImportModelFileInput() {
         return document.getElementById("importModelFileInput");
+    }
+
+    function getImportFormatSelect() {
+        return document.getElementById("importModelFormatSelect");
+    }
+
+    function getSelectedImportFormat() {
+        const formatSelect = getImportFormatSelect();
+        const formatApi = window.CADModelFormats;
+
+        if (!formatSelect) {
+            return "glb";
+        }
+
+        if (formatApi && typeof formatApi.normalizeModelFormat === "function") {
+            return formatApi.normalizeModelFormat(formatSelect.value);
+        }
+
+        return formatSelect.value || "glb";
+    }
+
+    function updateImportFileAccept() {
+        const fileInput = getImportModelFileInput();
+        const formatApi = window.CADModelFormats;
+        const format = getSelectedImportFormat();
+
+        if (!fileInput || !formatApi || typeof formatApi.getAcceptForModelFormat !== "function") {
+            return;
+        }
+
+        fileInput.accept = formatApi.getAcceptForModelFormat(format);
     }
 
     function getStatusElement() {
@@ -53,38 +77,18 @@
         importButton.setAttribute("aria-expanded", isOpen ? "true" : "false");
     }
 
-    function updateImportModeButtons() {
-        document.querySelectorAll("[data-import-design-mode]").forEach(function (button) {
-            const isActive = button.getAttribute("data-import-design-mode") === importOptions.mode;
-            button.classList.toggle("active-export-model-option", isActive);
-            button.setAttribute("aria-checked", isActive ? "true" : "false");
-        });
-    }
-
-    async function handleDesignImport(file) {
-        if (!window.CADImportDesign || typeof window.CADImportDesign.importDesignFromFile !== "function") {
-            setStatus("Design import module is not ready.");
-            return;
-        }
-
-        setStatus("Importing design...");
-
-        const result = await window.CADImportDesign.importDesignFromFile(file, {
-            mode: importOptions.mode
-        });
-
-        setStatus(result.success ? result.message : (result.message || "Design import failed."));
-    }
-
     async function handleModelImport(file) {
         if (!window.CADImportModel || typeof window.CADImportModel.importModelFromFile !== "function") {
             setStatus("Model import module is not ready.");
             return;
         }
 
-        setStatus("Importing model...");
+        const format = getSelectedImportFormat();
+        setStatus("Importing " + format.toUpperCase() + " model...");
 
-        const result = await window.CADImportModel.importModelFromFile(file);
+        const result = await window.CADImportModel.importModelFromFile(file, {
+            format: format
+        });
 
         setStatus(result.success ? result.message : (result.message || "Model import failed."));
     }
@@ -96,11 +100,9 @@
 
         const importButton = getImportDesignButton();
         const importMenu = getImportDesignMenu();
-        const importDesignConfirmBtn = document.getElementById("importDesignConfirmBtn");
         const importModelConfirmBtn = document.getElementById("importModelConfirmBtn");
-        const exportDesignBtn = document.getElementById("exportDesignBtn");
-        const importDesignFileInput = getImportDesignFileInput();
         const importModelFileInput = getImportModelFileInput();
+        const importFormatSelect = getImportFormatSelect();
 
         if (!importButton || !importMenu) {
             return;
@@ -118,33 +120,15 @@
             setImportMenuOpen(!isOpen);
         });
 
-        document.querySelectorAll("[data-import-design-mode]").forEach(function (button) {
-            button.addEventListener("click", function (event) {
-                event.stopPropagation();
-                importOptions.mode = button.getAttribute("data-import-design-mode") || "merge";
-                updateImportModeButtons();
-            });
-        });
-
-        if (importDesignConfirmBtn && importDesignFileInput) {
-            importDesignConfirmBtn.addEventListener("click", function () {
-                importDesignFileInput.click();
-            });
-
-            importDesignFileInput.addEventListener("change", async function (event) {
-                const file = event.target.files && event.target.files[0];
-
-                if (file) {
-                    await handleDesignImport(file);
-                }
-
-                importDesignFileInput.value = "";
-                setImportMenuOpen(false);
+        if (importFormatSelect) {
+            importFormatSelect.addEventListener("change", function () {
+                updateImportFileAccept();
             });
         }
 
         if (importModelConfirmBtn && importModelFileInput) {
             importModelConfirmBtn.addEventListener("click", function () {
+                updateImportFileAccept();
                 importModelFileInput.click();
             });
 
@@ -160,27 +144,13 @@
             });
         }
 
-        if (exportDesignBtn) {
-            exportDesignBtn.addEventListener("click", function (event) {
-                event.stopPropagation();
-                closeOtherMenus();
-                setImportMenuOpen(false);
-
-                if (typeof window.exportCADDesign === "function") {
-                    window.exportCADDesign();
-                } else {
-                    setStatus("Design export module is not ready.");
-                }
-            });
-        }
-
         document.addEventListener("click", function (event) {
             if (!importMenu.contains(event.target) && event.target !== importButton && !importButton.contains(event.target)) {
                 setImportMenuOpen(false);
             }
         });
 
-        updateImportModeButtons();
+        updateImportFileAccept();
         importUiInitialized = true;
     }
 

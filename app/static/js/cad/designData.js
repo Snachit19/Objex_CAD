@@ -135,6 +135,18 @@
             return null;
         }
 
+        if (savedObject.type === "imported") {
+            if (
+                savedObject.importPayload &&
+                window.CADImportModel &&
+                typeof window.CADImportModel.restoreImportedObjectFromData === "function"
+            ) {
+                window.CADImportModel.restoreImportedObjectFromData(savedObject, options);
+            }
+
+            return null;
+        }
+
         const primitiveTypes = window.CADDesignSchema
             ? window.CADDesignSchema.PRIMITIVE_SHAPE_TYPES
             : ["cube", "sphere", "cylinder", "cone", "torus", "pyramid", "plane"];

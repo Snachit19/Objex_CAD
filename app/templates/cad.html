@@ -99,8 +99,8 @@
       </div>
 
       <div class="import-design-menu-wrapper">
-        <button id="importDesignBtn" class="cad-icon-tool-btn import-design-btn" title="Import Design or Model"
-          aria-label="Import Design or Model" aria-haspopup="menu" aria-expanded="false"
+        <button id="importDesignBtn" class="cad-icon-tool-btn import-design-btn" title="Import 3D Model"
+          aria-label="Import 3D Model" aria-haspopup="menu" aria-expanded="false"
           aria-controls="importDesignMenuOptions" type="button">
           <img class="import-design-icon" src="/static/images/import-design.svg" alt="Import Design">
           <span class="tool-arrow">▾</span>
@@ -108,33 +108,22 @@
 
         <div id="importDesignMenuOptions" class="import-design-menu-options" role="menu"
           aria-label="Import options">
-          <div class="export-model-option-group" role="group" aria-label="Design import mode">
-            <button class="export-model-scope-option active-export-model-option" type="button" role="menuitemradio"
-              data-import-design-mode="merge" aria-checked="true">
-              Merge Objects
-            </button>
-            <button class="export-model-scope-option" type="button" role="menuitemradio"
-              data-import-design-mode="replace" aria-checked="false">
-              Replace Workspace
-            </button>
-          </div>
-
-          <button id="importDesignConfirmBtn" class="export-model-confirm-btn" type="button">
-            Import .objex.json
-          </button>
+          <label class="export-model-format-field" for="importModelFormatSelect">
+            <span>Format</span>
+            <select id="importModelFormatSelect">
+              <option value="glb">GLB</option>
+              <option value="gltf">GLTF</option>
+              <option value="obj">OBJ</option>
+            </select>
+          </label>
 
           <button id="importModelConfirmBtn" class="export-model-confirm-btn" type="button">
-            Import 3D Model
-          </button>
-
-          <button id="exportDesignBtn" class="export-model-confirm-btn" type="button">
-            Export .objex.json
+            Import Model
           </button>
         </div>
       </div>
 
-      <input id="importDesignFileInput" type="file" accept=".json,.objex.json,application/json" hidden>
-      <input id="importModelFileInput" type="file" accept=".glb,.gltf,.obj,model/gltf-binary,model/gltf+json,text/plain" hidden>
+      <input id="importModelFileInput" type="file" accept=".glb,model/gltf-binary" hidden>
 
       <button id="moveToolBtn" class="cad-icon-tool-btn" title="Move Object" aria-label="Move Object" type="button">
         <img src="/static/images/move-object.svg" alt="Move Object">
@@ -662,6 +651,7 @@
   <script src="/static/js/cad/designSchema.js"></script>
   <script src="/static/js/cad/designData.js"></script>
   <script src="/static/js/cad/designValidator.js"></script>
+  <script src="/static/js/cad/modelFormats.js"></script>
   <script src="/static/js/cad/sceneSetup.js"></script>
   <script src="/static/js/cad/historyManager.js"></script>
   <script src="/static/js/cad/addShape.js"></script>
@@ -678,8 +668,6 @@
   <script src="/static/js/cad/resetWorkspace.js"></script>
   <script src="/static/js/cad/exportImage.js"></script>
   <script src="/static/js/cad/exportModel.js"></script>
-  <script src="/static/js/cad/exportDesign.js"></script>
-  <script src="/static/js/cad/importDesign.js"></script>
   <script src="/static/js/cad/importModel.js"></script>
   <script src="/static/js/cad/importUI.js"></script>
   <script src="/static/js/cad/colourObject.js"></script>

@@ -96,7 +96,17 @@
       </div>
       <p id="recentProjectsMeta">Loading projects...</p>
       <p id="importProjectError" class="import-project-error" style="display:none;"></p>
-      <input id="importProjectFileInput" type="file" accept=".json,.objex.json,application/json" hidden>
+
+      <label class="dashboard-import-format-field" for="importProjectFormatSelect">
+        <span>Format</span>
+        <select id="importProjectFormatSelect">
+          <option value="glb">GLB</option>
+          <option value="gltf">GLTF</option>
+          <option value="obj">OBJ</option>
+        </select>
+      </label>
+
+      <input id="importProjectFileInput" type="file" accept=".glb,model/gltf-binary" hidden>
 
       <div id="projectList">
         <div class="mock-project">
@@ -198,8 +208,10 @@
 <script src="/static/js/common/api.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
-<script src="/static/js/cad/designSchema.js"></script>
-<script src="/static/js/cad/designValidator.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/OBJLoader.js"></script>
+<script src="/static/js/cad/modelFormats.js"></script>
+<script src="/static/js/cad/importModel.js"></script>
 <script src="/static/js/dashboard/recentProjectPreview.js"></script>
 <script src="/static/js/dashboard/createProject.js"></script>
 <script src="/static/js/dashboard/importProject.js"></script>
