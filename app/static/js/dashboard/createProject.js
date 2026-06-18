@@ -115,6 +115,153 @@ function openProject(projectId) {
   window.location.assign("/cad/" + projectId);
 }
 
+function createProjectActionButton(className, label, iconSrc) {
+  const button = document.createElement("button");
+  button.type = "button";
+  button.className = "project-action-btn " + className;
+  button.title = label;
+  button.setAttribute("aria-label", label);
+
+  const icon = document.createElement("img");
+  icon.src = iconSrc;
+  icon.alt = "";
+  icon.setAttribute("aria-hidden", "true");
+
+  button.appendChild(icon);
+  return button;
+}
+
+function openRenameProjectModal(project) {
+  const renameModal = document.getElementById("renameProjectModal");
+  const renameProjectIdInput = document.getElementById("renameProjectId");
+  const renameProjectNameInput = document.getElementById("renameProjectName");
+  const renameProjectDescriptionInput = document.getElementById("renameProjectDescription");
+  const renameProjectError = document.getElementById("renameProjectError");
+
+  if (!renameModal || !renameProjectIdInput || !renameProjectNameInput) {
+    const fallbackName = window.prompt("Rename project:", project.name || "Untitled Project");
+    if (fallbackName && fallbackName.trim()) {
+      renameProject(project.id, fallbackName.trim(), project.description || "");
+    }
+    return;
+  }
+
+  renameProjectIdInput.value = String(project.id);
+  renameProjectNameInput.value = project.name || "";
+
+  if (renameProjectDescriptionInput) {
+    renameProjectDescriptionInput.value = project.description || "";
+  }
+
+  if (renameProjectError) {
+    renameProjectError.style.display = "none";
+    renameProjectError.textContent = "";
+  }
+
+  renameModal.style.display = "flex";
+  renameProjectNameInput.focus();
+}
+
+function closeRenameProjectModal() {
+  const renameModal = document.getElementById("renameProjectModal");
+
+  if (renameModal) {
+    renameModal.style.display = "none";
+  }
+}
+
+function showRenameProjectError(message) {
+  const renameProjectError = document.getElementById("renameProjectError");
+
+  if (renameProjectError) {
+    renameProjectError.textContent = message;
+    renameProjectError.style.display = "block";
+  }
+}
+
+async function renameProject(projectId, name, description) {
+  const response = await fetch("/api/projects/" + projectId, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      name: name,
+      description: description
+    })
+  });
+
+  const data = await response.json();
+
+  if (!response.ok || !data.success) {
+    throw new Error(data.message || "Could not rename project.");
+  }
+
+  return data;
+}
+
+async function deleteProject(projectId, projectName) {
+  const confirmed = window.confirm(
+    "Delete \"" + (projectName || "this project") + "\"? This cannot be undone."
+  );
+
+  if (!confirmed) {
+    return;
+  }
+
+  const response = await fetch("/api/projects/" + projectId, {
+    method: "DELETE"
+  });
+
+  const data = await response.json();
+
+  if (!response.ok || !data.success) {
+    throw new Error(data.message || "Could not delete project.");
+  }
+
+  return data;
+}
+
+async function handleRenameProjectSubmit() {
+  const renameProjectIdInput = document.getElementById("renameProjectId");
+  const renameProjectNameInput = document.getElementById("renameProjectName");
+  const renameProjectDescriptionInput = document.getElementById("renameProjectDescription");
+  const saveRenameProjectBtn = document.getElementById("saveRenameProjectBtn");
+
+  if (!renameProjectIdInput || !renameProjectNameInput) {
+    return;
+  }
+
+  const projectId = renameProjectIdInput.value;
+  const name = renameProjectNameInput.value.trim();
+  const description = renameProjectDescriptionInput
+    ? renameProjectDescriptionInput.value.trim()
+    : "";
+
+  if (!name) {
+    showRenameProjectError("Project name is required.");
+    return;
+  }
+
+  if (saveRenameProjectBtn) {
+    saveRenameProjectBtn.disabled = true;
+    saveRenameProjectBtn.textContent = "Saving...";
+  }
+
+  try {
+    await renameProject(projectId, name, description);
+    closeRenameProjectModal();
+    await loadProjects(Number(projectId));
+  } catch (error) {
+    showRenameProjectError(error.message || "Could not rename project.");
+  }
+
+  if (saveRenameProjectBtn) {
+    saveRenameProjectBtn.disabled = false;
+    saveRenameProjectBtn.textContent = "Save Changes";
+  }
+}
+
 function createProjectListItem(project, isRecentProject) {
   const item = document.createElement("div");
   item.className = "mock-project";
@@ -129,12 +276,41 @@ function createProjectListItem(project, isRecentProject) {
   const name = document.createElement("strong");
   name.textContent = project.name || "Untitled Project";
 
-  const action = document.createElement("button");
-  action.type = "button";
-  action.textContent = "Open";
+  const actions = document.createElement("div");
+  actions.className = "project-row-actions";
+
+  const renameButton = createProjectActionButton(
+    "project-rename-btn",
+    "Rename project",
+    "/static/images/project-rename.svg"
+  );
+  const deleteButton = createProjectActionButton(
+    "project-delete-btn",
+    "Delete project",
+    "/static/images/project-delete.svg"
+  );
+
+  renameButton.addEventListener("click", function (event) {
+    event.stopPropagation();
+    openRenameProjectModal(project);
+  });
+
+  deleteButton.addEventListener("click", async function (event) {
+    event.stopPropagation();
+
+    try {
+      await deleteProject(project.id, project.name);
+      await loadProjects();
+    } catch (error) {
+      window.alert(error.message || "Could not delete project.");
+    }
+  });
+
+  actions.appendChild(renameButton);
+  actions.appendChild(deleteButton);
 
   item.appendChild(name);
-  item.appendChild(action);
+  item.appendChild(actions);
 
   item.addEventListener("click", function () {
     openProject(project.id);
@@ -145,11 +321,6 @@ function createProjectListItem(project, isRecentProject) {
       event.preventDefault();
       openProject(project.id);
     }
-  });
-
-  action.addEventListener("click", function (event) {
-    event.stopPropagation();
-    openProject(project.id);
   });
 
   return item;
@@ -335,7 +506,35 @@ window.addEventListener("click", (event) => {
   if (event.target === projectModal) {
     closeProjectModal();
   }
+
+  const renameModal = document.getElementById("renameProjectModal");
+
+  if (renameModal && event.target === renameModal) {
+    closeRenameProjectModal();
+  }
 });
+
+const cancelRenameProjectBtn = document.getElementById("cancelRenameProjectBtn");
+const saveRenameProjectBtn = document.getElementById("saveRenameProjectBtn");
+
+if (cancelRenameProjectBtn) {
+  cancelRenameProjectBtn.addEventListener("click", closeRenameProjectModal);
+}
+
+if (saveRenameProjectBtn) {
+  saveRenameProjectBtn.addEventListener("click", handleRenameProjectSubmit);
+}
+
+const renameProjectNameInput = document.getElementById("renameProjectName");
+
+if (renameProjectNameInput) {
+  renameProjectNameInput.addEventListener("keydown", function (event) {
+    if (event.key === "Enter") {
+      event.preventDefault();
+      handleRenameProjectSubmit();
+    }
+  });
+}
 
 window.loadProjects = loadProjects;
 
