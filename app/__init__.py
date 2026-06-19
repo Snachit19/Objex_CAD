@@ -4,9 +4,9 @@ from dotenv import load_dotenv
 import os
 from app.models.database import Database
 
-from app.routes.home_route import home_bp
-from app.routes.auth_route import auth_bp
-from app.routes.project_route import projects_bp
+from app.routes.home import home_bp
+from app.routes.auth import auth_bp
+from app.routes.project import projects_bp
 
 
 def create_app():

@@ -2,7 +2,7 @@ from flask import request, jsonify, session
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
 
-from app.models.user_model import find_user_by_email, create_user
+from app.models.user import find_user_by_email, create_user
 from app.middleware.auth_middleware import login_required
 
 
