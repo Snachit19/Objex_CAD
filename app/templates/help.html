@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Objex CAD | Help</title>
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
+
+<body class="help-page">
+
+  <header class="top-nav">
+    <div class="project-search-wrap">
+      <span class="project-search-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" focusable="false">
+          <circle cx="11" cy="11" r="7"></circle>
+          <path d="m16.5 16.5 4 4"></path>
+        </svg>
+      </span>
+      <input class="search-box project-search-input" type="search"
+        placeholder="Search help topics..." autocomplete="off">
+    </div>
+
+    <div class="top-user">
+      <span class="top-icon">🔔</span>
+      <button class="create-project-btn" type="button" onclick="window.location.href='/dashboard'">
+        + New Project
+      </button>
+      <span class="top-icon">⚙</span>
+      <div class="user-avatar" id="avatar-initial">O</div>
+      <span id="display-name">Loading…</span>
+      <button id="logoutBtn" class="logout-btn">Logout</button>
+    </div>
+  </header>
+
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-logo-small">
+        <img src="/static/images/logo.png" alt="Objex Logo">
+      </div>
+
+      <div>
+        <h2>CAD 3D</h2>
+        <p>Professional Design Studio</p>
+      </div>
+    </div>
+
+    <nav class="side-menu">
+      <a href="/dashboard">
+        <span class="side-menu-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" focusable="false">
+            <rect x="4" y="4" width="7" height="7" rx="2"></rect>
+            <rect x="13" y="4" width="7" height="7" rx="2"></rect>
+            <rect x="4" y="13" width="7" height="7" rx="2"></rect>
+            <rect x="13" y="13" width="7" height="7" rx="2"></rect>
+          </svg>
+        </span>
+        <span class="side-menu-label">Dashboard</span>
+      </a>
+
+      <a href="/projects">
+        <span class="side-menu-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" focusable="false">
+            <path d="M4 7.5A2.5 2.5 0 0 1 6.5 5h4.1l2 2.4h4.9A2.5 2.5 0 0 1 20 9.9v6.6a2.5 2.5 0 0 1-2.5 2.5h-11A2.5 2.5 0 0 1 4 16.5z"></path>
+            <path d="M4.2 9h15.6"></path>
+          </svg>
+        </span>
+        <span class="side-menu-label">Projects</span>
+      </a>
+
+      <a href="/help" class="active">
+        <span class="side-menu-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" focusable="false">
+            <path d="M12 18h.01"></path>
+            <path d="M9.2 9a3 3 0 1 1 5.4 1.8c-.9 1-1.8 1.5-2.2 2.7"></path>
+            <circle cx="12" cy="12" r="9"></circle>
+          </svg>
+        </span>
+        <span class="side-menu-label">Help</span>
+      </a>
+
+      <a>
+        <span class="side-menu-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" focusable="false">
+            <path d="M12 8.25a3.75 3.75 0 1 1 0 7.5 3.75 3.75 0 0 1 0-7.5z"></path>
+            <path d="M18.2 13.4c.1-.45.1-.85.1-1.4s0-.95-.1-1.4l2-1.55-2-3.45-2.35.95a7.7 7.7 0 0 0-2.4-1.4L13.1 2.7H9.1l-.35 2.45a7.7 7.7 0 0 0-2.4 1.4L4 5.6l-2 3.45 2 1.55c-.1.45-.1.85-.1 1.4s0 .95.1 1.4l-2 1.55 2 3.45 2.35-.95a7.7 7.7 0 0 0 2.4 1.4l.35 2.45h4l.35-2.45a7.7 7.7 0 0 0 2.4-1.4l2.35.95 2-3.45z"></path>
+          </svg>
+        </span>
+        <span class="side-menu-label">Settings</span>
+      </a>
+    </nav>
+
+    <div class="version">V-1.00 • CAD 3D</div>
+  </aside>
+
+  <main class="help-page-layout">
+    <section class="help-hero-card">
+      <div>
+        <span class="help-badge">Objex CAD Support</span>
+        <h1>Help Centre</h1>
+        <p>
+          Learn how to create projects, use the 3D CAD workspace, edit objects,
+          save designs, import models and export your work.
+        </p>
+      </div>
+
+      <div class="help-hero-actions">
+        <a href="/dashboard" class="help-primary-link">Go to Dashboard</a>
+        <a href="/projects" class="help-secondary-link">View Projects</a>
+      </div>
+    </section>
+
+    <section class="help-section-grid">
+      <article class="help-card-panel">
+        <h2>1. Getting Started</h2>
+        <ol class="help-step-list">
+          <li>Login to your Objex CAD account.</li>
+          <li>Open the dashboard.</li>
+          <li>Click <strong>+ New Project</strong>.</li>
+          <li>Enter project name and description.</li>
+          <li>Open the project to start designing.</li>
+        </ol>
+      </article>
+
+      <article class="help-card-panel">
+        <h2>2. Project Management</h2>
+        <p>
+          The Projects page allows you to view all saved projects, open existing designs,
+          rename projects, delete projects and import external model projects.
+        </p>
+        <ul class="help-list">
+          <li><strong>Open Project:</strong> loads the selected CAD workspace.</li>
+          <li><strong>Rename Project:</strong> updates name and description.</li>
+          <li><strong>Delete Project:</strong> removes a saved project.</li>
+          <li><strong>Import Project:</strong> imports supported 3D model files.</li>
+        </ul>
+      </article>
+
+      <article class="help-card-panel help-wide-panel">
+        <h2>3. CAD Workspace Tools</h2>
+
+        <div class="help-tool-grid">
+          <div class="help-tool-card">
+            <strong>Add Shape</strong>
+            <span>Create cube, sphere, cylinder, cone, torus, pyramid or plane.</span>
+          </div>
+
+          <div class="help-tool-card">
+            <strong>Select Object</strong>
+            <span>Click any object in the workspace to edit it.</span>
+          </div>
+
+          <div class="help-tool-card">
+            <strong>Move Object</strong>
+            <span>Move selected object on X, Y and Z directions.</span>
+          </div>
+
+          <div class="help-tool-card">
+            <strong>Rotate Object</strong>
+            <span>Rotate selected object using manual or button controls.</span>
+          </div>
+
+          <div class="help-tool-card">
+            <strong>Resize Object</strong>
+            <span>Change scale and dimensions of the selected object.</span>
+          </div>
+
+          <div class="help-tool-card">
+            <strong>Duplicate Object</strong>
+            <span>Create a copy of the selected object.</span>
+          </div>
+
+          <div class="help-tool-card">
+            <strong>Delete Object</strong>
+            <span>Remove the selected object from the workspace.</span>
+          </div>
+
+          <div class="help-tool-card">
+            <strong>Colour & Materials</strong>
+            <span>Apply colour, plastic, metal, glass, wood, neon or transparent material.</span>
+          </div>
+
+          <div class="help-tool-card">
+            <strong>Grid & Axes</strong>
+            <span>Use grid and X/Y/Z axes for better alignment and direction.</span>
+          </div>
+
+          <div class="help-tool-card">
+            <strong>Zoom, Pan & Orbit</strong>
+            <span>Control the camera view without changing the object.</span>
+          </div>
+
+          <div class="help-tool-card">
+            <strong>Undo & Redo</strong>
+            <span>Reverse or restore recent workspace actions.</span>
+          </div>
+
+          <div class="help-tool-card">
+            <strong>Reset Workspace</strong>
+            <span>Clear the workspace and return to a clean design area.</span>
+          </div>
+        </div>
+      </article>
+
+      <article class="help-card-panel">
+        <h2>4. Save and Export</h2>
+        <p>
+          Use <strong>Save Design</strong> to store the current CAD workspace in the database.
+          You can export your work as an image or 3D model file for presentation and submission.
+        </p>
+        <ul class="help-list">
+          <li>Save regularly after editing objects.</li>
+          <li>Export image for screenshots and documentation.</li>
+          <li>Export model for 3D file sharing.</li>
+        </ul>
+      </article>
+
+      <article class="help-card-panel">
+        <h2>5. Useful Shortcuts</h2>
+        <div class="shortcut-row">
+          <span class="help-kbd">Ctrl</span>
+          <span class="help-kbd">Z</span>
+          <p>Undo last action</p>
+        </div>
+
+        <div class="shortcut-row">
+          <span class="help-kbd">Ctrl</span>
+          <span class="help-kbd">Y</span>
+          <p>Redo last action</p>
+        </div>
+
+        <div class="shortcut-row">
+          <span class="help-kbd">Mouse Wheel</span>
+          <p>Zoom in or out</p>
+        </div>
+
+        <div class="shortcut-row">
+          <span class="help-kbd">Drag Mouse</span>
+          <p>Orbit around model</p>
+        </div>
+      </article>
+
+      <article class="help-card-panel help-wide-panel">
+        <h2>6. Troubleshooting</h2>
+
+        <div class="faq-item">
+          <h3>Object is not moving?</h3>
+          <p>Select the object first, then open the Move Object tool.</p>
+        </div>
+
+        <div class="faq-item">
+          <h3>Saved project is empty?</h3>
+          <p>Make sure you click Save Design after adding or editing objects.</p>
+        </div>
+
+        <div class="faq-item">
+          <h3>Import is not working?</h3>
+          <p>Check that the selected file format is supported, such as GLB, GLTF or OBJ.</p>
+        </div>
+
+        <div class="faq-item">
+          <h3>View is difficult to control?</h3>
+          <p>Use Reset View, Zoom, Pan and Orbit controls to return to a comfortable camera position.</p>
+        </div>
+      </article>
+    </section>
+  </main>
+
+  <script>
+    async function loadUser() {
+      try {
+        const res = await fetch("/api/me");
+        const data = await res.json();
+
+        if (!data.success) {
+          window.location.href = "/";
+          return;
+        }
+
+        document.getElementById("display-name").textContent = data.name;
+        document.getElementById("avatar-initial").textContent =
+          (data.name || "U").charAt(0).toUpperCase();
+      } catch {
+        window.location.href = "/";
+      }
+    }
+
+    const logoutBtn = document.getElementById("logoutBtn");
+
+    if (logoutBtn) {
+      logoutBtn.addEventListener("click", async function () {
+        await fetch("/api/logout", { method: "POST" });
+        window.location.href = "/";
+      });
+    }
+
+    loadUser();
+  </script>
+
+</body>
+</html>
