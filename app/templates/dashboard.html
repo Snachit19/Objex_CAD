@@ -8,8 +8,7 @@
 </head>
 <body>
  
-  <header class="top-nav">
-    <input class="search-box" type="text" placeholder="Search projects, files...">
+  <header class="top-nav dashboard-top-nav">
     <div class="top-user">
       <span class="top-icon">🔔</span>
     <button id="newProjectBtn" class="create-project-btn">+ New Project</button> 
@@ -33,9 +32,36 @@
     </div>
  
     <nav class="side-menu">
-      <a href="/dashboard" class="active">▦ Dashboard</a>
-      <a href="/projects">▣ Projects <span id="projectCountBadge">0</span></a>
-      <a>⚙ Settings</a>
+      <a href="/dashboard" class="active">
+        <span class="side-menu-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" focusable="false">
+            <rect x="4" y="4" width="7" height="7" rx="2"></rect>
+            <rect x="13" y="4" width="7" height="7" rx="2"></rect>
+            <rect x="4" y="13" width="7" height="7" rx="2"></rect>
+            <rect x="13" y="13" width="7" height="7" rx="2"></rect>
+          </svg>
+        </span>
+        <span class="side-menu-label">Dashboard</span>
+      </a>
+      <a href="/projects">
+        <span class="side-menu-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" focusable="false">
+            <path d="M4 7.5A2.5 2.5 0 0 1 6.5 5h4.1l2 2.4h4.9A2.5 2.5 0 0 1 20 9.9v6.6a2.5 2.5 0 0 1-2.5 2.5h-11A2.5 2.5 0 0 1 4 16.5z"></path>
+            <path d="M4.2 9h15.6"></path>
+          </svg>
+        </span>
+        <span class="side-menu-label">Projects</span>
+        <span id="projectCountBadge" class="menu-badge">0</span>
+      </a>
+      <a>
+        <span class="side-menu-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" focusable="false">
+            <path d="M12 8.25a3.75 3.75 0 1 1 0 7.5 3.75 3.75 0 0 1 0-7.5z"></path>
+            <path d="M18.2 13.4c.1-.45.1-.85.1-1.4s0-.95-.1-1.4l2-1.55-2-3.45-2.35.95a7.7 7.7 0 0 0-2.4-1.4L13.1 2.7H9.1l-.35 2.45a7.7 7.7 0 0 0-2.4 1.4L4 5.6l-2 3.45 2 1.55c-.1.45-.1.85-.1 1.4s0 .95.1 1.4l-2 1.55 2 3.45 2.35-.95a7.7 7.7 0 0 0 2.4 1.4l.35 2.45h4l.35-2.45a7.7 7.7 0 0 0 2.4-1.4l2.35.95 2-3.45z"></path>
+          </svg>
+        </span>
+        <span class="side-menu-label">Settings</span>
+      </a>
     </nav>
  
     <div class="version">V-1.00 • CAD 3D</div>

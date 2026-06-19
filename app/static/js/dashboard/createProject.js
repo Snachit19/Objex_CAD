@@ -9,6 +9,11 @@ const projectList = document.getElementById("projectList");
 const projectCountBadge = document.getElementById("projectCountBadge");
 const recentProjectsMeta = document.getElementById("recentProjectsMeta");
 const projectsPageMeta = document.getElementById("projectsPageMeta");
+const projectSearchInput = document.getElementById("projectSearchInput");
+const projectSearchClear = document.getElementById("projectSearchClear");
+
+let cachedProjects = [];
+let activeHighlightProjectId = null;
 
 function isProjectsPage() {
   return document.body.classList.contains("projects-page");
@@ -88,6 +93,40 @@ function getAllProjectsSummary(projects) {
   return projectCount + " projects";
 }
 
+function formatSearchMetaQuery(query) {
+  if (query.length <= 36) {
+    return query;
+  }
+
+  return query.slice(0, 33) + "...";
+}
+
+function getProjectsPageSearchSummary(totalCount, filteredCount, query) {
+  if (!query) {
+    if (totalCount === 0) {
+      return "No projects yet";
+    }
+
+    if (totalCount === 1) {
+      return "1 project";
+    }
+
+    return totalCount + " projects";
+  }
+
+  const safeQuery = formatSearchMetaQuery(query);
+
+  if (filteredCount === 0) {
+    return "No projects found for \"" + safeQuery + "\"";
+  }
+
+  if (filteredCount === 1) {
+    return "1 of " + totalCount + " projects matching \"" + safeQuery + "\"";
+  }
+
+  return filteredCount + " of " + totalCount + " projects matching \"" + safeQuery + "\"";
+}
+
 function updateProjectSummary(projects) {
   const projectCount = Array.isArray(projects) ? projects.length : 0;
 
@@ -105,6 +144,66 @@ function updateProjectSummary(projects) {
   if (recentProjectsMeta) {
     recentProjectsMeta.textContent = getRecentProjectSummary(projects);
   }
+}
+
+function getProjectSearchQuery() {
+  return projectSearchInput ? projectSearchInput.value.trim() : "";
+}
+
+function getProjectSearchTokens() {
+  const query = getProjectSearchQuery().toLowerCase();
+
+  if (!query) {
+    return [];
+  }
+
+  return query.split(/\s+/).filter(Boolean);
+}
+
+function getProjectSearchText(project) {
+  return [
+    project.name,
+    project.description,
+    project.id,
+    project.created_at,
+    project.updated_at,
+    project.last_opened_at
+  ].filter(Boolean).join(" ").toLowerCase();
+}
+
+function filterProjectsForSearch(projects) {
+  const searchTokens = getProjectSearchTokens();
+
+  if (searchTokens.length === 0) {
+    return projects.slice();
+  }
+
+  return projects.filter(function (project) {
+    const searchableText = getProjectSearchText(project);
+
+    return searchTokens.every(function (token) {
+      return searchableText.indexOf(token) !== -1;
+    });
+  });
+}
+
+function updateProjectSearchClearButton() {
+  if (!projectSearchClear) {
+    return;
+  }
+
+  projectSearchClear.hidden = getProjectSearchQuery() === "";
+}
+
+function clearProjectSearch() {
+  if (!projectSearchInput) {
+    return;
+  }
+
+  projectSearchInput.value = "";
+  updateProjectSearchClearButton();
+  renderProjectsPage(cachedProjects, activeHighlightProjectId);
+  projectSearchInput.focus();
 }
 
 function openProject(projectId) {
@@ -326,15 +425,20 @@ function createProjectListItem(project, isRecentProject) {
   return item;
 }
 
-function createEmptyProjectState() {
+function createEmptyProjectState(titleText, actionText, actionHandler) {
   const item = document.createElement("div");
-  item.className = "mock-project";
+  item.className = "mock-project project-empty-state";
 
   const title = document.createElement("strong");
-  title.textContent = "No projects yet";
+  title.textContent = titleText || "No projects yet";
 
-  const action = document.createElement("span");
-  action.textContent = "Create one";
+  const action = document.createElement(actionHandler ? "button" : "span");
+  action.textContent = actionText || "Create one";
+
+  if (actionHandler) {
+    action.type = "button";
+    action.addEventListener("click", actionHandler);
+  }
 
   item.appendChild(title);
   item.appendChild(action);
@@ -342,20 +446,49 @@ function createEmptyProjectState() {
   return item;
 }
 
-function renderAllProjects(projects, highlightProjectId) {
+function renderProjectsPage(projects, highlightProjectId) {
   if (!projectList) {
     return;
   }
 
-  let latestProject = getLatestDashboardProject(projects);
+  const safeProjects = Array.isArray(projects) ? projects : [];
+  const filteredProjects = filterProjectsForSearch(safeProjects);
+  const searchQuery = getProjectSearchQuery();
+
+  clearProjectList();
+  updateProjectSearchClearButton();
+
+  if (projectsPageMeta) {
+    projectsPageMeta.textContent = getProjectsPageSearchSummary(
+      safeProjects.length,
+      filteredProjects.length,
+      searchQuery
+    );
+  }
+
+  if (filteredProjects.length === 0) {
+    if (safeProjects.length === 0) {
+      projectList.appendChild(createEmptyProjectState());
+    } else {
+      projectList.appendChild(createEmptyProjectState(
+        "No matching projects",
+        "Clear search",
+        clearProjectSearch
+      ));
+    }
+
+    return;
+  }
+
+  let latestProject = getLatestDashboardProject(filteredProjects);
 
   if (highlightProjectId) {
-    latestProject = projects.find(function (project) {
+    latestProject = filteredProjects.find(function (project) {
       return Number(project.id) === Number(highlightProjectId);
     }) || latestProject;
   }
 
-  projects.forEach(function (project) {
+  filteredProjects.forEach(function (project) {
     const isRecentProject = Boolean(latestProject && latestProject.id === project.id);
     projectList.appendChild(createProjectListItem(project, isRecentProject));
   });
@@ -389,10 +522,18 @@ async function loadProjects(highlightProjectId) {
 
     const projects = data.projects || [];
 
+    cachedProjects = projects;
+    activeHighlightProjectId = highlightProjectId || null;
+
     clearProjectList();
     updateProjectSummary(projects);
 
     if (projects.length === 0) {
+      if (isProjectsPage()) {
+        renderProjectsPage(projects, highlightProjectId);
+        return;
+      }
+
       if (projectList) {
         projectList.appendChild(createEmptyProjectState());
       }
@@ -405,7 +546,7 @@ async function loadProjects(highlightProjectId) {
     }
 
     if (isProjectsPage()) {
-      renderAllProjects(projects, highlightProjectId);
+      renderProjectsPage(projects, highlightProjectId);
       return;
     }
 
@@ -534,6 +675,23 @@ if (renameProjectNameInput) {
       handleRenameProjectSubmit();
     }
   });
+}
+
+if (projectSearchInput) {
+  projectSearchInput.addEventListener("input", function () {
+    renderProjectsPage(cachedProjects, activeHighlightProjectId);
+  });
+
+  projectSearchInput.addEventListener("keydown", function (event) {
+    if (event.key === "Escape" && getProjectSearchQuery()) {
+      event.preventDefault();
+      clearProjectSearch();
+    }
+  });
+}
+
+if (projectSearchClear) {
+  projectSearchClear.addEventListener("click", clearProjectSearch);
 }
 
 window.loadProjects = loadProjects;

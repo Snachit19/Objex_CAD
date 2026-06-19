@@ -211,6 +211,10 @@ function handlePointerDown(event) {
 }
 
 function handlePointerUp(event) {
+    if (window.isResizeHandleInteractionActive) {
+        return;
+    }
+
     const moveX = Math.abs(event.clientX - pointerStart.x);
     const moveY = Math.abs(event.clientY - pointerStart.y);
 

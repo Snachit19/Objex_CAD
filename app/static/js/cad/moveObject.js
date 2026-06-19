@@ -224,6 +224,10 @@ function beginSelectedObjectDrag(event) {
         return;
     }
 
+    if (typeof window.isPointerOnResizeHandle === "function" && window.isPointerOnResizeHandle(event)) {
+        return;
+    }
+
     if (event.button !== 0 || !isPointerOnObject(event, object)) {
         return;
     }

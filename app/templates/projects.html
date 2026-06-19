@@ -9,7 +9,22 @@
 <body class="projects-page">
 
   <header class="top-nav">
-    <input class="search-box" type="text" placeholder="Search projects, files...">
+    <div class="project-search-wrap">
+      <span class="project-search-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" focusable="false">
+          <circle cx="11" cy="11" r="7"></circle>
+          <path d="m16.5 16.5 4 4"></path>
+        </svg>
+      </span>
+      <input id="projectSearchInput" class="search-box project-search-input" type="search"
+        placeholder="Search projects..." autocomplete="off">
+      <button id="projectSearchClear" class="project-search-clear" type="button" aria-label="Clear project search" hidden>
+        <svg viewBox="0 0 24 24" focusable="false" aria-hidden="true">
+          <path d="M7 7l10 10"></path>
+          <path d="M17 7L7 17"></path>
+        </svg>
+      </button>
+    </div>
     <div class="top-user">
       <span class="top-icon">🔔</span>
       <button id="newProjectBtn" class="create-project-btn">+ New Project</button>
@@ -33,9 +48,36 @@
     </div>
 
     <nav class="side-menu">
-      <a href="/dashboard">▦ Dashboard</a>
-      <a href="/projects" class="active">▣ Projects <span id="projectCountBadge">0</span></a>
-      <a>⚙ Settings</a>
+      <a href="/dashboard">
+        <span class="side-menu-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" focusable="false">
+            <rect x="4" y="4" width="7" height="7" rx="2"></rect>
+            <rect x="13" y="4" width="7" height="7" rx="2"></rect>
+            <rect x="4" y="13" width="7" height="7" rx="2"></rect>
+            <rect x="13" y="13" width="7" height="7" rx="2"></rect>
+          </svg>
+        </span>
+        <span class="side-menu-label">Dashboard</span>
+      </a>
+      <a href="/projects" class="active">
+        <span class="side-menu-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" focusable="false">
+            <path d="M4 7.5A2.5 2.5 0 0 1 6.5 5h4.1l2 2.4h4.9A2.5 2.5 0 0 1 20 9.9v6.6a2.5 2.5 0 0 1-2.5 2.5h-11A2.5 2.5 0 0 1 4 16.5z"></path>
+            <path d="M4.2 9h15.6"></path>
+          </svg>
+        </span>
+        <span class="side-menu-label">Projects</span>
+        <span id="projectCountBadge" class="menu-badge">0</span>
+      </a>
+      <a>
+        <span class="side-menu-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" focusable="false">
+            <path d="M12 8.25a3.75 3.75 0 1 1 0 7.5 3.75 3.75 0 0 1 0-7.5z"></path>
+            <path d="M18.2 13.4c.1-.45.1-.85.1-1.4s0-.95-.1-1.4l2-1.55-2-3.45-2.35.95a7.7 7.7 0 0 0-2.4-1.4L13.1 2.7H9.1l-.35 2.45a7.7 7.7 0 0 0-2.4 1.4L4 5.6l-2 3.45 2 1.55c-.1.45-.1.85-.1 1.4s0 .95.1 1.4l-2 1.55 2 3.45 2.35-.95a7.7 7.7 0 0 0 2.4 1.4l.35 2.45h4l.35-2.45a7.7 7.7 0 0 0 2.4-1.4l2.35.95 2-3.45z"></path>
+          </svg>
+        </span>
+        <span class="side-menu-label">Settings</span>
+      </a>
     </nav>
 
     <div class="version">V-1.00 • CAD 3D</div>

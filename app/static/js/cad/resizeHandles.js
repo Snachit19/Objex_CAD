@@ -1,15 +1,17 @@
 (function () {
     "use strict";
 
-    console.log("🎯 Resize handles module loading...");
-
     const HANDLE_SIZE = 0.15;
-    const HANDLE_COLOR = 0x60a5fa; // Blue
-    const HANDLE_HOVER_COLOR = 0xfbbf24; // Yellow/gold
+    const HANDLE_COLOR = 0x60a5fa;
+    const HANDLE_HOVER_COLOR = 0xfbbf24;
+    const MINIMUM_SCALE = 0.01;
+    const SCALE_DRAG_SENSITIVITY = 0.005;
     
     let handles = [];
     let selectedHandleIndex = -1;
     let isDraggingHandle = false;
+    let resizeHandlesInitialized = false;
+    let activePointerId = null;
     let dragStartPos = { x: 0, y: 0, z: 0 };
     let dragStartScale = { x: 0, y: 0, z: 0 };
     let raycaster = new THREE.Raycaster();
@@ -56,14 +58,22 @@
         return null;
     }
 
-    function createHandle(position) {
+    function getCornerPosition(center, size, cornerSign) {
+        return new THREE.Vector3(
+            center.x + (size.x / 2) * cornerSign[0],
+            center.y + (size.y / 2) * cornerSign[1],
+            center.z + (size.z / 2) * cornerSign[2]
+        );
+    }
+
+    function createHandle(position, cornerSign) {
         const geometry = new THREE.SphereGeometry(HANDLE_SIZE, 16, 16);
         const material = new THREE.MeshBasicMaterial({ color: HANDLE_COLOR });
         const handle = new THREE.Mesh(geometry, material);
         
         handle.position.copy(position);
         handle.userData.isResizeHandle = true;
-        handle.userData.originalPosition = position.clone();
+        handle.userData.cornerSign = cornerSign.slice();
         
         return handle;
     }
@@ -86,35 +96,25 @@
         const size = bbox.getSize(new THREE.Vector3());
         const center = bbox.getCenter(new THREE.Vector3());
 
-        // Create 8 corner positions
-        const corners = [
-            [-size.x / 2, -size.y / 2, -size.z / 2],
-            [size.x / 2, -size.y / 2, -size.z / 2],
-            [-size.x / 2, size.y / 2, -size.z / 2],
-            [size.x / 2, size.y / 2, -size.z / 2],
-            [-size.x / 2, -size.y / 2, size.z / 2],
-            [size.x / 2, -size.y / 2, size.z / 2],
-            [-size.x / 2, size.y / 2, size.z / 2],
-            [size.x / 2, size.y / 2, size.z / 2]
+        const cornerSigns = [
+            [-1, -1, -1],
+            [1, -1, -1],
+            [-1, 1, -1],
+            [1, 1, -1],
+            [-1, -1, 1],
+            [1, -1, 1],
+            [-1, 1, 1],
+            [1, 1, 1]
         ];
 
-        // Create handle at each corner
-        corners.forEach((cornerOffset) => {
-            const handlePos = new THREE.Vector3(
-                center.x + cornerOffset[0],
-                center.y + cornerOffset[1],
-                center.z + cornerOffset[2]
-            );
-
-            const handle = createHandle(handlePos);
-            handle.userData.cornerOffset = cornerOffset;
+        cornerSigns.forEach((cornerSign) => {
+            const handlePos = getCornerPosition(center, size, cornerSign);
+            const handle = createHandle(handlePos, cornerSign);
             handle.userData.parentObject = object;
             
             workspace.scene.add(handle);
             handles.push(handle);
         });
-
-        console.log("✅ Created " + handles.length + " resize handles");
     }
 
     function removeHandles() {
@@ -125,10 +125,22 @@
 
         handles.forEach((handle) => {
             workspace.scene.remove(handle);
+
+            if (handle.geometry && typeof handle.geometry.dispose === "function") {
+                handle.geometry.dispose();
+            }
+
+            if (handle.material && typeof handle.material.dispose === "function") {
+                handle.material.dispose();
+            }
         });
 
         handles = [];
         selectedHandleIndex = -1;
+
+        if (!isDraggingHandle) {
+            document.body.style.cursor = "default";
+        }
     }
 
     function updateHandlePositions(object) {
@@ -141,12 +153,8 @@
         const center = bbox.getCenter(new THREE.Vector3());
 
         handles.forEach((handle) => {
-            const offset = handle.userData.cornerOffset;
-            handle.position.set(
-                center.x + offset[0],
-                center.y + offset[1],
-                center.z + offset[2]
-            );
+            const cornerSign = handle.userData.cornerSign || [1, 1, 1];
+            handle.position.copy(getCornerPosition(center, size, cornerSign));
         });
     }
 
@@ -158,6 +166,15 @@
 
         const canvas = workspace.renderer.domElement;
         const rect = canvas.getBoundingClientRect();
+
+        if (
+            event.clientX < rect.left ||
+            event.clientX > rect.right ||
+            event.clientY < rect.top ||
+            event.clientY > rect.bottom
+        ) {
+            return -1;
+        }
 
         mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
         mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
@@ -181,6 +198,28 @@
         };
     }
 
+    function scalesAreEqual(firstScale, secondScale) {
+        const tolerance = 0.0000001;
+
+        return (
+            Math.abs(firstScale.x - secondScale.x) <= tolerance &&
+            Math.abs(firstScale.y - secondScale.y) <= tolerance &&
+            Math.abs(firstScale.z - secondScale.z) <= tolerance
+        );
+    }
+
+    function refreshAfterHandleResize(object) {
+        if (typeof window.refreshSelectedObjectPanel === "function") {
+            window.refreshSelectedObjectPanel();
+        }
+
+        if (typeof window.updateResizeInputs === "function") {
+            window.updateResizeInputs(object);
+        }
+
+        updateHandlePositions(object);
+    }
+
     function recordResizeHistory(object, previousScale, nextScale) {
         if (!window.CADHistory || typeof window.CADHistory.push !== "function") {
             return;
@@ -192,24 +231,12 @@
             label: "Resize " + objectName,
             undo: function () {
                 object.scale.set(previousScale.x, previousScale.y, previousScale.z);
-                if (typeof window.refreshSelectedObjectPanel === "function") {
-                    window.refreshSelectedObjectPanel();
-                }
-                if (typeof window.updateResizeInputs === "function") {
-                    window.updateResizeInputs(object);
-                }
-                updateHandlePositions(object);
+                refreshAfterHandleResize(object);
                 setStatus(objectName + " resize undone.");
             },
             redo: function () {
                 object.scale.set(nextScale.x, nextScale.y, nextScale.z);
-                if (typeof window.refreshSelectedObjectPanel === "function") {
-                    window.refreshSelectedObjectPanel();
-                }
-                if (typeof window.updateResizeInputs === "function") {
-                    window.updateResizeInputs(object);
-                }
-                updateHandlePositions(object);
+                refreshAfterHandleResize(object);
                 setStatus(objectName + " resize redone.");
             }
         });
@@ -227,25 +254,30 @@
             return;
         }
 
-        console.log("✅ Dragging handle " + (handleIndex + 1));
-
         selectedHandleIndex = handleIndex;
         isDraggingHandle = true;
+        activePointerId = event.pointerId;
+        window.isResizeHandleInteractionActive = true;
         dragStartPos = { x: event.clientX, y: event.clientY, z: 0 };
         dragStartScale = captureScale(object);
 
-        document.body.style.cursor = "grab";
+        document.body.style.cursor = "grabbing";
         setStatus("Resizing " + (object.name || "object") + "...");
 
         // Disable orbit controls while dragging
         const controls = getOrbitControls();
         if (controls) {
-            console.log("✅ Disabled orbit controls");
             controls.enabled = false;
+        }
+
+        const workspace = getWorkspace();
+        if (workspace && workspace.renderer && workspace.renderer.domElement.setPointerCapture) {
+            workspace.renderer.domElement.setPointerCapture(event.pointerId);
         }
 
         event.preventDefault();
         event.stopPropagation();
+        event.stopImmediatePropagation();
     }
 
     function onDocumentPointerMove(event) {
@@ -257,19 +289,26 @@
         // Update handle hover effect
         if (!isDraggingHandle) {
             const handleIndex = getHandleAtPointer(event);
+            let isHoveringHandle = false;
 
             handles.forEach((handle, index) => {
                 if (index === handleIndex) {
                     handle.material.color.setHex(HANDLE_HOVER_COLOR);
-                    document.body.style.cursor = "grab";
+                    isHoveringHandle = true;
                 } else {
                     handle.material.color.setHex(HANDLE_COLOR);
                 }
             });
+
+            document.body.style.cursor = isHoveringHandle ? "grab" : "default";
         }
 
         // Handle dragging
         if (!isDraggingHandle || selectedHandleIndex === -1) {
+            return;
+        }
+
+        if (activePointerId !== null && event.pointerId !== activePointerId) {
             return;
         }
 
@@ -284,23 +323,23 @@
         const deltaX = event.clientX - dragStartPos.x;
         const deltaY = event.clientY - dragStartPos.y;
 
-        // Calculate scale change (sensitivity)
-        const sensitivity = 0.005;
         const totalDelta = Math.max(Math.abs(deltaX), Math.abs(deltaY));
         const direction = deltaX > 0 ? 1 : (deltaX < 0 ? -1 : (deltaY > 0 ? -1 : 1));
-        const scaleChange = totalDelta * sensitivity * direction;
+        const scaleChange = totalDelta * SCALE_DRAG_SENSITIVITY * direction;
 
-        // Apply uniform scale
-        const newScale = Math.max(0.1, dragStartScale.x + scaleChange);
-        object.scale.set(newScale, newScale, newScale);
+        object.scale.set(
+            Math.max(MINIMUM_SCALE, dragStartScale.x + scaleChange),
+            Math.max(MINIMUM_SCALE, dragStartScale.y + scaleChange),
+            Math.max(MINIMUM_SCALE, dragStartScale.z + scaleChange)
+        );
 
-        updateHandlePositions(object);
+        refreshAfterHandleResize(object);
 
-        if (typeof window.updateResizeInputs === "function") {
-            window.updateResizeInputs(object);
-        }
-
-        setStatus("Size: " + newScale.toFixed(2));
+        setStatus(
+            "Scale X: " + object.scale.x.toFixed(2) +
+            ", Y: " + object.scale.y.toFixed(2) +
+            ", Z: " + object.scale.z.toFixed(2)
+        );
     }
 
     function onDocumentPointerUp(event) {
@@ -311,25 +350,41 @@
         const object = getSelectedObject();
         if (object) {
             const finalScale = captureScale(object);
-            recordResizeHistory(object, dragStartScale, finalScale);
 
-            if (typeof window.refreshSelectedObjectPanel === "function") {
-                window.refreshSelectedObjectPanel();
+            if (scalesAreEqual(dragStartScale, finalScale)) {
+                setStatus("Resize unchanged.");
+            } else {
+                recordResizeHistory(object, dragStartScale, finalScale);
+                setStatus("Resize complete.");
             }
+
+            refreshAfterHandleResize(object);
         }
 
         // Re-enable orbit controls
         const controls = getOrbitControls();
         if (controls) {
-            console.log("✅ Re-enabled orbit controls");
             controls.enabled = true;
+        }
+
+        const workspace = getWorkspace();
+        if (
+            workspace &&
+            workspace.renderer &&
+            workspace.renderer.domElement.hasPointerCapture &&
+            workspace.renderer.domElement.hasPointerCapture(event.pointerId)
+        ) {
+            workspace.renderer.domElement.releasePointerCapture(event.pointerId);
         }
 
         isDraggingHandle = false;
         selectedHandleIndex = -1;
+        activePointerId = null;
         document.body.style.cursor = "default";
 
-        setStatus("Resize complete.");
+        window.setTimeout(function () {
+            window.isResizeHandleInteractionActive = false;
+        }, 0);
     }
 
     function onSelectionChanged(event) {
@@ -342,28 +397,49 @@
         }
     }
 
+    function onObjectChanged(event) {
+        const object = event.detail ? event.detail.object : null;
+        const selectedObject = getSelectedObject();
+
+        if (object && selectedObject && object === selectedObject) {
+            updateHandlePositions(object);
+        }
+    }
+
     function initResizeHandles() {
+        if (resizeHandlesInitialized) {
+            return;
+        }
+
         const workspace = getWorkspace();
 
         if (!workspace || !workspace.renderer) {
-            console.warn("❌ Workspace or renderer not found");
             return;
         }
+
+        resizeHandlesInitialized = true;
 
         const canvas = workspace.renderer.domElement;
 
         canvas.addEventListener("pointerdown", onCanvasPointerDown);
         document.addEventListener("pointermove", onDocumentPointerMove);
         document.addEventListener("pointerup", onDocumentPointerUp);
+        document.addEventListener("pointercancel", onDocumentPointerUp);
 
         // Listen for selection changes
         window.addEventListener("cad:selectionChanged", onSelectionChanged);
-
-        console.log("✅ Resize handles initialized!");
+        window.addEventListener("cad:objectChanged", onObjectChanged);
     }
 
     window.createHandlesForObject = createHandlesForObject;
     window.removeHandles = removeHandles;
+    window.refreshResizeHandles = function () {
+        updateHandlePositions(getSelectedObject());
+    };
+    window.isResizeHandleInteractionActive = false;
+    window.isPointerOnResizeHandle = function (event) {
+        return getHandleAtPointer(event) !== -1;
+    };
 
     document.addEventListener("DOMContentLoaded", function () {
         window.addEventListener("cad:ready", initResizeHandles);
