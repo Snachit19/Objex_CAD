@@ -6,31 +6,38 @@
   <title>Objex CAD | Dashboard</title>
   <link rel="stylesheet" href="/static/css/style.css">
 </head>
+
 <body>
- 
+
   <header class="top-nav dashboard-top-nav">
     <div class="top-user">
       <span class="top-icon">🔔</span>
-    <button id="newProjectBtn" class="create-project-btn">+ New Project</button> 
+
+      <button id="newProjectBtn" class="create-project-btn" type="button">
+        + New Project
+      </button>
+
       <span class="top-icon">⚙</span>
+
       <div class="user-avatar" id="avatar-initial">O</div>
       <span id="display-name">Loading…</span>
-      <button id="logoutBtn" class="logout-btn">Logout</button>
+
+      <button id="logoutBtn" class="logout-btn" type="button">Logout</button>
     </div>
   </header>
- 
+
   <aside class="sidebar">
     <div class="sidebar-brand">
       <div class="brand-logo-small">
         <img src="/static/images/logo.png" alt="Objex Logo">
       </div>
- 
+
       <div>
         <h2>CAD 3D</h2>
         <p>Professional Design Studio</p>
       </div>
     </div>
- 
+
     <nav class="side-menu">
       <a href="/dashboard" class="active">
         <span class="side-menu-icon" aria-hidden="true">
@@ -43,6 +50,7 @@
         </span>
         <span class="side-menu-label">Dashboard</span>
       </a>
+
       <a href="/projects">
         <span class="side-menu-icon" aria-hidden="true">
           <svg viewBox="0 0 24 24" focusable="false">
@@ -53,6 +61,18 @@
         <span class="side-menu-label">Projects</span>
         <span id="projectCountBadge" class="menu-badge">0</span>
       </a>
+
+      <a href="/help">
+        <span class="side-menu-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" focusable="false">
+            <path d="M12 18h.01"></path>
+            <path d="M9.2 9a3 3 0 1 1 5.4 1.8c-.9 1-1.8 1.5-2.2 2.7"></path>
+            <circle cx="12" cy="12" r="9"></circle>
+          </svg>
+        </span>
+        <span class="side-menu-label">Help</span>
+      </a>
+
       <a>
         <span class="side-menu-icon" aria-hidden="true">
           <svg viewBox="0 0 24 24" focusable="false">
@@ -63,62 +83,84 @@
         <span class="side-menu-label">Settings</span>
       </a>
     </nav>
- 
+
     <div class="version">V-1.00 • CAD 3D</div>
   </aside>
- 
+
   <main class="dashboard-layout">
- 
+
     <section class="hero-preview" id="recentProjectPreview" aria-live="polite">
       <div class="preview-top">
         <span id="recentPreviewTitle">Perspective View</span>
       </div>
- 
+
       <div class="fake-toolbar" role="toolbar" aria-label="Preview controls">
-        <button id="previewPanBtn" class="preview-control-btn active-preview-control" type="button" title="Pan preview"
-          aria-label="Pan preview">✋</button>
-        <button id="previewOrbitBtn" class="preview-control-btn" type="button" title="Orbit preview"
-          aria-label="Orbit preview">✥</button>
-        <button id="previewResetViewBtn" class="preview-control-btn" type="button" title="Reset preview view"
-          aria-label="Reset preview view">↻</button>
+        <button id="previewPanBtn" class="preview-control-btn active-preview-control" type="button" title="Pan preview" aria-label="Pan preview">
+          ✋
+        </button>
+
+        <button id="previewOrbitBtn" class="preview-control-btn" type="button" title="Orbit preview" aria-label="Orbit preview">
+          ✥
+        </button>
+
+        <button id="previewResetViewBtn" class="preview-control-btn" type="button" title="Reset preview view" aria-label="Reset preview view">
+          ↻
+        </button>
+
         <hr>
-        <button id="previewFocusAllBtn" class="preview-control-btn" type="button" title="Fit all objects"
-          aria-label="Fit all objects">◇</button>
-        <button id="previewFocusSphereBtn" class="preview-control-btn" type="button" title="Focus first sphere"
-          aria-label="Focus first sphere">○</button>
-        <button id="previewFocusCubeBtn" class="preview-control-btn" type="button" title="Focus first cube"
-          aria-label="Focus first cube">□</button>
+
+        <button id="previewFocusAllBtn" class="preview-control-btn" type="button" title="Fit all objects" aria-label="Fit all objects">
+          ◇
+        </button>
+
+        <button id="previewFocusSphereBtn" class="preview-control-btn" type="button" title="Focus first sphere" aria-label="Focus first sphere">
+          ○
+        </button>
+
+        <button id="previewFocusCubeBtn" class="preview-control-btn" type="button" title="Focus first cube" aria-label="Focus first cube">
+          □
+        </button>
       </div>
- 
+
       <div class="shape-scene" id="dashboardPreviewScene"></div>
- 
+
       <div class="status-box">
         <p id="recentPreviewProjectName">No recent project</p>
         <p id="recentPreviewProjectDescription">Create a project to preview it here.</p>
         <strong id="recentPreviewObjectCount">0 Objects Saved</strong>
+
         <button id="openRecentProjectBtn" class="preview-open-btn" type="button" disabled>
           Open Project
         </button>
       </div>
- 
+
       <div class="zoom-bar" role="toolbar" aria-label="Preview zoom controls">
-        <button id="previewZoomOutBtn" class="preview-control-btn" type="button" title="Zoom out"
-          aria-label="Zoom out">−</button>
+        <button id="previewZoomOutBtn" class="preview-control-btn" type="button" title="Zoom out" aria-label="Zoom out">
+          −
+        </button>
+
         <strong id="previewZoomValue">100%</strong>
-        <button id="previewZoomInBtn" class="preview-control-btn" type="button" title="Zoom in"
-          aria-label="Zoom in">＋</button>
-        <button id="previewGridToggleBtn" class="preview-control-btn active-preview-control" type="button"
-          title="Toggle preview grid" aria-label="Toggle preview grid">▦</button>
-        <button id="previewFitViewBtn" class="preview-control-btn" type="button" title="Fit selected object"
-          aria-label="Fit selected object">◉</button>
+
+        <button id="previewZoomInBtn" class="preview-control-btn" type="button" title="Zoom in" aria-label="Zoom in">
+          ＋
+        </button>
+
+        <button id="previewGridToggleBtn" class="preview-control-btn active-preview-control" type="button" title="Toggle preview grid" aria-label="Toggle preview grid">
+          ▦
+        </button>
+
+        <button id="previewFitViewBtn" class="preview-control-btn" type="button" title="Fit selected object" aria-label="Fit selected object">
+          ◉
+        </button>
       </div>
     </section>
- 
+
     <section class="dashboard-cards dashboard-cards-compact">
       <div class="card">
         <div class="card-header-row">
           <h3>Recent Projects</h3>
         </div>
+
         <p id="recentProjectsMeta">Loading projects...</p>
 
         <div id="projectList">
@@ -130,16 +172,19 @@
 
         <a href="/projects" class="view-all-projects-link">View all projects</a>
       </div>
- 
+
       <div class="card help-card">
         <h3>Help</h3>
         <p>Need assistance?</p>
-        <button class="help-page-btn" type="button" disabled>View Help</button>
+
+        <button class="help-page-btn" type="button" onclick="window.location.href='/help'">
+          View Help
+        </button>
       </div>
     </section>
- 
+
   </main>
- 
+
   <aside class="properties-panel">
     <h2>Properties</h2>
     <p id="dashboardPreviewInspectorLabel">Inspector Panel</p>
@@ -159,24 +204,24 @@
       <label>Source</label>
       <input id="dashboardPreviewObjectSource" type="text" value="-" readonly>
     </div>
- 
+
     <div class="property-card">
       <h3>Transform</h3>
- 
+
       <label>Position</label>
       <div class="triple">
         <input id="dashboardPreviewPositionX" value="0.00" readonly>
         <input id="dashboardPreviewPositionY" value="0.00" readonly>
         <input id="dashboardPreviewPositionZ" value="0.00" readonly>
       </div>
- 
+
       <label>Rotation</label>
       <div class="triple">
         <input id="dashboardPreviewRotationX" value="0.00" readonly>
         <input id="dashboardPreviewRotationY" value="0.00" readonly>
         <input id="dashboardPreviewRotationZ" value="0.00" readonly>
       </div>
- 
+
       <label>Scale</label>
       <div class="triple">
         <input id="dashboardPreviewScaleX" value="1.00" readonly>
@@ -184,13 +229,13 @@
         <input id="dashboardPreviewScaleZ" value="1.00" readonly>
       </div>
     </div>
- 
+
     <div class="property-card">
       <h3>Appearance</h3>
- 
+
       <label>Color</label>
       <input id="dashboardPreviewColor" type="text" value="#6366f1" readonly>
- 
+
       <label>Material</label>
       <input id="dashboardPreviewMaterial" type="text" value="Default" readonly>
 
@@ -203,6 +248,7 @@
         <span>Metal</span>
         <span>Opacity</span>
       </div>
+
       <div class="triple">
         <input id="dashboardPreviewRoughness" type="text" value="0.50" readonly title="Roughness">
         <input id="dashboardPreviewMetalness" type="text" value="0.00" readonly title="Metalness">
@@ -225,8 +271,8 @@
       <div id="projectError" class="error-msg" style="display:none;"></div>
 
       <div class="modal-actions">
-        <button id="cancelProjectBtn" class="cancel-btn">Cancel</button>
-        <button id="saveProjectBtn" class="save-btn">Create Project</button>
+        <button id="cancelProjectBtn" class="cancel-btn" type="button">Cancel</button>
+        <button id="saveProjectBtn" class="save-btn" type="button">Create Project</button>
       </div>
     </div>
   </div>
@@ -252,47 +298,50 @@
       </div>
     </div>
   </div>
-<script src="/static/js/common/api.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/OBJLoader.js"></script>
-<script src="/static/js/cad/modelFormats.js"></script>
-<script src="/static/js/cad/importModel.js"></script>
-<script src="/static/js/dashboard/recentProjectPreview.js"></script>
-<script src="/static/js/dashboard/createProject.js"></script>
- 
+
+  <script src="/static/js/common/api.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/OBJLoader.js"></script>
+
+  <script src="/static/js/cad/modelFormats.js"></script>
+  <script src="/static/js/cad/importModel.js"></script>
+  <script src="/static/js/dashboard/recentProjectPreview.js"></script>
+  <script src="/static/js/dashboard/createProject.js"></script>
+
   <script>
-    // On page load — check if user is logged in and load their name
     async function loadUser() {
       try {
-        const res  = await fetch("/api/me");
+        const res = await fetch("/api/me");
         const data = await res.json();
- 
+
         if (!data.success) {
-          // Not logged in — send back to login page
           window.location.href = "/";
           return;
         }
- 
-        // Show real name and avatar initial from session
+
         document.getElementById("display-name").textContent = data.name;
         document.getElementById("avatar-initial").textContent =
-        (data.name || "U").charAt(0).toUpperCase();
- 
+          (data.name || "U").charAt(0).toUpperCase();
+
       } catch {
         window.location.href = "/";
       }
     }
- 
-    // Logout button — clears session and redirects to login
-    document.getElementById("logoutBtn").addEventListener("click", async () => {
-      await fetch("/api/logout", { method: "POST" });
-      window.location.href = "/";
-    });
- 
+
+    const logoutBtn = document.getElementById("logoutBtn");
+
+    if (logoutBtn) {
+      logoutBtn.addEventListener("click", async function () {
+        await fetch("/api/logout", { method: "POST" });
+        window.location.href = "/";
+      });
+    }
+
     loadUser();
   </script>
- 
+
 </body>
 </html>
