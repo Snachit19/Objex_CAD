@@ -45,18 +45,15 @@
         </div>
       </div>
 
-<<<<<<< HEAD
-      <button id="undoToolBtn" class="cad-icon-tool-btn undo-tool-btn" title="Undo (Ctrl/Cmd+Z)" aria-label="Undo" type="button" disabled>
-        <img class="undo-tool-icon" src="/static/assets/undo-object.svg" alt="Undo">
-      </button>
-
-      <button id="redoToolBtn" class="cad-icon-tool-btn redo-tool-btn" title="Redo (Ctrl/Cmd+Shift+Z or Ctrl/Cmd+Y)" aria-label="Redo" type="button" disabled>
-        <img class="redo-tool-icon" src="/static/assets/undo-object.svg" alt="Redo">
-=======
-      <button id="undoToolBtn" class="cad-icon-tool-btn undo-tool-btn" title="Undo (Ctrl/Cmd+Z)" aria-label="Undo"
+<button id="undoToolBtn" class="cad-icon-tool-btn undo-tool-btn" title="Undo (Ctrl/Cmd+Z)" aria-label="Undo"
         type="button" disabled>
         <img class="undo-tool-icon" src="/static/images/undo-object.svg" alt="Undo">
->>>>>>> origin/main
+      </button>
+      <button id="redoToolBtn" class="cad-icon-tool-btn redo-tool-btn" title="Redo (Ctrl/Cmd+Shift+Z or Ctrl/Cmd+Y)"
+        aria-label="Redo" aria-keyshortcuts="Control+Shift+Z Meta+Shift+Z Control+Y Meta+Y" type="button" disabled>
+        <img class="redo-tool-icon" src="/static/images/redo-object.svg" alt="Redo">
+      </button>
+      <button id="resetWorkspaceBtn" class="cad-icon-tool-btn
       </button>
 
       <button id="redoToolBtn" class="cad-icon-tool-btn redo-tool-btn" title="Redo (Ctrl/Cmd+Shift+Z or Ctrl/Cmd+Y)"
@@ -906,10 +903,7 @@
           updateUndoButtonState();
         });
       }
-<<<<<<< HEAD
-=======
-
-      if (resetWorkspaceBtn) {
+if (resetWorkspaceBtn) {
         resetWorkspaceBtn.addEventListener("click", function (event) {
           event.stopPropagation();
           closeAllDropdownMenus();
@@ -967,7 +961,6 @@
           }
         });
       }
->>>>>>> origin/main
 
       const zoomMenuOptions = document.getElementById("zoomMenuOptions");
 
