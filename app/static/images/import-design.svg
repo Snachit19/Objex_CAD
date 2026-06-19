@@ -1,0 +1,31 @@
+<svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="importDesignStroke" x1="9" y1="10" x2="56" y2="56" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#93C5FD"/>
+      <stop offset="1" stop-color="#6366F1"/>
+    </linearGradient>
+  </defs>
+  <path
+    d="M25 20L40 29V46L25 55L10 46V29L25 20Z"
+    stroke="url(#importDesignStroke)"
+    stroke-width="4"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  />
+  <path
+    d="M10 29L25 38L40 29M25 38V55"
+    stroke="url(#importDesignStroke)"
+    stroke-width="3.3"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    opacity="0.82"
+  />
+  <path
+    d="M45 20L56 9M48 9H56V17"
+    stroke="url(#importDesignStroke)"
+    stroke-width="4"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    transform="rotate(180 52 14)"
+  />
+</svg>

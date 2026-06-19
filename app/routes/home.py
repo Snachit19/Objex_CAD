@@ -22,6 +22,12 @@ def dashboard_page():
     return render_template("dashboard.html")
 
 
+@home_bp.route("/projects")
+@login_required
+def projects_page():
+    return render_template("projects.html")
+
+
 @home_bp.route("/cad/<int:project_id>")
 @login_required
 def cad_page(project_id):

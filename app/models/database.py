@@ -65,6 +65,7 @@ class Database:
                 owner_email VARCHAR(150) NOT NULL,
                 design_data JSON NULL,
                 created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                last_opened_at DATETIME NULL,
                 updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
             )
         """)
@@ -81,6 +82,21 @@ class Database:
             db.execute("""
                 ALTER TABLE projects
                 ADD COLUMN design_data JSON NULL
+            """)
+
+        last_opened_column = db.fetch_one("""
+            SELECT COLUMN_NAME
+            FROM INFORMATION_SCHEMA.COLUMNS
+            WHERE TABLE_SCHEMA = %s
+              AND TABLE_NAME = 'projects'
+              AND COLUMN_NAME = 'last_opened_at'
+        """, (config.MYSQL_DATABASE,))
+
+        if not last_opened_column:
+            db.execute("""
+                ALTER TABLE projects
+                ADD COLUMN last_opened_at DATETIME NULL
+                AFTER created_at
             """)
 
         db.close()

@@ -23,7 +23,7 @@
   <aside class="sidebar">
     <div class="sidebar-brand">
       <div class="brand-logo-small">
-        <img src="/static/assets/logo.png" alt="Objex Logo">
+        <img src="/static/images/logo.png" alt="Objex Logo">
       </div>
  
       <div>
@@ -33,8 +33,8 @@
     </div>
  
     <nav class="side-menu">
-      <a class="active">▦ Dashboard</a>
-      <a>▣ Projects <span>12</span></a>
+      <a href="/dashboard" class="active">▦ Dashboard</a>
+      <a href="/projects">▣ Projects <span id="projectCountBadge">0</span></a>
       <a>⚙ Settings</a>
     </nav>
  
@@ -43,81 +43,72 @@
  
   <main class="dashboard-layout">
  
-    <section class="hero-preview">
+    <section class="hero-preview" id="recentProjectPreview" aria-live="polite">
       <div class="preview-top">
-        <span>Perspective View</span>
+        <span id="recentPreviewTitle">Perspective View</span>
       </div>
  
-      <div class="fake-toolbar">
-        <span>✋</span>
-        <span>✥</span>
-        <span>↻</span>
+      <div class="fake-toolbar" role="toolbar" aria-label="Preview controls">
+        <button id="previewPanBtn" class="preview-control-btn active-preview-control" type="button" title="Pan preview"
+          aria-label="Pan preview">✋</button>
+        <button id="previewOrbitBtn" class="preview-control-btn" type="button" title="Orbit preview"
+          aria-label="Orbit preview">✥</button>
+        <button id="previewResetViewBtn" class="preview-control-btn" type="button" title="Reset preview view"
+          aria-label="Reset preview view">↻</button>
         <hr>
-        <span>◇</span>
-        <span>○</span>
-        <span>□</span>
+        <button id="previewFocusAllBtn" class="preview-control-btn" type="button" title="Fit all objects"
+          aria-label="Fit all objects">◇</button>
+        <button id="previewFocusSphereBtn" class="preview-control-btn" type="button" title="Focus first sphere"
+          aria-label="Focus first sphere">○</button>
+        <button id="previewFocusCubeBtn" class="preview-control-btn" type="button" title="Focus first cube"
+          aria-label="Focus first cube">□</button>
       </div>
  
-      <div class="shape-scene">
-        <div class="shape cube"></div>
-        <div class="shape sphere"></div>
-        <div class="shape cylinder"></div>
-        <div class="shape ring"></div>
-        <div class="shape pill"></div>
-      </div>
+      <div class="shape-scene" id="dashboardPreviewScene"></div>
  
       <div class="status-box">
-        <p>X: 0.00 | Y: 0.00 | Z: 0.00</p>
-        <p>Grid: 1.0m</p>
-        <strong>5 Objects Selected</strong>
+        <p id="recentPreviewProjectName">No recent project</p>
+        <p id="recentPreviewProjectDescription">Create a project to preview it here.</p>
+        <strong id="recentPreviewObjectCount">0 Objects Saved</strong>
+        <button id="openRecentProjectBtn" class="preview-open-btn" type="button" disabled>
+          Open Project
+        </button>
       </div>
  
-      <div class="zoom-bar">
-        <span>−</span>
-        <strong>100%</strong>
-        <span>＋</span>
-        <span>▦</span>
-        <span>◉</span>
+      <div class="zoom-bar" role="toolbar" aria-label="Preview zoom controls">
+        <button id="previewZoomOutBtn" class="preview-control-btn" type="button" title="Zoom out"
+          aria-label="Zoom out">−</button>
+        <strong id="previewZoomValue">100%</strong>
+        <button id="previewZoomInBtn" class="preview-control-btn" type="button" title="Zoom in"
+          aria-label="Zoom in">＋</button>
+        <button id="previewGridToggleBtn" class="preview-control-btn active-preview-control" type="button"
+          title="Toggle preview grid" aria-label="Toggle preview grid">▦</button>
+        <button id="previewFitViewBtn" class="preview-control-btn" type="button" title="Fit selected object"
+          aria-label="Fit selected object">◉</button>
       </div>
     </section>
  
-    <section class="dashboard-cards">
-    <div class="card">
-      <h3>Recent Projects</h3>
-      <p>Last updated today</p>
+    <section class="dashboard-cards dashboard-cards-compact">
+      <div class="card">
+        <div class="card-header-row">
+          <h3>Recent Projects</h3>
+        </div>
+        <p id="recentProjectsMeta">Loading projects...</p>
 
-      <div id="projectList">
-        <div class="mock-project">
-          <strong>No projects yet</strong>
-          <span>Create one</span>
+        <div id="projectList">
+          <div class="mock-project">
+            <strong>No projects yet</strong>
+            <span>Create one</span>
+          </div>
         </div>
-      </div>
-    </div>
- 
-      <div class="card">
-        <h3>Material Palette</h3>
-        <p>Quick colour access</p>
- 
-        <div class="palette">
-          <span class="red"></span>
-          <span class="yellow"></span>
-          <span class="green"></span>
-          <span class="blue"></span>
-          <span class="purple"></span>
-          <span class="pink"></span>
-          <span class="indigo"></span>
-          <span class="teal"></span>
-        </div>
+
+        <a href="/projects" class="view-all-projects-link">View all projects</a>
       </div>
  
-      <div class="card">
-        <h3>Export</h3>
-        <p>Download project</p>
-        <button class="export-btn">Export as FBX</button>
- 
-        <h3 class="help-title">Help</h3>
+      <div class="card help-card">
+        <h3>Help</h3>
         <p>Need assistance?</p>
-        <button class="disabled-btn">View Tutorials</button>
+        <button class="help-page-btn" type="button" disabled>View Help</button>
       </div>
     </section>
  
@@ -125,30 +116,46 @@
  
   <aside class="properties-panel">
     <h2>Properties</h2>
-    <p>Inspector Panel</p>
+    <p id="dashboardPreviewInspectorLabel">Inspector Panel</p>
+
+    <div class="property-card">
+      <h3>Object</h3>
+
+      <label>Name</label>
+      <input id="dashboardPreviewObjectName" type="text" value="No object selected" readonly>
+
+      <label>Type</label>
+      <input id="dashboardPreviewObjectType" type="text" value="-" readonly>
+
+      <label>ID</label>
+      <input id="dashboardPreviewObjectId" type="text" value="-" readonly>
+
+      <label>Source</label>
+      <input id="dashboardPreviewObjectSource" type="text" value="-" readonly>
+    </div>
  
     <div class="property-card">
       <h3>Transform</h3>
  
       <label>Position</label>
       <div class="triple">
-        <input value="0.00" readonly>
-        <input value="0.00" readonly>
-        <input value="0.00" readonly>
+        <input id="dashboardPreviewPositionX" value="0.00" readonly>
+        <input id="dashboardPreviewPositionY" value="0.00" readonly>
+        <input id="dashboardPreviewPositionZ" value="0.00" readonly>
       </div>
  
       <label>Rotation</label>
       <div class="triple">
-        <input value="0.00" readonly>
-        <input value="0.00" readonly>
-        <input value="0.00" readonly>
+        <input id="dashboardPreviewRotationX" value="0.00" readonly>
+        <input id="dashboardPreviewRotationY" value="0.00" readonly>
+        <input id="dashboardPreviewRotationZ" value="0.00" readonly>
       </div>
  
       <label>Scale</label>
       <div class="triple">
-        <input value="1.00" readonly>
-        <input value="1.00" readonly>
-        <input value="1.00" readonly>
+        <input id="dashboardPreviewScaleX" value="1.00" readonly>
+        <input id="dashboardPreviewScaleY" value="1.00" readonly>
+        <input id="dashboardPreviewScaleZ" value="1.00" readonly>
       </div>
     </div>
  
@@ -156,10 +163,25 @@
       <h3>Appearance</h3>
  
       <label>Color</label>
-      <input type="text" value="#6366f1" readonly>
+      <input id="dashboardPreviewColor" type="text" value="#6366f1" readonly>
  
       <label>Material</label>
-      <input type="text" value="Default" readonly>
+      <input id="dashboardPreviewMaterial" type="text" value="Default" readonly>
+
+      <label>Material Type</label>
+      <input id="dashboardPreviewMaterialType" type="text" value="default" readonly>
+
+      <label>Surface</label>
+      <div class="triple-hints">
+        <span>Rough</span>
+        <span>Metal</span>
+        <span>Opacity</span>
+      </div>
+      <div class="triple">
+        <input id="dashboardPreviewRoughness" type="text" value="0.50" readonly title="Roughness">
+        <input id="dashboardPreviewMetalness" type="text" value="0.00" readonly title="Metalness">
+        <input id="dashboardPreviewOpacity" type="text" value="1.00" readonly title="Opacity">
+      </div>
     </div>
   </aside>
 
@@ -176,14 +198,42 @@
 
       <div id="projectError" class="error-msg" style="display:none;"></div>
 
-        <div class="modal-actions">
-          <button id="cancelProjectBtn" class="cancel-btn">Cancel</button>
-          <button id="saveProjectBtn" class="save-btn">Create Project</button>
-        </div>
+      <div class="modal-actions">
+        <button id="cancelProjectBtn" class="cancel-btn">Cancel</button>
+        <button id="saveProjectBtn" class="save-btn">Create Project</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="renameProjectModal" class="modal-overlay">
+    <div class="modal-card">
+      <h2>Rename Project</h2>
+      <p>Update the project name and description.</p>
+
+      <input type="hidden" id="renameProjectId">
+
+      <label for="renameProjectName">Project Name</label>
+      <input type="text" id="renameProjectName" placeholder="Project name">
+
+      <label for="renameProjectDescription">Description</label>
+      <textarea id="renameProjectDescription" placeholder="Short project description"></textarea>
+
+      <div id="renameProjectError" class="error-msg" style="display:none;"></div>
+
+      <div class="modal-actions">
+        <button id="cancelRenameProjectBtn" class="cancel-btn" type="button">Cancel</button>
+        <button id="saveRenameProjectBtn" class="save-btn" type="button">Save Changes</button>
       </div>
     </div>
   </div>
 <script src="/static/js/common/api.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/OBJLoader.js"></script>
+<script src="/static/js/cad/modelFormats.js"></script>
+<script src="/static/js/cad/importModel.js"></script>
+<script src="/static/js/dashboard/recentProjectPreview.js"></script>
 <script src="/static/js/dashboard/createProject.js"></script>
  
   <script>

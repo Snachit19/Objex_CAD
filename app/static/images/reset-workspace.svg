@@ -1,0 +1,28 @@
+<svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="resetStroke" x1="10" y1="12" x2="55" y2="56" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FCA5A5"/>
+      <stop offset="1" stop-color="#FDBA74"/>
+    </linearGradient>
+  </defs>
+  <path
+    d="M48 19C44 14 38 11 31 11C19 11 10 20 10 32C10 44 19 53 31 53C41 53 49 47 52 38"
+    stroke="url(#resetStroke)"
+    stroke-width="5"
+    stroke-linecap="round"
+  />
+  <path
+    d="M47 9V20H36"
+    stroke="url(#resetStroke)"
+    stroke-width="5"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  />
+  <path
+    d="M22 25H42M22 32H42M22 39H42M29 22V42M36 22V42"
+    stroke="url(#resetStroke)"
+    stroke-width="3"
+    stroke-linecap="round"
+    opacity="0.78"
+  />
+</svg>

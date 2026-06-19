@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Objex CAD | Projects</title>
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body class="projects-page">
+
+  <header class="top-nav">
+    <input class="search-box" type="text" placeholder="Search projects, files...">
+    <div class="top-user">
+      <span class="top-icon">🔔</span>
+      <button id="newProjectBtn" class="create-project-btn">+ New Project</button>
+      <span class="top-icon">⚙</span>
+      <div class="user-avatar" id="avatar-initial">O</div>
+      <span id="display-name">Loading…</span>
+      <button id="logoutBtn" class="logout-btn">Logout</button>
+    </div>
+  </header>
+
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-logo-small">
+        <img src="/static/images/logo.png" alt="Objex Logo">
+      </div>
+
+      <div>
+        <h2>CAD 3D</h2>
+        <p>Professional Design Studio</p>
+      </div>
+    </div>
+
+    <nav class="side-menu">
+      <a href="/dashboard">▦ Dashboard</a>
+      <a href="/projects" class="active">▣ Projects <span id="projectCountBadge">0</span></a>
+      <a>⚙ Settings</a>
+    </nav>
+
+    <div class="version">V-1.00 • CAD 3D</div>
+  </aside>
+
+  <main class="projects-page-layout">
+    <section class="projects-page-panel card">
+      <div class="projects-page-header">
+        <div>
+          <h1>All Projects</h1>
+          <p id="projectsPageMeta">Loading projects...</p>
+        </div>
+        <button id="importProjectBtn" class="import-project-btn" type="button">Import Project</button>
+      </div>
+
+      <p id="importProjectError" class="import-project-error" style="display:none;"></p>
+
+      <label class="dashboard-import-format-field" for="importProjectFormatSelect">
+        <span>Format</span>
+        <select id="importProjectFormatSelect">
+          <option value="glb">GLB</option>
+          <option value="gltf">GLTF</option>
+          <option value="obj">OBJ</option>
+        </select>
+      </label>
+
+      <input id="importProjectFileInput" type="file" accept=".glb,.gltf,.obj,model/gltf-binary,model/gltf+json,text/plain" hidden>
+
+      <div id="projectList" class="projects-list"></div>
+    </section>
+  </main>
+
+  <div id="projectModal" class="modal-overlay">
+    <div class="modal-card">
+      <h2>Create New Project</h2>
+      <p>Start a new CAD design workspace.</p>
+
+      <label for="projectName">Project Name</label>
+      <input type="text" id="projectName" placeholder="Example: 3D Product Model">
+
+      <label for="projectDescription">Description</label>
+      <textarea id="projectDescription" placeholder="Short project description"></textarea>
+
+      <div id="projectError" class="error-msg" style="display:none;"></div>
+
+      <div class="modal-actions">
+        <button id="cancelProjectBtn" class="cancel-btn">Cancel</button>
+        <button id="saveProjectBtn" class="save-btn">Create Project</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="renameProjectModal" class="modal-overlay">
+    <div class="modal-card">
+      <h2>Rename Project</h2>
+      <p>Update the project name and description.</p>
+
+      <input type="hidden" id="renameProjectId">
+
+      <label for="renameProjectName">Project Name</label>
+      <input type="text" id="renameProjectName" placeholder="Project name">
+
+      <label for="renameProjectDescription">Description</label>
+      <textarea id="renameProjectDescription" placeholder="Short project description"></textarea>
+
+      <div id="renameProjectError" class="error-msg" style="display:none;"></div>
+
+      <div class="modal-actions">
+        <button id="cancelRenameProjectBtn" class="cancel-btn" type="button">Cancel</button>
+        <button id="saveRenameProjectBtn" class="save-btn" type="button">Save Changes</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="/static/js/common/api.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/OBJLoader.js"></script>
+  <script src="/static/js/cad/modelFormats.js"></script>
+  <script src="/static/js/cad/importModel.js"></script>
+  <script src="/static/js/dashboard/createProject.js"></script>
+  <script src="/static/js/dashboard/importProject.js"></script>
+
+  <script>
+    async function loadUser() {
+      try {
+        const res = await fetch("/api/me");
+        const data = await res.json();
+
+        if (!data.success) {
+          window.location.href = "/";
+          return;
+        }
+
+        document.getElementById("display-name").textContent = data.name;
+        document.getElementById("avatar-initial").textContent =
+          (data.name || "U").charAt(0).toUpperCase();
+      } catch {
+        window.location.href = "/";
+      }
+    }
+
+    document.getElementById("logoutBtn").addEventListener("click", async () => {
+      await fetch("/api/logout", { method: "POST" });
+      window.location.href = "/";
+    });
+
+    loadUser();
+  </script>
+
+</body>
+</html>
