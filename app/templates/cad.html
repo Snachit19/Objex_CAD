@@ -45,19 +45,18 @@
         </div>
       </div>
 
-      <button id="undoToolBtn" class="cad-icon-tool-btn undo-tool-btn" title="Undo (Ctrl/Cmd+Z)" aria-label="Undo"
+<button id="undoToolBtn" class="cad-icon-tool-btn undo-tool-btn" title="Undo (Ctrl/Cmd+Z)" aria-label="Undo"
         type="button" disabled>
         <img class="undo-tool-icon" src="/static/images/undo-object.svg" alt="Undo">
       </button>
-
       <button id="redoToolBtn" class="cad-icon-tool-btn redo-tool-btn" title="Redo (Ctrl/Cmd+Shift+Z or Ctrl/Cmd+Y)"
         aria-label="Redo" aria-keyshortcuts="Control+Shift+Z Meta+Shift+Z Control+Y Meta+Y" type="button" disabled>
         <img class="redo-tool-icon" src="/static/images/redo-object.svg" alt="Redo">
       </button>
-
       <button id="resetWorkspaceBtn" class="cad-icon-tool-btn reset-workspace-btn" title="Reset Workspace"
         aria-label="Reset Workspace" type="button">
         <img class="reset-workspace-icon" src="/static/images/reset-workspace.svg" alt="Reset Workspace">
+      </button>
       </button>
 
       <button id="exportImageBtn" class="cad-icon-tool-btn export-image-btn" title="Export Image"
@@ -664,8 +663,10 @@
   <script src="/static/js/cad/saveDesign.js"></script>
 
   <script src="/static/js/cad/moveObject.js"></script>
-  <script src="/static/js/cad/rotateObject.js"></script>
+  <script src="/static/js/cad/rotateObject.js"></script> 
   <script src="/static/js/cad/resizeObjects.js"></script>
+  <script src="/static/js/cad/resizeHandles.js"></script>  
+ 
   <script src="/static/js/cad/duplicateObject.js"></script>
   <script src="/static/js/cad/deleteObject.js"></script>
   <script src="/static/js/cad/resetWorkspace.js"></script>
@@ -891,8 +892,7 @@
               statusText.textContent = "Nothing to redo.";
             }
           }
-
-          updateUndoButtonState();
+<updateUndoButtonState();
         });
       }
 
@@ -901,14 +901,11 @@
           event.stopPropagation();
           closeAllDropdownMenus();
           hideAllToolPanels();
-
           if (typeof window.resetCADWorkspace === "function") {
             window.resetCADWorkspace();
             return;
           }
-
           const statusText = document.getElementById("cadStatusText");
-
           if (statusText) {
             statusText.textContent = "Reset workspace is not ready.";
           }
@@ -920,12 +917,9 @@
           event.stopPropagation();
           closeAllDropdownMenus();
           hideAllToolPanels();
-
           exportImageBtn.disabled = true;
           exportImageBtn.setAttribute("aria-disabled", "true");
-
           let result;
-
           try {
             result = typeof window.exportCADImage === "function"
               ? await window.exportCADImage()
@@ -935,7 +929,6 @@
               };
           } catch (error) {
             console.error("Export image click error:", error);
-
             result = {
               success: false,
               message: "Could not export image."
@@ -944,10 +937,8 @@
             exportImageBtn.disabled = false;
             exportImageBtn.setAttribute("aria-disabled", "false");
           }
-
           if (!result.success) {
             const statusText = document.getElementById("cadStatusText");
-
             if (statusText) {
               statusText.textContent = result.message || "Could not export image.";
             }
