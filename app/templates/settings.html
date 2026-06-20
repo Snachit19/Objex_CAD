@@ -17,21 +17,13 @@
           <path d="m16.5 16.5 4 4"></path>
         </svg>
       </span>
-      <input class="search-box project-search-input" type="search"
-        placeholder="Search settings..." autocomplete="off">
+      <input class="search-box project-search-input" type="search" placeholder="Search settings..." autocomplete="off">
     </div>
 
     <div class="top-user">
       <span class="top-icon">🔔</span>
-
-      <button class="create-project-btn" type="button" onclick="window.location.href='/dashboard'">
-        + New Project
-      </button>
-
-      <button class="settings-top-btn active-settings-top-btn" type="button" onclick="window.location.href='/settings'">
-        ⚙
-      </button>
-
+      <button class="create-project-btn" type="button" onclick="window.location.href='/dashboard'">+ New Project</button>
+      <button class="settings-top-btn active-settings-top-btn" type="button" onclick="window.location.href='/settings'">⚙</button>
       <div class="user-avatar" id="avatar-initial">O</div>
       <span id="display-name">Loading…</span>
       <button id="logoutBtn" class="logout-btn" type="button">Logout</button>
@@ -43,7 +35,6 @@
       <div class="brand-logo-small">
         <img src="/static/images/logo.png" alt="Objex Logo">
       </div>
-
       <div>
         <h2>CAD 3D</h2>
         <p>Professional Design Studio</p>
@@ -103,12 +94,8 @@
       <div>
         <span class="settings-badge">Objex CAD Preferences</span>
         <h1>Settings</h1>
-        <p>
-          Manage your account display, interface preferences, CAD workspace defaults,
-          project behaviour and local system settings.
-        </p>
+        <p>Manage your account display, interface preferences, CAD workspace defaults, project behaviour and local system settings.</p>
       </div>
-
       <div class="settings-hero-actions">
         <button id="saveSettingsBtn" class="settings-primary-btn" type="button">Save Settings</button>
         <button id="resetSettingsBtn" class="settings-secondary-btn" type="button">Reset</button>
@@ -116,52 +103,31 @@
     </section>
 
     <section class="settings-grid">
-
       <article class="settings-panel">
         <h2>Account</h2>
         <p class="settings-muted">Your logged-in Objex CAD profile information.</p>
-
         <div class="settings-form-row">
           <label for="settingsDisplayName">Display Name</label>
           <input id="settingsDisplayName" type="text" readonly value="Loading...">
         </div>
-
         <div class="settings-form-row">
           <label for="settingsUserEmail">Email</label>
           <input id="settingsUserEmail" type="text" readonly value="Loading...">
         </div>
-
-        <div class="settings-note-box">
-          Account details are controlled by your login profile. Workspace preferences below are saved locally in your browser.
-        </div>
+        <div class="settings-note-box">Account details are controlled by your login profile. Workspace preferences below are saved locally in your browser.</div>
       </article>
 
       <article class="settings-panel">
         <h2>Interface Preferences</h2>
         <p class="settings-muted">Control the appearance of the application interface.</p>
-
         <div class="settings-toggle-row">
-          <div>
-            <strong>Compact Dashboard</strong>
-            <span>Reduce spacing in dashboard cards.</span>
-          </div>
-          <label class="settings-switch">
-            <input id="compactDashboardToggle" type="checkbox">
-            <span></span>
-          </label>
+          <div><strong>Compact Dashboard</strong><span>Reduce spacing in dashboard cards.</span></div>
+          <label class="settings-switch"><input id="compactDashboardToggle" type="checkbox"><span></span></label>
         </div>
-
         <div class="settings-toggle-row">
-          <div>
-            <strong>Show Recent Preview</strong>
-            <span>Display recent project preview on dashboard.</span>
-          </div>
-          <label class="settings-switch">
-            <input id="recentPreviewToggle" type="checkbox" checked>
-            <span></span>
-          </label>
+          <div><strong>Show Recent Preview</strong><span>Display recent project preview on dashboard.</span></div>
+          <label class="settings-switch"><input id="recentPreviewToggle" type="checkbox" checked><span></span></label>
         </div>
-
         <div class="settings-form-row">
           <label for="defaultLandingPage">Default Landing Page</label>
           <select id="defaultLandingPage">
@@ -175,127 +141,52 @@
       <article class="settings-panel">
         <h2>CAD Workspace Defaults</h2>
         <p class="settings-muted">Set default workspace view preferences for future use.</p>
-
         <div class="settings-toggle-row">
-          <div>
-            <strong>Show Grid by Default</strong>
-            <span>Enable grid helper when opening workspace.</span>
-          </div>
-          <label class="settings-switch">
-            <input id="defaultGridToggle" type="checkbox" checked>
-            <span></span>
-          </label>
+          <div><strong>Show Grid by Default</strong><span>Enable grid helper when opening workspace.</span></div>
+          <label class="settings-switch"><input id="defaultGridToggle" type="checkbox" checked><span></span></label>
         </div>
-
         <div class="settings-toggle-row">
-          <div>
-            <strong>Show Axes by Default</strong>
-            <span>Display X, Y and Z axes in workspace.</span>
-          </div>
-          <label class="settings-switch">
-            <input id="defaultAxesToggle" type="checkbox" checked>
-            <span></span>
-          </label>
+          <div><strong>Show Axes by Default</strong><span>Display X, Y and Z axes in workspace.</span></div>
+          <label class="settings-switch"><input id="defaultAxesToggle" type="checkbox" checked><span></span></label>
         </div>
-
         <div class="settings-two-column">
-          <div class="settings-form-row">
-            <label for="defaultGridSize">Grid Size</label>
-            <input id="defaultGridSize" type="number" min="5" max="100" step="1" value="40">
-          </div>
-
-          <div class="settings-form-row">
-            <label for="defaultGridDivisions">Grid Divisions</label>
-            <input id="defaultGridDivisions" type="number" min="2" max="100" step="1" value="40">
-          </div>
+          <div class="settings-form-row"><label for="defaultGridSize">Grid Size</label><input id="defaultGridSize" type="number" min="5" max="100" step="1" value="40"></div>
+          <div class="settings-form-row"><label for="defaultGridDivisions">Grid Divisions</label><input id="defaultGridDivisions" type="number" min="2" max="100" step="1" value="40"></div>
         </div>
-
         <div class="settings-two-column">
-          <div class="settings-form-row">
-            <label for="defaultAxesSize">Axes Size</label>
-            <input id="defaultAxesSize" type="number" min="1" max="50" step="1" value="5">
-          </div>
-
-          <div class="settings-form-row">
-            <label for="defaultZoomLevel">Default Zoom</label>
-            <select id="defaultZoomLevel">
-              <option value="80">80%</option>
-              <option value="100" selected>100%</option>
-              <option value="120">120%</option>
-              <option value="150">150%</option>
-            </select>
-          </div>
+          <div class="settings-form-row"><label for="defaultAxesSize">Axes Size</label><input id="defaultAxesSize" type="number" min="1" max="50" step="1" value="5"></div>
+          <div class="settings-form-row"><label for="defaultZoomLevel">Default Zoom</label><select id="defaultZoomLevel"><option value="80">80%</option><option value="100" selected>100%</option><option value="120">120%</option><option value="150">150%</option></select></div>
         </div>
       </article>
 
       <article class="settings-panel">
         <h2>Project Preferences</h2>
         <p class="settings-muted">Set project creation and saving behaviour.</p>
-
         <div class="settings-form-row">
           <label for="defaultProjectDescription">Default Project Description</label>
           <textarea id="defaultProjectDescription" rows="4" placeholder="Example: New 3D CAD design project"></textarea>
         </div>
-
         <div class="settings-toggle-row">
-          <div>
-            <strong>Save Reminder</strong>
-            <span>Show reminder to save design after editing.</span>
-          </div>
-          <label class="settings-switch">
-            <input id="saveReminderToggle" type="checkbox" checked>
-            <span></span>
-          </label>
+          <div><strong>Save Reminder</strong><span>Show reminder to save design after editing.</span></div>
+          <label class="settings-switch"><input id="saveReminderToggle" type="checkbox" checked><span></span></label>
         </div>
-
         <div class="settings-toggle-row">
-          <div>
-            <strong>Confirm Delete Project</strong>
-            <span>Ask confirmation before project deletion.</span>
-          </div>
-          <label class="settings-switch">
-            <input id="confirmDeleteToggle" type="checkbox" checked>
-            <span></span>
-          </label>
+          <div><strong>Confirm Delete Project</strong><span>Ask confirmation before project deletion.</span></div>
+          <label class="settings-switch"><input id="confirmDeleteToggle" type="checkbox" checked><span></span></label>
         </div>
       </article>
 
       <article class="settings-panel settings-wide-panel">
         <h2>System Information</h2>
-
         <div class="settings-info-grid">
-          <div>
-            <span>Application</span>
-            <strong>Objex CAD</strong>
-          </div>
-
-          <div>
-            <span>Version</span>
-            <strong>V-1.00</strong>
-          </div>
-
-          <div>
-            <span>Frontend</span>
-            <strong>HTML, CSS, JavaScript, Three.js</strong>
-          </div>
-
-          <div>
-            <span>Backend</span>
-            <strong>Python Flask + MySQL</strong>
-          </div>
-
-          <div>
-            <span>Storage</span>
-            <strong>Browser LocalStorage + MySQL project data</strong>
-          </div>
-
-          <div>
-            <span>Status</span>
-            <strong id="settingsSaveStatus">Not saved yet</strong>
-          </div>
+          <div><span>Application</span><strong>Objex CAD</strong></div>
+          <div><span>Version</span><strong>V-1.00</strong></div>
+          <div><span>Frontend</span><strong>HTML, CSS, JavaScript, Three.js</strong></div>
+          <div><span>Backend</span><strong>Python Flask + MySQL</strong></div>
+          <div><span>Storage</span><strong>Browser LocalStorage + MySQL project data</strong></div>
+          <div><span>Status</span><strong id="settingsSaveStatus">Not saved yet</strong></div>
         </div>
       </article>
-
     </section>
   </main>
 
@@ -326,15 +217,7 @@
     function loadStoredSettings() {
       try {
         const savedSettings = JSON.parse(localStorage.getItem(SETTINGS_KEY));
-
-        if (!savedSettings) {
-          return { ...defaultSettings };
-        }
-
-        return {
-          ...defaultSettings,
-          ...savedSettings
-        };
+        return savedSettings ? { ...defaultSettings, ...savedSettings } : { ...defaultSettings };
       } catch {
         return { ...defaultSettings };
       }
@@ -344,14 +227,12 @@
       getEl("compactDashboardToggle").checked = !!settings.compactDashboard;
       getEl("recentPreviewToggle").checked = !!settings.recentPreview;
       getEl("defaultLandingPage").value = settings.defaultLandingPage || "/dashboard";
-
       getEl("defaultGridToggle").checked = !!settings.showGrid;
       getEl("defaultAxesToggle").checked = !!settings.showAxes;
       getEl("defaultGridSize").value = Number(settings.gridSize) || 40;
       getEl("defaultGridDivisions").value = Number(settings.gridDivisions) || 40;
       getEl("defaultAxesSize").value = Number(settings.axesSize) || 5;
       getEl("defaultZoomLevel").value = String(settings.zoomLevel || "100");
-
       getEl("defaultProjectDescription").value = settings.defaultProjectDescription || "";
       getEl("saveReminderToggle").checked = !!settings.saveReminder;
       getEl("confirmDeleteToggle").checked = !!settings.confirmDelete;
@@ -362,14 +243,12 @@
         compactDashboard: getEl("compactDashboardToggle").checked,
         recentPreview: getEl("recentPreviewToggle").checked,
         defaultLandingPage: getEl("defaultLandingPage").value,
-
         showGrid: getEl("defaultGridToggle").checked,
         showAxes: getEl("defaultAxesToggle").checked,
         gridSize: Number(getEl("defaultGridSize").value) || 40,
         gridDivisions: Number(getEl("defaultGridDivisions").value) || 40,
         axesSize: Number(getEl("defaultAxesSize").value) || 5,
         zoomLevel: getEl("defaultZoomLevel").value,
-
         defaultProjectDescription: getEl("defaultProjectDescription").value.trim(),
         saveReminder: getEl("saveReminderToggle").checked,
         confirmDelete: getEl("confirmDeleteToggle").checked
@@ -378,10 +257,7 @@
 
     function showSettingsToast(message) {
       const toast = getEl("settingsToast");
-
-      if (!toast) {
-        return;
-      }
+      if (!toast) return;
 
       toast.textContent = message;
       toast.classList.add("show");
@@ -392,29 +268,15 @@
     }
 
     function saveSettings() {
-      const settings = readSettingsFromForm();
-
-      localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
-
-      const status = getEl("settingsSaveStatus");
-
-      if (status) {
-        status.textContent = "Saved locally";
-      }
-
+      localStorage.setItem(SETTINGS_KEY, JSON.stringify(readSettingsFromForm()));
+      getEl("settingsSaveStatus").textContent = "Saved locally";
       showSettingsToast("Settings saved successfully.");
     }
 
     function resetSettings() {
       localStorage.removeItem(SETTINGS_KEY);
       applySettingsToForm(defaultSettings);
-
-      const status = getEl("settingsSaveStatus");
-
-      if (status) {
-        status.textContent = "Reset to default";
-      }
-
+      getEl("settingsSaveStatus").textContent = "Reset to default";
       showSettingsToast("Settings reset to default.");
     }
 
@@ -435,7 +297,6 @@
         getEl("avatar-initial").textContent = userName.charAt(0).toUpperCase();
         getEl("settingsDisplayName").value = userName;
         getEl("settingsUserEmail").value = userEmail;
-
       } catch {
         window.location.href = "/";
       }
@@ -445,13 +306,8 @@
     const resetSettingsBtn = getEl("resetSettingsBtn");
     const logoutBtn = getEl("logoutBtn");
 
-    if (saveSettingsBtn) {
-      saveSettingsBtn.addEventListener("click", saveSettings);
-    }
-
-    if (resetSettingsBtn) {
-      resetSettingsBtn.addEventListener("click", resetSettings);
-    }
+    if (saveSettingsBtn) saveSettingsBtn.addEventListener("click", saveSettings);
+    if (resetSettingsBtn) resetSettingsBtn.addEventListener("click", resetSettings);
 
     if (logoutBtn) {
       logoutBtn.addEventListener("click", async function () {

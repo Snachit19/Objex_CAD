@@ -28,7 +28,7 @@
     <div class="top-user">
       <span class="top-icon">🔔</span>
       <button id="newProjectBtn" class="create-project-btn">+ New Project</button>
-      <span class="top-icon">⚙</span>
+      <button class="settings-top-btn" type="button" onclick="window.location.href='/settings'">⚙</button>
       <div class="user-avatar" id="avatar-initial">O</div>
       <span id="display-name">Loading…</span>
       <button id="logoutBtn" class="logout-btn">Logout</button>
@@ -69,7 +69,17 @@
         <span class="side-menu-label">Projects</span>
         <span id="projectCountBadge" class="menu-badge">0</span>
       </a>
-      <a>
+      <a href="/help">
+        <span class="side-menu-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" focusable="false">
+            <path d="M12 18h.01"></path>
+            <path d="M9.2 9a3 3 0 1 1 5.4 1.8c-.9 1-1.8 1.5-2.2 2.7"></path>
+            <circle cx="12" cy="12" r="9"></circle>
+          </svg>
+        </span>
+        <span class="side-menu-label">Help</span>
+      </a>
+      <a href="/settings">
         <span class="side-menu-icon" aria-hidden="true">
           <svg viewBox="0 0 24 24" focusable="false">
             <path d="M12 8.25a3.75 3.75 0 1 1 0 7.5 3.75 3.75 0 0 1 0-7.5z"></path>
