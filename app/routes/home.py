@@ -1,46 +1,35 @@
-from flask import Blueprint, render_template
+from flask import Blueprint
 
+from app.controllers.home import HomeController
 from app.middleware.auth_middleware import login_required
 
 
-home_bp = Blueprint("home", __name__)
+class HomeRoutes:
+    """Class-style route registry for Jinja-rendered pages."""
+
+    def __init__(self):
+        self.bp = Blueprint("home", __name__)
+        self.controller = HomeController()
+
+    def register(self):
+        self.bp.route("/")(self.controller.login_page)
+        self.bp.route("/register")(self.controller.register_page)
+        self.bp.route("/dashboard")(
+            login_required(self.controller.dashboard_page)
+        )
+        self.bp.route("/projects")(
+            login_required(self.controller.projects_page)
+        )
+        self.bp.route("/help")(
+            login_required(self.controller.help_page)
+        )
+        self.bp.route("/settings")(
+            login_required(self.controller.settings_page)
+        )
+        self.bp.route("/cad/<int:project_id>")(
+            login_required(self.controller.cad_page)
+        )
+        return self.bp
 
 
-@home_bp.route("/")
-def login_page():
-    return render_template("index.html")
-
-
-@home_bp.route("/register")
-def register_page():
-    return render_template("register.html")
-
-
-@home_bp.route("/dashboard")
-@login_required
-def dashboard_page():
-    return render_template("dashboard.html")
-
-
-@home_bp.route("/projects")
-@login_required
-def projects_page():
-    return render_template("projects.html")
-
-
-@home_bp.route("/help")
-@login_required
-def help_page():
-    return render_template("help.html")
-
-
-@home_bp.route("/settings")
-@login_required
-def settings_page():
-    return render_template("settings.html")
-
-
-@home_bp.route("/cad/<int:project_id>")
-@login_required
-def cad_page(project_id):
-    return render_template("cad.html", project_id=project_id)
+home_bp = HomeRoutes().register()

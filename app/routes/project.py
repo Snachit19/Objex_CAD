@@ -1,70 +1,55 @@
 from flask import Blueprint, jsonify
 
+from app.controllers.project import ProjectController
 from app.middleware.auth_middleware import login_required
-from app.controllers.project import (
-    create_new_project,
-    get_user_projects,
-    get_project_by_id,
-    save_project_design,
-    import_project,
-    rename_project,
-    delete_project
-)
-
-projects_bp = Blueprint("projects", __name__)
 
 
-@projects_bp.route("/api/projects/status", methods=["GET"])
-@login_required
-def check_status():
-    return jsonify({
-        "success": True,
-        "message": "Project API is active"
-    }), 200
+class ProjectRoutes:
+    """Class-style route registry for project API routes."""
+
+    def __init__(self):
+        self.bp = Blueprint("projects", __name__)
+        self.controller = ProjectController()
+
+    def check_status(self):
+        return jsonify({
+            "success": True,
+            "message": "Project API is active"
+        }), 200
+
+    def register(self):
+        self.bp.route("/api/projects/status", methods=["GET"])(
+            login_required(self.check_status)
+        )
+        self.bp.route("/api/projects", methods=["GET"])(
+            login_required(self.controller.list)
+        )
+        self.bp.route("/api/projects", methods=["POST"], endpoint="create_project")(
+            login_required(self.controller.create)
+        )
+        self.bp.route(
+            "/api/projects/create",
+            methods=["POST"],
+            endpoint="create_project_alias"
+        )(
+            login_required(self.controller.create)
+        )
+        self.bp.route("/api/projects/import", methods=["POST"])(
+            login_required(self.controller.import_design)
+        )
+        self.bp.route("/api/projects/<int:project_id>", methods=["GET"])(
+            login_required(self.controller.detail)
+        )
+        self.bp.route("/api/projects/<int:project_id>", methods=["PATCH", "PUT"])(
+            login_required(self.controller.rename)
+        )
+        self.bp.route("/api/projects/<int:project_id>", methods=["DELETE"])(
+            login_required(self.controller.delete)
+        )
+        self.bp.route("/api/projects/<int:project_id>/save", methods=["POST", "PUT"])(
+            login_required(self.controller.save_design)
+        )
+        return self.bp
 
 
-@projects_bp.route("/api/projects", methods=["GET"])
-@login_required
-def get_projects_route():
-    return get_user_projects()
-
-
-@projects_bp.route("/api/projects", methods=["POST"])
-@login_required
-def create_project_route():
-    return create_new_project()
-
-
-@projects_bp.route("/api/projects/create", methods=["POST"])
-@login_required
-def create_project_create_route():
-    return create_new_project()
-
-
-@projects_bp.route("/api/projects/import", methods=["POST"])
-@login_required
-def import_project_route():
-    return import_project()
-
-
-@projects_bp.route("/api/projects/<int:project_id>", methods=["GET"])
-@login_required
-def get_single_project_route(project_id):
-    return get_project_by_id(project_id)
-
-
-@projects_bp.route("/api/projects/<int:project_id>", methods=["PATCH", "PUT"])
-@login_required
-def rename_project_route(project_id):
-    return rename_project(project_id)
-
-
-@projects_bp.route("/api/projects/<int:project_id>", methods=["DELETE"])
-@login_required
-def delete_project_route(project_id):
-    return delete_project(project_id)
-
-@projects_bp.route("/api/projects/<int:project_id>/save", methods=["POST", "PUT"])
-@login_required
-def save_project_design_route(project_id):
-    return save_project_design(project_id)
+projects_bp = ProjectRoutes().register()

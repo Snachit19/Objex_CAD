@@ -1,15 +1,8 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Objex CAD | Workspace</title>
-  <link rel="stylesheet" href="/static/css/style.css">
-</head>
-
-<body class="cad-page">
-
-  <header class="cad-topbar">
+{% extends "base.html" %}
+{% block title %}Objex CAD | Workspace{% endblock %}
+{% block body_class %}cad-page{% endblock %}
+{% block maincontent %}
+<header class="cad-topbar">
     <div>
       <h2 id="cadProjectName">Objex CAD Workspace</h2>
       <p id="cadProjectDescription">3D Design Editor</p>
@@ -1000,5 +993,4 @@
       }
     });
   </script>
-</body>
-</html>
+{% endblock %}

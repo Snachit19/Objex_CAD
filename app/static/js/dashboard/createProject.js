@@ -152,7 +152,7 @@ function getProjectSearchQuery() {
 }
 
 function getProjectSearchTokens() {
-  const query = getProjectSearchQuery().toLowerCase();
+  const query = getProjectSearchQuery();
 
   if (!query) {
     return [];
@@ -169,7 +169,7 @@ function getProjectSearchText(project) {
     project.created_at,
     project.updated_at,
     project.last_opened_at
-  ].filter(Boolean).join(" ").toLowerCase();
+  ].filter(Boolean).join(" ");
 }
 
 function filterProjectsForSearch(projects) {

@@ -1,12 +1,32 @@
 from flask import Blueprint
-from app.controllers.auth import register, login, logout, me, update_profile
+
+from app.controllers.auth import AuthController
 
 
-auth_bp = Blueprint("auth", __name__)
+class AuthRoutes:
+    """Class-style auth route registry like the reference Flask project."""
+
+    def __init__(self):
+        self.bp = Blueprint("auth", __name__)
+        self.controller = AuthController()
+
+    def register(self):
+        self.bp.route("/api/register", methods=["POST"])(
+            self.controller.register
+        )
+        self.bp.route("/api/login", methods=["POST"])(
+            self.controller.login
+        )
+        self.bp.route("/api/logout", methods=["POST"])(
+            self.controller.logout
+        )
+        self.bp.route("/api/me", methods=["GET"])(
+            self.controller.me
+        )
+        self.bp.route("/api/me", methods=["PATCH"])(
+            self.controller.update_profile
+        )
+        return self.bp
 
 
-auth_bp.route("/api/register", methods=["POST"])(register)
-auth_bp.route("/api/login", methods=["POST"])(login)
-auth_bp.route("/api/logout", methods=["POST"])(logout)
-auth_bp.route("/api/me", methods=["GET"])(me)
-auth_bp.route("/api/me", methods=["PATCH"])(update_profile)
+auth_bp = AuthRoutes().register()

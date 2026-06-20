@@ -1,14 +1,8 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Objex CAD | Projects</title>
-  <link rel="stylesheet" href="/static/css/style.css">
-</head>
-<body class="projects-page">
-
-  <header class="top-nav">
+{% extends "base.html" %}
+{% block title %}Objex CAD | Projects{% endblock %}
+{% block body_class %}projects-page{% endblock %}
+{% block maincontent %}
+<header class="top-nav">
     <div class="project-search-wrap">
       <span class="project-search-icon" aria-hidden="true">
         <svg viewBox="0 0 24 24" focusable="false">
@@ -211,6 +205,4 @@
 
     loadUser();
   </script>
-
-</body>
-</html>
+{% endblock %}

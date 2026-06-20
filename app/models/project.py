@@ -1,4 +1,5 @@
 from app.models.database import Database
+from app.models.base_model import BaseModel
 import json
 
 
@@ -164,3 +165,23 @@ def delete_project_by_id(project_id, owner_email):
 
     db.close()
     return True
+
+
+class Project(BaseModel):
+    """Project model class for the MVC/OOP project structure."""
+
+    @property
+    def table(self):
+        return "projects"
+
+    def create(self, project_data):
+        return create_project(project_data)
+
+    def find_for_owner(self, project_id, owner_email):
+        return find_project_by_id(project_id, owner_email)
+
+    def list_for_owner(self, owner_email):
+        return get_projects_by_user(owner_email)
+
+    def save_design(self, project_id, owner_email, design_data):
+        return update_project_design(project_id, owner_email, design_data)

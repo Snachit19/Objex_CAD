@@ -4,9 +4,9 @@ from dotenv import load_dotenv
 import os
 from app.models.database import Database
 
-from app.routes.home import home_bp
-from app.routes.auth import auth_bp
-from app.routes.project import projects_bp
+from app.routes.home import HomeRoutes
+from app.routes.auth import AuthRoutes
+from app.routes.project import ProjectRoutes
 
 
 def create_app():
@@ -24,8 +24,8 @@ def create_app():
 
     Database.create_tables()
 
-    app.register_blueprint(home_bp)
-    app.register_blueprint(auth_bp)
-    app.register_blueprint(projects_bp)
+    app.register_blueprint(HomeRoutes().register())
+    app.register_blueprint(AuthRoutes().register())
+    app.register_blueprint(ProjectRoutes().register())
 
     return app

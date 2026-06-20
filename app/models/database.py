@@ -3,8 +3,14 @@ import config
 
 
 class Database:
+    _database_ready = False
+
     def __init__(self):
         try:
+            if not Database._database_ready:
+                self.create_database()
+                Database._database_ready = True
+
             self.__connection = pymysql.connect(
                 host=config.MYSQL_HOST,
                 user=config.MYSQL_USER,
@@ -17,6 +23,23 @@ class Database:
             print("Database connection failed!")
             print("Error:", error)
             raise error
+
+    @staticmethod
+    def create_database():
+        database_name = config.MYSQL_DATABASE.replace("`", "``")
+        connection = pymysql.connect(
+            host=config.MYSQL_HOST,
+            user=config.MYSQL_USER,
+            password=config.MYSQL_PASSWORD,
+            cursorclass=pymysql.cursors.DictCursor
+        )
+        cursor = connection.cursor()
+        cursor.execute(
+            "CREATE DATABASE IF NOT EXISTS `{}`".format(database_name)
+        )
+        connection.commit()
+        cursor.close()
+        connection.close()
 
     def fetch_one(self, query, params=None):
         cursor = self.__connection.cursor()

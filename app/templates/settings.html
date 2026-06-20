@@ -1,15 +1,8 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Objex CAD | Settings</title>
-  <link rel="stylesheet" href="/static/css/style.css">
-</head>
-
-<body class="settings-page">
-
-  <header class="top-nav">
+{% extends "base.html" %}
+{% block title %}Objex CAD | Settings{% endblock %}
+{% block body_class %}settings-page{% endblock %}
+{% block maincontent %}
+<header class="top-nav">
     <div class="project-search-wrap" data-page-search data-search-target=".settings-search-item"
       data-search-empty="#settingsSearchEmpty">
       <span class="project-search-icon" aria-hidden="true">
@@ -467,6 +460,4 @@
     applySettingsToForm(loadStoredSettings());
     loadUser();
   </script>
-
-</body>
-</html>
+{% endblock %}

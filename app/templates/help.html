@@ -1,15 +1,8 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Objex CAD | Help</title>
-  <link rel="stylesheet" href="/static/css/style.css">
-</head>
-
-<body class="help-page">
-
-  <header class="top-nav">
+{% extends "base.html" %}
+{% block title %}Objex CAD | Help{% endblock %}
+{% block body_class %}help-page{% endblock %}
+{% block maincontent %}
+<header class="top-nav">
     <div class="project-search-wrap" data-page-search data-search-target=".help-search-item"
       data-search-empty="#helpSearchEmpty">
       <span class="project-search-icon" aria-hidden="true">
@@ -246,6 +239,4 @@
 
     loadUser();
   </script>
-
-</body>
-</html>
+{% endblock %}

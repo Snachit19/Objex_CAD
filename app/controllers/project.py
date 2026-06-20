@@ -10,6 +10,7 @@ from app.models.project import (
     update_project_details,
     delete_project_by_id
 )
+from app.controllers.base_controller import BaseController
 
 def create_new_project():
     user_email = session.get("user_email")
@@ -306,3 +307,28 @@ def delete_project(project_id):
         "success": True,
         "message": "Project deleted successfully"
     }), 200
+
+
+class ProjectController(BaseController):
+    """Class-style project controller wrapper matching the MVC format."""
+
+    def create(self):
+        return create_new_project()
+
+    def list(self):
+        return get_user_projects()
+
+    def detail(self, project_id):
+        return get_project_by_id(project_id)
+
+    def save_design(self, project_id):
+        return save_project_design(project_id)
+
+    def import_design(self):
+        return import_project()
+
+    def rename(self, project_id):
+        return rename_project(project_id)
+
+    def delete(self, project_id):
+        return delete_project(project_id)

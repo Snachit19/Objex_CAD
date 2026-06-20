@@ -1,15 +1,8 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Objex CAD | Login</title>
-  <link rel="stylesheet" href="/static/css/style.css">
-</head>
- 
-<body class="login-page">
- 
-  <section class="login-sidebar">
+{% extends "base.html" %}
+{% block title %}Objex CAD | Login{% endblock %}
+{% block body_class %}login-page{% endblock %}
+{% block maincontent %}
+<section class="login-sidebar">
  
     <div class="login-brand">
       <div class="brand-logo">
@@ -127,6 +120,4 @@
     }
   }
 </script>
- 
-</body>
-</html>
+{% endblock %}
