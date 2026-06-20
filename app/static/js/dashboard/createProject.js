@@ -14,6 +14,7 @@ const projectSearchClear = document.getElementById("projectSearchClear");
 
 let cachedProjects = [];
 let activeHighlightProjectId = null;
+let pendingDeleteProject = null;
 
 function isProjectsPage() {
   return document.body.classList.contains("projects-page");
@@ -299,15 +300,7 @@ async function renameProject(projectId, name, description) {
   return data;
 }
 
-async function deleteProject(projectId, projectName) {
-  const confirmed = window.confirm(
-    "Delete \"" + (projectName || "this project") + "\"? This cannot be undone."
-  );
-
-  if (!confirmed) {
-    return;
-  }
-
+async function deleteProject(projectId) {
   const response = await fetch("/api/projects/" + projectId, {
     method: "DELETE"
   });
@@ -319,6 +312,84 @@ async function deleteProject(projectId, projectName) {
   }
 
   return data;
+}
+
+function showDeleteProjectError(message) {
+  const errorBox = document.getElementById("deleteProjectError");
+
+  if (errorBox) {
+    errorBox.textContent = message;
+    errorBox.style.display = "block";
+  }
+}
+
+function closeDeleteProjectModal() {
+  const deleteModal = document.getElementById("deleteProjectModal");
+
+  pendingDeleteProject = null;
+
+  if (deleteModal) {
+    deleteModal.style.display = "none";
+  }
+}
+
+async function confirmPendingProjectDelete() {
+  const confirmDeleteProjectBtn = document.getElementById("confirmDeleteProjectBtn");
+
+  if (!pendingDeleteProject) {
+    closeDeleteProjectModal();
+    return;
+  }
+
+  if (confirmDeleteProjectBtn) {
+    confirmDeleteProjectBtn.disabled = true;
+    confirmDeleteProjectBtn.textContent = "Deleting...";
+  }
+
+  try {
+    await deleteProject(pendingDeleteProject.id);
+    closeDeleteProjectModal();
+    await loadProjects();
+  } catch (error) {
+    showDeleteProjectError(error.message || "Could not delete project.");
+  }
+
+  if (confirmDeleteProjectBtn) {
+    confirmDeleteProjectBtn.disabled = false;
+    confirmDeleteProjectBtn.textContent = "Delete Project";
+  }
+}
+
+function openDeleteProjectModal(project) {
+  const deleteModal = document.getElementById("deleteProjectModal");
+  const confirmText = document.getElementById("deleteProjectConfirmText");
+  const errorBox = document.getElementById("deleteProjectError");
+
+  if (!deleteModal) {
+    if (window.confirm("Delete \"" + (project.name || "this project") + "\"? This cannot be undone.")) {
+      deleteProject(project.id)
+        .then(function () {
+          return loadProjects();
+        })
+        .catch(function (error) {
+          window.alert(error.message || "Could not delete project.");
+        });
+    }
+    return;
+  }
+
+  pendingDeleteProject = project;
+
+  if (confirmText) {
+    confirmText.textContent = "Delete \"" + (project.name || "this project") + "\" permanently? This cannot be undone.";
+  }
+
+  if (errorBox) {
+    errorBox.style.display = "none";
+    errorBox.textContent = "";
+  }
+
+  deleteModal.style.display = "flex";
 }
 
 async function handleRenameProjectSubmit() {
@@ -396,13 +467,7 @@ function createProjectListItem(project, isRecentProject) {
 
   deleteButton.addEventListener("click", async function (event) {
     event.stopPropagation();
-
-    try {
-      await deleteProject(project.id, project.name);
-      await loadProjects();
-    } catch (error) {
-      window.alert(error.message || "Could not delete project.");
-    }
+    openDeleteProjectModal(project);
   });
 
   actions.appendChild(renameButton);
@@ -643,6 +708,13 @@ if (saveProjectBtn) {
   saveProjectBtn.addEventListener("click", createProject);
 }
 
+const dashboardQuery = new URLSearchParams(window.location.search);
+
+if (projectModal && dashboardQuery.get("newProject") === "1") {
+  openProjectModal();
+  window.history.replaceState(null, "", window.location.pathname);
+}
+
 window.addEventListener("click", (event) => {
   if (event.target === projectModal) {
     closeProjectModal();
@@ -653,10 +725,18 @@ window.addEventListener("click", (event) => {
   if (renameModal && event.target === renameModal) {
     closeRenameProjectModal();
   }
+
+  const deleteModal = document.getElementById("deleteProjectModal");
+
+  if (deleteModal && event.target === deleteModal) {
+    closeDeleteProjectModal();
+  }
 });
 
 const cancelRenameProjectBtn = document.getElementById("cancelRenameProjectBtn");
 const saveRenameProjectBtn = document.getElementById("saveRenameProjectBtn");
+const cancelDeleteProjectBtn = document.getElementById("cancelDeleteProjectBtn");
+const confirmDeleteProjectBtn = document.getElementById("confirmDeleteProjectBtn");
 
 if (cancelRenameProjectBtn) {
   cancelRenameProjectBtn.addEventListener("click", closeRenameProjectModal);
@@ -664,6 +744,14 @@ if (cancelRenameProjectBtn) {
 
 if (saveRenameProjectBtn) {
   saveRenameProjectBtn.addEventListener("click", handleRenameProjectSubmit);
+}
+
+if (cancelDeleteProjectBtn) {
+  cancelDeleteProjectBtn.addEventListener("click", closeDeleteProjectModal);
+}
+
+if (confirmDeleteProjectBtn) {
+  confirmDeleteProjectBtn.addEventListener("click", confirmPendingProjectDelete);
 }
 
 const renameProjectNameInput = document.getElementById("renameProjectName");

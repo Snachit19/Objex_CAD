@@ -90,7 +90,6 @@
       </a>
     </nav>
 
-    <div class="version">V-1.00 • CAD 3D</div>
   </aside>
 
   <main class="projects-page-layout">
@@ -158,6 +157,20 @@
       <div class="modal-actions">
         <button id="cancelRenameProjectBtn" class="cancel-btn" type="button">Cancel</button>
         <button id="saveRenameProjectBtn" class="save-btn" type="button">Save Changes</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="deleteProjectModal" class="modal-overlay">
+    <div class="modal-card confirm-modal-card">
+      <h2>Delete Project</h2>
+      <p id="deleteProjectConfirmText">This project will be permanently deleted.</p>
+
+      <div id="deleteProjectError" class="error-msg" style="display:none;"></div>
+
+      <div class="modal-actions">
+        <button id="cancelDeleteProjectBtn" class="cancel-btn" type="button">Cancel</button>
+        <button id="confirmDeleteProjectBtn" class="delete-confirm-btn" type="button">Delete Project</button>
       </div>
     </div>
   </div>

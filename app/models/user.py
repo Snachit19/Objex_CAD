@@ -31,3 +31,19 @@ def create_user(user_data):
 
     db.close()
     return user_id
+
+
+def update_user_name(email, name):
+    db = Database()
+
+    db.execute(
+        """
+        UPDATE users
+        SET name = %s
+        WHERE email = %s
+        """,
+        (name, email)
+    )
+
+    db.close()
+    return True

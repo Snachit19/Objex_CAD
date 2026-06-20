@@ -527,18 +527,6 @@ a {
   font-size: 12px;
 }
 
-.version {
-  position: absolute;
-  bottom: 18px;
-  left: 0;
-  right: 0;
-  text-align: center;
-  color: var(--text-faint);
-  font-size: 12px;
-  border-top: 1px solid var(--border-dark);
-  padding-top: 18px;
-}
-
 .dashboard-layout {
   margin-left: var(--sidebar-width);
   margin-right: var(--properties-width);
@@ -856,6 +844,16 @@ a {
   cursor: default;
 }
 
+.page-search-empty {
+  margin: 18px 0 0;
+  padding: 14px 16px;
+  border: 1px dashed rgba(148, 163, 184, 0.32);
+  border-radius: 12px;
+  background: rgba(15, 23, 42, 0.46);
+  color: var(--text-muted);
+  font-size: 14px;
+}
+
 .help-card {
   display: flex;
   flex-direction: column;
@@ -1102,6 +1100,10 @@ a {
   z-index: 100;
 }
 
+.cad-page .modal-overlay {
+  z-index: 1000001;
+}
+
 .modal-card {
   width: 430px;
   background: var(--bg-panel);
@@ -1180,6 +1182,27 @@ a {
 .save-btn:disabled {
   opacity: 0.6;
   cursor: not-allowed;
+}
+
+.delete-confirm-btn {
+  padding: 11px 16px;
+  border-radius: 10px;
+  background: #7f1d1d;
+  color: #ffffff;
+  font-weight: 800;
+}
+
+.delete-confirm-btn:hover:not(:disabled) {
+  background: #991b1b;
+}
+
+.delete-confirm-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.confirm-modal-card {
+  max-width: 460px;
 }
 
 /* ================================
@@ -2463,11 +2486,13 @@ a {
   transform: translateY(-2px) rotate(-4deg) scale(1.04);
   filter: drop-shadow(0 8px 16px rgba(99, 102, 241, 0.34));
 }
+
 /* ================================
-   Help Page
+   Help and Settings Pages
 ================================ */
 
-.help-page-layout {
+.help-page-layout,
+.settings-page-layout {
   margin-left: var(--sidebar-width);
   margin-top: var(--top-nav-height);
   min-height: calc(100vh - var(--top-nav-height));
@@ -2475,7 +2500,8 @@ a {
   background: var(--bg-page);
 }
 
-.help-hero-card {
+.help-hero-card,
+.settings-hero-card {
   background:
     radial-gradient(circle at top left, rgba(59, 130, 246, 0.26), transparent 34%),
     radial-gradient(circle at bottom right, rgba(147, 51, 234, 0.28), transparent 32%),
@@ -2490,7 +2516,8 @@ a {
   box-shadow: 0 22px 60px rgba(0, 0, 0, 0.25);
 }
 
-.help-badge {
+.help-badge,
+.settings-badge {
   display: inline-flex;
   align-items: center;
   padding: 6px 12px;
@@ -2503,20 +2530,23 @@ a {
   margin-bottom: 14px;
 }
 
-.help-hero-card h1 {
+.help-hero-card h1,
+.settings-hero-card h1 {
   margin: 0 0 10px;
   font-size: 34px;
-  letter-spacing: -0.03em;
+  letter-spacing: 0;
 }
 
-.help-hero-card p {
+.help-hero-card p,
+.settings-hero-card p {
   max-width: 720px;
   margin: 0;
   color: var(--text-muted);
   line-height: 1.6;
 }
 
-.help-hero-actions {
+.help-hero-actions,
+.settings-hero-actions {
   display: flex;
   align-items: center;
   gap: 12px;
@@ -2524,7 +2554,9 @@ a {
 }
 
 .help-primary-link,
-.help-secondary-link {
+.help-secondary-link,
+.settings-primary-btn,
+.settings-secondary-btn {
   min-height: 40px;
   padding: 0 16px;
   border-radius: 12px;
@@ -2534,44 +2566,56 @@ a {
   font-size: 14px;
   font-weight: 800;
   text-decoration: none;
+  cursor: pointer;
   transition: 0.18s ease;
 }
 
-.help-primary-link {
+.help-primary-link,
+.settings-primary-btn {
   background: var(--gradient-main);
   color: #ffffff;
   border: 1px solid #4f46e5;
 }
 
-.help-secondary-link {
+.help-secondary-link,
+.settings-secondary-btn {
   background: #111827;
   color: #d1d5db;
   border: 1px solid #374151;
 }
 
 .help-primary-link:hover,
-.help-secondary-link:hover {
+.help-secondary-link:hover,
+.settings-primary-btn:hover,
+.settings-secondary-btn:hover {
   transform: translateY(-1px);
   filter: brightness(1.08);
 }
 
-.help-section-grid {
+.help-section-grid,
+.settings-grid {
   margin-top: 22px;
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 18px;
 }
 
-.help-card-panel {
+.help-card-panel,
+.settings-panel {
   background: var(--bg-panel);
   border: 1px solid var(--border-soft);
   border-radius: 18px;
   padding: 20px;
 }
 
-.help-wide-panel {
+.help-wide-panel,
+.settings-wide-panel {
   grid-column: 1 / -1;
 }
+
+/* ================================
+   Help Page
+================================ */
 
 .help-card-panel h2 {
   margin: 0 0 12px;
@@ -2601,6 +2645,52 @@ a {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 12px;
+}
+
+.help-visual-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.help-visual-card {
+  min-height: 170px;
+  padding: 16px;
+  border: 1px solid #242837;
+  border-radius: 16px;
+  background: #0d101a;
+}
+
+.help-picture-strip {
+  min-height: 72px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.help-picture-strip img {
+  width: 54px;
+  height: 54px;
+  padding: 12px;
+  border: 1px solid rgba(96, 165, 250, 0.25);
+  border-radius: 14px;
+  background: #111827;
+  object-fit: contain;
+}
+
+.help-visual-card strong {
+  display: block;
+  color: #e5e7eb;
+  margin-bottom: 8px;
+  font-size: 15px;
+}
+
+.help-visual-card span {
+  display: block;
+  color: var(--text-muted);
+  font-size: 13px;
+  line-height: 1.5;
 }
 
 .help-tool-card {
@@ -2669,147 +2759,9 @@ a {
   margin: 0;
 }
 
-@media (max-width: 1100px) {
-  .help-hero-card {
-    align-items: flex-start;
-    flex-direction: column;
-  }
-
-  .help-tool-grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-}
-
-@media (max-width: 850px) {
-  .help-page-layout {
-    margin-left: 0;
-    padding: 72px 16px 20px;
-  }
-
-  .help-section-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .help-tool-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .help-hero-actions {
-    width: 100%;
-    flex-direction: column;
-  }
-
-  .help-primary-link,
-  .help-secondary-link {
-    width: 100%;
-  }
-}
 /* ================================
    Settings Page
 ================================ */
-
-.settings-page-layout {
-  margin-left: var(--sidebar-width);
-  margin-top: var(--top-nav-height);
-  min-height: calc(100vh - var(--top-nav-height));
-  padding: 24px;
-  background: var(--bg-page);
-}
-
-.settings-hero-card {
-  background:
-    radial-gradient(circle at top left, rgba(59, 130, 246, 0.26), transparent 34%),
-    radial-gradient(circle at bottom right, rgba(147, 51, 234, 0.28), transparent 32%),
-    var(--bg-panel);
-  border: 1px solid var(--border-soft);
-  border-radius: 20px;
-  padding: 28px;
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: 24px;
-  box-shadow: 0 22px 60px rgba(0, 0, 0, 0.25);
-}
-
-.settings-badge {
-  display: inline-flex;
-  align-items: center;
-  padding: 6px 12px;
-  border-radius: 999px;
-  background: rgba(37, 99, 235, 0.2);
-  border: 1px solid rgba(96, 165, 250, 0.36);
-  color: #bfdbfe;
-  font-size: 12px;
-  font-weight: 800;
-  margin-bottom: 14px;
-}
-
-.settings-hero-card h1 {
-  margin: 0 0 10px;
-  font-size: 34px;
-  letter-spacing: -0.03em;
-}
-
-.settings-hero-card p {
-  max-width: 720px;
-  margin: 0;
-  color: var(--text-muted);
-  line-height: 1.6;
-}
-
-.settings-hero-actions {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  flex-shrink: 0;
-}
-
-.settings-primary-btn,
-.settings-secondary-btn {
-  min-height: 40px;
-  padding: 0 16px;
-  border-radius: 12px;
-  font-size: 14px;
-  font-weight: 800;
-  cursor: pointer;
-  transition: 0.18s ease;
-}
-
-.settings-primary-btn {
-  background: var(--gradient-main);
-  color: #ffffff;
-  border: 1px solid #4f46e5;
-}
-
-.settings-secondary-btn {
-  background: #111827;
-  color: #d1d5db;
-  border: 1px solid #374151;
-}
-
-.settings-primary-btn:hover,
-.settings-secondary-btn:hover {
-  transform: translateY(-1px);
-  filter: brightness(1.08);
-}
-
-.settings-grid {
-  margin-top: 22px;
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 18px;
-}
-
-.settings-panel {
-  background: var(--bg-panel);
-  border: 1px solid var(--border-soft);
-  border-radius: 18px;
-  padding: 20px;
-}
-
-.settings-wide-panel {
-  grid-column: 1 / -1;
-}
 
 .settings-panel h2 {
   margin: 0 0 8px;
@@ -2863,6 +2815,12 @@ a {
 .settings-form-row input[readonly] {
   color: var(--text-muted);
   cursor: not-allowed;
+}
+
+.settings-name-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin: -4px 0 14px;
 }
 
 .settings-two-column {
@@ -3019,9 +2977,18 @@ a {
 }
 
 @media (max-width: 1100px) {
+  .help-hero-card,
   .settings-hero-card {
     align-items: flex-start;
     flex-direction: column;
+  }
+
+  .help-tool-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .help-visual-grid {
+    grid-template-columns: 1fr;
   }
 
   .settings-info-grid {
@@ -3030,22 +2997,35 @@ a {
 }
 
 @media (max-width: 850px) {
+  .help-page-layout,
   .settings-page-layout {
     margin-left: 0;
     padding: 72px 16px 20px;
   }
 
+  .help-section-grid,
   .settings-grid,
   .settings-two-column,
   .settings-info-grid {
     grid-template-columns: 1fr;
   }
 
+  .help-tool-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .help-picture-strip {
+    flex-wrap: wrap;
+  }
+
+  .help-hero-actions,
   .settings-hero-actions {
     width: 100%;
     flex-direction: column;
   }
 
+  .help-primary-link,
+  .help-secondary-link,
   .settings-primary-btn,
   .settings-secondary-btn {
     width: 100%;

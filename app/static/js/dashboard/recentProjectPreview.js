@@ -17,6 +17,60 @@ const dashboardPreviewState = {
   pointer: null
 };
 
+const DASHBOARD_MATERIAL_PRESETS = {
+  default: {
+    roughness: 0.45,
+    metalness: 0.15,
+    transparent: false,
+    opacity: 1
+  },
+  solid: {
+    roughness: 0.28,
+    metalness: 0,
+    transparent: false,
+    opacity: 1
+  },
+  plastic: {
+    roughness: 0.5,
+    metalness: 0.03,
+    transparent: false,
+    opacity: 1
+  },
+  metal: {
+    roughness: 0.16,
+    metalness: 0.95,
+    transparent: false,
+    opacity: 1
+  },
+  glass: {
+    roughness: 0.05,
+    metalness: 0,
+    transparent: true,
+    opacity: 0.28,
+    depthWrite: false
+  },
+  wood: {
+    roughness: 0.85,
+    metalness: 0.02,
+    transparent: false,
+    opacity: 1
+  },
+  neon: {
+    emissiveIntensity: 1.15,
+    roughness: 0.2,
+    metalness: 0,
+    transparent: false,
+    opacity: 1
+  },
+  transparent: {
+    roughness: 0.25,
+    metalness: 0.05,
+    transparent: true,
+    opacity: 0.35,
+    depthWrite: false
+  }
+};
+
 function setDashboardPreviewText(elementId, text) {
   const element = document.getElementById(elementId);
 
@@ -125,9 +179,33 @@ function getDashboardObjectSource(savedObject) {
 }
 
 function getDashboardMaterialValue(savedObject, key, fallback) {
-  const materialData = savedObject && savedObject.materialData ? savedObject.materialData : {};
+  const materialData = getDashboardMaterialConfig(savedObject);
 
   return formatDashboardNumber(materialData[key], fallback);
+}
+
+function getDashboardMaterialConfig(savedObject) {
+  const materialType = savedObject && savedObject.materialType ? savedObject.materialType : "default";
+  const preset = DASHBOARD_MATERIAL_PRESETS[materialType] || DASHBOARD_MATERIAL_PRESETS.default;
+  const materialData = savedObject && savedObject.materialData ? savedObject.materialData : {};
+  const mergedData = Object.assign({}, preset, materialData);
+  const opacity = mergedData.opacity === undefined
+    ? 1
+    : clampDashboardValue(normaliseDashboardNumber(mergedData.opacity, 1), 0.1, 1);
+
+  return Object.assign({}, mergedData, {
+    roughness: mergedData.roughness === undefined
+      ? 0.42
+      : clampDashboardValue(normaliseDashboardNumber(mergedData.roughness, 0.42), 0, 1),
+    metalness: mergedData.metalness === undefined
+      ? 0.16
+      : clampDashboardValue(normaliseDashboardNumber(mergedData.metalness, 0.16), 0, 1),
+    opacity: opacity,
+    transparent: Boolean(mergedData.transparent) || opacity < 1,
+    depthWrite: mergedData.depthWrite === undefined
+      ? !(Boolean(mergedData.transparent) || opacity < 1)
+      : Boolean(mergedData.depthWrite)
+  });
 }
 
 function getLatestProject(projects) {
@@ -264,24 +342,19 @@ function createDashboardGeometry(type) {
 }
 
 function createDashboardMaterial(savedObject) {
-  const materialData = savedObject && savedObject.materialData ? savedObject.materialData : {};
+  const materialData = getDashboardMaterialConfig(savedObject);
   const objectColor = getDashboardObjectColor(savedObject);
-  const opacity = materialData.opacity === undefined
-    ? 1
-    : clampDashboardValue(normaliseDashboardNumber(materialData.opacity, 1), 0.1, 1);
+  const opacity = materialData.opacity;
   const isNeon = savedObject && savedObject.materialType === "neon";
   const emissiveColor = isNeon ? objectColor : (materialData.emissive || "#000000");
 
   return new THREE.MeshStandardMaterial({
     color: objectColor,
-    roughness: materialData.roughness === undefined
-      ? 0.42
-      : clampDashboardValue(normaliseDashboardNumber(materialData.roughness, 0.42), 0, 1),
-    metalness: materialData.metalness === undefined
-      ? 0.16
-      : clampDashboardValue(normaliseDashboardNumber(materialData.metalness, 0.16), 0, 1),
+    roughness: materialData.roughness,
+    metalness: materialData.metalness,
     opacity: opacity,
-    transparent: opacity < 1 || Boolean(materialData.transparent),
+    transparent: materialData.transparent,
+    depthWrite: materialData.depthWrite,
     emissive: new THREE.Color(emissiveColor || "#000000"),
     emissiveIntensity: materialData.emissiveIntensity === undefined
       ? (isNeon ? 0.55 : 0)

@@ -10,19 +10,28 @@
 <body class="settings-page">
 
   <header class="top-nav">
-    <div class="project-search-wrap">
+    <div class="project-search-wrap" data-page-search data-search-target=".settings-search-item"
+      data-search-empty="#settingsSearchEmpty">
       <span class="project-search-icon" aria-hidden="true">
         <svg viewBox="0 0 24 24" focusable="false">
           <circle cx="11" cy="11" r="7"></circle>
           <path d="m16.5 16.5 4 4"></path>
         </svg>
       </span>
-      <input class="search-box project-search-input" type="search" placeholder="Search settings..." autocomplete="off">
+      <input class="search-box project-search-input" type="search" placeholder="Search settings..."
+        autocomplete="off" data-page-search-input>
+      <button class="project-search-clear" type="button" aria-label="Clear settings search" hidden
+        data-page-search-clear>
+        <svg viewBox="0 0 24 24" focusable="false" aria-hidden="true">
+          <path d="M7 7l10 10"></path>
+          <path d="M17 7L7 17"></path>
+        </svg>
+      </button>
     </div>
 
     <div class="top-user">
       <span class="top-icon">🔔</span>
-      <button class="create-project-btn" type="button" onclick="window.location.href='/dashboard'">+ New Project</button>
+      <button class="create-project-btn" type="button" onclick="window.location.href='/dashboard?newProject=1'">+ New Project</button>
       <button class="settings-top-btn active-settings-top-btn" type="button" onclick="window.location.href='/settings'">⚙</button>
       <div class="user-avatar" id="avatar-initial">O</div>
       <span id="display-name">Loading…</span>
@@ -86,7 +95,6 @@
       </a>
     </nav>
 
-    <div class="version">V-1.00 • CAD 3D</div>
   </aside>
 
   <main class="settings-page-layout">
@@ -102,22 +110,27 @@
       </div>
     </section>
 
+    <p id="settingsSearchEmpty" class="page-search-empty" hidden>No settings match your search.</p>
+
     <section class="settings-grid">
-      <article class="settings-panel">
+      <article class="settings-panel settings-search-item">
         <h2>Account</h2>
         <p class="settings-muted">Your logged-in Objex CAD profile information.</p>
         <div class="settings-form-row">
           <label for="settingsDisplayName">Display Name</label>
-          <input id="settingsDisplayName" type="text" readonly value="Loading...">
+          <input id="settingsDisplayName" type="text" maxlength="100" value="Loading...">
+        </div>
+        <div class="settings-name-actions">
+          <button id="openNameConfirmBtn" class="settings-secondary-btn" type="button">Update Name</button>
         </div>
         <div class="settings-form-row">
           <label for="settingsUserEmail">Email</label>
           <input id="settingsUserEmail" type="text" readonly value="Loading...">
         </div>
-        <div class="settings-note-box">Account details are controlled by your login profile. Workspace preferences below are saved locally in your browser.</div>
+        <div class="settings-note-box">Display name can be changed here. Email stays linked to your login profile.</div>
       </article>
 
-      <article class="settings-panel">
+      <article class="settings-panel settings-search-item">
         <h2>Interface Preferences</h2>
         <p class="settings-muted">Control the appearance of the application interface.</p>
         <div class="settings-toggle-row">
@@ -138,7 +151,7 @@
         </div>
       </article>
 
-      <article class="settings-panel">
+      <article class="settings-panel settings-search-item">
         <h2>CAD Workspace Defaults</h2>
         <p class="settings-muted">Set default workspace view preferences for future use.</p>
         <div class="settings-toggle-row">
@@ -159,7 +172,7 @@
         </div>
       </article>
 
-      <article class="settings-panel">
+      <article class="settings-panel settings-search-item">
         <h2>Project Preferences</h2>
         <p class="settings-muted">Set project creation and saving behaviour.</p>
         <div class="settings-form-row">
@@ -176,11 +189,10 @@
         </div>
       </article>
 
-      <article class="settings-panel settings-wide-panel">
+      <article class="settings-panel settings-wide-panel settings-search-item">
         <h2>System Information</h2>
         <div class="settings-info-grid">
           <div><span>Application</span><strong>Objex CAD</strong></div>
-          <div><span>Version</span><strong>V-1.00</strong></div>
           <div><span>Frontend</span><strong>HTML, CSS, JavaScript, Three.js</strong></div>
           <div><span>Backend</span><strong>Python Flask + MySQL</strong></div>
           <div><span>Storage</span><strong>Browser LocalStorage + MySQL project data</strong></div>
@@ -192,8 +204,24 @@
 
   <div id="settingsToast" class="settings-toast">Settings saved successfully.</div>
 
+  <div id="nameConfirmModal" class="modal-overlay">
+    <div class="modal-card confirm-modal-card">
+      <h2>Change Display Name</h2>
+      <p id="nameConfirmText">Confirm the new display name.</p>
+
+      <div id="nameConfirmError" class="error-msg" style="display:none;"></div>
+
+      <div class="modal-actions">
+        <button id="cancelNameConfirmBtn" class="cancel-btn" type="button">Cancel</button>
+        <button id="confirmNameChangeBtn" class="save-btn" type="button">Confirm Change</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="/static/js/common/pageSearch.js"></script>
   <script>
     const SETTINGS_KEY = "objexCADSettings";
+    let currentUserName = "";
 
     const defaultSettings = {
       compactDashboard: false,
@@ -267,6 +295,107 @@
       }, 2400);
     }
 
+    function setProfileName(name) {
+      const safeName = name || "User";
+
+      currentUserName = safeName;
+      getEl("display-name").textContent = safeName;
+      getEl("avatar-initial").textContent = safeName.charAt(0).toUpperCase();
+      getEl("settingsDisplayName").value = safeName;
+    }
+
+    function showNameConfirmError(message) {
+      const errorBox = getEl("nameConfirmError");
+
+      if (!errorBox) return;
+
+      errorBox.textContent = message;
+      errorBox.style.display = "block";
+    }
+
+    function openNameConfirmModal() {
+      const modal = getEl("nameConfirmModal");
+      const nameInput = getEl("settingsDisplayName");
+      const confirmText = getEl("nameConfirmText");
+      const errorBox = getEl("nameConfirmError");
+      const nextName = nameInput.value.trim();
+
+      if (!nextName) {
+        showSettingsToast("Display name is required.");
+        nameInput.focus();
+        return;
+      }
+
+      if (nextName === currentUserName) {
+        showSettingsToast("Display name is already up to date.");
+        nameInput.focus();
+        return;
+      }
+
+      if (confirmText) {
+        confirmText.textContent = "Change your display name to \"" + nextName + "\"?";
+      }
+
+      if (errorBox) {
+        errorBox.style.display = "none";
+        errorBox.textContent = "";
+      }
+
+      modal.style.display = "flex";
+    }
+
+    function closeNameConfirmModal() {
+      const modal = getEl("nameConfirmModal");
+
+      if (modal) {
+        modal.style.display = "none";
+      }
+    }
+
+    async function confirmNameChange() {
+      const nameInput = getEl("settingsDisplayName");
+      const confirmButton = getEl("confirmNameChangeBtn");
+      const nextName = nameInput.value.trim();
+
+      if (!nextName) {
+        showNameConfirmError("Display name is required.");
+        return;
+      }
+
+      if (confirmButton) {
+        confirmButton.disabled = true;
+        confirmButton.textContent = "Saving...";
+      }
+
+      try {
+        const response = await fetch("/api/me", {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            name: nextName
+          })
+        });
+        const data = await response.json();
+
+        if (!response.ok || !data.success) {
+          throw new Error(data.message || "Could not update display name.");
+        }
+
+        setProfileName(data.name || nextName);
+        closeNameConfirmModal();
+        showSettingsToast("Display name updated.");
+      } catch (error) {
+        showNameConfirmError(error.message || "Could not update display name.");
+      }
+
+      if (confirmButton) {
+        confirmButton.disabled = false;
+        confirmButton.textContent = "Confirm Change";
+      }
+    }
+
     function saveSettings() {
       localStorage.setItem(SETTINGS_KEY, JSON.stringify(readSettingsFromForm()));
       getEl("settingsSaveStatus").textContent = "Saved locally";
@@ -290,12 +419,9 @@
           return;
         }
 
-        const userName = data.name || "User";
         const userEmail = data.email || data.username || "Not available";
 
-        getEl("display-name").textContent = userName;
-        getEl("avatar-initial").textContent = userName.charAt(0).toUpperCase();
-        getEl("settingsDisplayName").value = userName;
+        setProfileName(data.name || "User");
         getEl("settingsUserEmail").value = userEmail;
       } catch {
         window.location.href = "/";
@@ -304,10 +430,32 @@
 
     const saveSettingsBtn = getEl("saveSettingsBtn");
     const resetSettingsBtn = getEl("resetSettingsBtn");
+    const openNameConfirmBtn = getEl("openNameConfirmBtn");
+    const cancelNameConfirmBtn = getEl("cancelNameConfirmBtn");
+    const confirmNameChangeBtn = getEl("confirmNameChangeBtn");
+    const nameConfirmModal = getEl("nameConfirmModal");
     const logoutBtn = getEl("logoutBtn");
 
     if (saveSettingsBtn) saveSettingsBtn.addEventListener("click", saveSettings);
     if (resetSettingsBtn) resetSettingsBtn.addEventListener("click", resetSettings);
+    if (openNameConfirmBtn) openNameConfirmBtn.addEventListener("click", openNameConfirmModal);
+    if (cancelNameConfirmBtn) cancelNameConfirmBtn.addEventListener("click", closeNameConfirmModal);
+    if (confirmNameChangeBtn) confirmNameChangeBtn.addEventListener("click", confirmNameChange);
+
+    if (nameConfirmModal) {
+      nameConfirmModal.addEventListener("click", function (event) {
+        if (event.target === nameConfirmModal) {
+          closeNameConfirmModal();
+        }
+      });
+    }
+
+    getEl("settingsDisplayName").addEventListener("keydown", function (event) {
+      if (event.key === "Enter") {
+        event.preventDefault();
+        openNameConfirmModal();
+      }
+    });
 
     if (logoutBtn) {
       logoutBtn.addEventListener("click", async function () {

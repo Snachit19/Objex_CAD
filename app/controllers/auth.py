@@ -2,7 +2,7 @@ from flask import request, jsonify, session
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
 
-from app.models.user import find_user_by_email, create_user
+from app.models.user import find_user_by_email, create_user, update_user_name
 from app.middleware.auth_middleware import login_required
 
 
@@ -108,4 +108,46 @@ def me():
         "success": True,
         "email": session.get("user_email"),
         "name": session.get("user_name")
+    }), 200
+
+
+@login_required
+def update_profile():
+    data = request.get_json()
+
+    if not data:
+        return jsonify({
+            "success": False,
+            "message": "No data provided"
+        }), 400
+
+    name = data.get("name", "").strip()
+    email = session.get("user_email")
+
+    if not email:
+        return jsonify({
+            "success": False,
+            "message": "Session expired"
+        }), 401
+
+    if not name:
+        return jsonify({
+            "success": False,
+            "message": "Name is required"
+        }), 400
+
+    if len(name) > 100:
+        return jsonify({
+            "success": False,
+            "message": "Name must be 100 characters or less"
+        }), 400
+
+    update_user_name(email, name)
+    session["user_name"] = name
+
+    return jsonify({
+        "success": True,
+        "message": "Name updated successfully",
+        "name": name,
+        "email": email
     }), 200

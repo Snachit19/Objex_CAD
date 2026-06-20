@@ -406,13 +406,34 @@
             );
         }
 
-        mesh.userData = mesh.userData || {};
-        mesh.userData.id = savedObject.id || mesh.userData.id;
-        mesh.userData.type = "imported";
-        mesh.userData.selectable = true;
-        mesh.userData.color = savedObject.color || "#cccccc";
-        mesh.userData.importFormat = savedObject.importFormat || "glb";
-        mesh.userData.importPayload = savedObject.importPayload || null;
+        if (
+            window.CADDesignData &&
+            typeof window.CADDesignData.applyUserDataFromSavedData === "function"
+        ) {
+            window.CADDesignData.applyUserDataFromSavedData(mesh, savedObject);
+        } else {
+            mesh.userData = mesh.userData || {};
+            mesh.userData.id = savedObject.id || mesh.userData.id;
+            mesh.userData.type = "imported";
+            mesh.userData.selectable = true;
+            mesh.userData.color = savedObject.color || "#cccccc";
+            mesh.userData.materialType = savedObject.materialType || "default";
+            mesh.userData.materialName = savedObject.materialName || "Default";
+            mesh.userData.materialData = savedObject.materialData || null;
+            mesh.userData.materialDescription = savedObject.materialDescription || "";
+            mesh.userData.importFormat = savedObject.importFormat || "glb";
+            mesh.userData.importPayload = savedObject.importPayload || null;
+        }
+
+        if (
+            window.CADDesignData &&
+            typeof window.CADDesignData.applyMaterialFromSavedData === "function"
+        ) {
+            window.CADDesignData.applyMaterialFromSavedData(mesh, savedObject);
+        } else if (savedObject.color && mesh.material && mesh.material.color) {
+            mesh.material.color.set(savedObject.color);
+            mesh.material.needsUpdate = true;
+        }
     }
 
     function importModelFromFile(file, options) {

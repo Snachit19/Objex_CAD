@@ -10,9 +10,15 @@ async function saveDesign() {
         return;
     }
 
-    const designData = typeof window.getCADObjectsForSaving === "function"
-        ? window.getCADObjectsForSaving()
-        : [];
+    if (typeof window.getCADObjectsForSaving !== "function") {
+        if (statusText) {
+            statusText.textContent = "Save tools are not ready. Refresh the CAD page and try again.";
+        }
+
+        return;
+    }
+
+    const designData = window.getCADObjectsForSaving();
 
     try {
         if (saveButton) {

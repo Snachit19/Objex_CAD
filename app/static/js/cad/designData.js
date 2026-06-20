@@ -2,15 +2,129 @@
     "use strict";
 
     function getObjectColor(object) {
+        const material = getFirstMaterial(object ? object.material : null);
+
+        if (material && material.color) {
+            return "#" + material.color.getHexString();
+        }
+
         if (object.userData && object.userData.color) {
             return object.userData.color;
         }
 
-        if (object.material && object.material.color) {
-            return "#" + object.material.color.getHexString();
+        return "#ffffff";
+    }
+
+    function clonePlainValue(value) {
+        if (value === undefined || value === null) {
+            return value;
         }
 
-        return "#ffffff";
+        return JSON.parse(JSON.stringify(value));
+    }
+
+    function getMaterialList(material) {
+        if (Array.isArray(material)) {
+            return material;
+        }
+
+        return material ? [material] : [];
+    }
+
+    function getFirstMaterial(material) {
+        return getMaterialList(material).find(function (singleMaterial) {
+            return Boolean(singleMaterial);
+        }) || null;
+    }
+
+    function isFiniteNumber(value) {
+        return Number.isFinite(Number(value));
+    }
+
+    function getPresetMaterialConfig(materialType) {
+        if (typeof window.getMaterialPreset === "function") {
+            const preset = window.getMaterialPreset(materialType || "default");
+
+            if (preset && preset.config) {
+                return clonePlainValue(preset.config);
+            }
+        }
+
+        return null;
+    }
+
+    function normaliseMaterialData(materialData, materialType) {
+        const presetConfig = getPresetMaterialConfig(materialType) || {};
+        const sourceData = Object.assign({}, presetConfig, materialData || {});
+        const opacity = isFiniteNumber(sourceData.opacity) ? Number(sourceData.opacity) : 1;
+        const transparent = Boolean(sourceData.transparent) || opacity < 1;
+
+        const normalizedData = {
+            roughness: isFiniteNumber(sourceData.roughness) ? Number(sourceData.roughness) : 0.45,
+            metalness: isFiniteNumber(sourceData.metalness) ? Number(sourceData.metalness) : 0,
+            opacity: opacity,
+            transparent: transparent,
+            depthWrite: transparent
+                ? false
+                : (sourceData.depthWrite === undefined ? true : Boolean(sourceData.depthWrite))
+        };
+
+        if (sourceData.emissive) {
+            normalizedData.emissive = sourceData.emissive;
+        }
+
+        if (isFiniteNumber(sourceData.emissiveIntensity) && Number(sourceData.emissiveIntensity) > 0) {
+            normalizedData.emissiveIntensity = Number(sourceData.emissiveIntensity);
+        }
+
+        return normalizedData;
+    }
+
+    function getMaterialDataForSaving(object) {
+        if (!object) {
+            return null;
+        }
+
+        const material = getFirstMaterial(object.material);
+        const storedData = object.userData && object.userData.materialData
+            ? clonePlainValue(object.userData.materialData)
+            : {};
+        const materialType = object.userData && object.userData.materialType
+            ? object.userData.materialType
+            : "default";
+        const materialData = normaliseMaterialData(storedData, materialType);
+
+        if (material) {
+            if (isFiniteNumber(material.roughness)) {
+                materialData.roughness = Number(material.roughness);
+            }
+
+            if (isFiniteNumber(material.metalness)) {
+                materialData.metalness = Number(material.metalness);
+            }
+
+            if (isFiniteNumber(material.opacity)) {
+                materialData.opacity = Number(material.opacity);
+            }
+
+            if (material.transparent !== undefined) {
+                materialData.transparent = Boolean(material.transparent) || materialData.opacity < 1;
+            }
+
+            if (material.depthWrite !== undefined) {
+                materialData.depthWrite = Boolean(material.depthWrite);
+            }
+
+            if (material.emissive) {
+                materialData.emissive = "#" + material.emissive.getHexString();
+            }
+
+            if (isFiniteNumber(material.emissiveIntensity) && Number(material.emissiveIntensity) > 0) {
+                materialData.emissiveIntensity = Number(material.emissiveIntensity);
+            }
+        }
+
+        return materialData;
     }
 
     function serializeCADObject(object) {
@@ -37,7 +151,7 @@
             materialType: (object.userData && object.userData.materialType) || "default",
             materialName: (object.userData && object.userData.materialName) || "Default",
             materialDescription: (object.userData && object.userData.materialDescription) || "",
-            materialData: object.userData && object.userData.materialData ? object.userData.materialData : null,
+            materialData: getMaterialDataForSaving(object),
             importFormat: object.userData && object.userData.importFormat ? object.userData.importFormat : null,
             importPayload: object.userData && object.userData.importPayload ? object.userData.importPayload : null
         };
@@ -81,6 +195,9 @@
         object.userData.color = savedObject.color || "#ffffff";
         object.userData.materialType = savedObject.materialType || "default";
         object.userData.materialName = savedObject.materialName || "Default";
+        object.userData.materialData = savedObject.materialData
+            ? normaliseMaterialData(savedObject.materialData, object.userData.materialType)
+            : normaliseMaterialData(null, object.userData.materialType);
 
         if (savedObject.materialDescription) {
             object.userData.materialDescription = savedObject.materialDescription;
@@ -114,26 +231,30 @@
             }
         }
 
-        if (!savedObject.materialData) {
+        const matData = savedObject.materialData
+            ? normaliseMaterialData(savedObject.materialData, savedObject.materialType)
+            : normaliseMaterialData(null, savedObject.materialType);
+
+        if (!matData) {
             return;
         }
 
-        object.userData.materialData = savedObject.materialData;
+        object.userData = object.userData || {};
+        object.userData.materialData = clonePlainValue(matData);
 
-        const matData = savedObject.materialData;
         const emissiveColor = savedObject.materialType === "neon"
             ? savedObject.color
             : (matData.emissive || 0x000000);
 
         const materialParams = {
             color: savedObject.color || 0xcccccc,
-            roughness: matData.roughness === undefined ? 0.5 : Number(matData.roughness),
-            metalness: matData.metalness === undefined ? 0.5 : Number(matData.metalness),
-            opacity: matData.opacity === undefined ? 1.0 : Number(matData.opacity),
-            transparent: Boolean(matData.transparent),
+            roughness: matData.roughness,
+            metalness: matData.metalness,
+            opacity: matData.opacity,
+            transparent: Boolean(matData.transparent) || matData.opacity < 1,
             emissive: new THREE.Color(emissiveColor || 0x000000),
-            emissiveIntensity: matData.emissiveIntensity === undefined ? 1.0 : Number(matData.emissiveIntensity),
-            depthWrite: matData.depthWrite !== undefined ? matData.depthWrite : true
+            emissiveIntensity: matData.emissiveIntensity === undefined ? 0 : Number(matData.emissiveIntensity),
+            depthWrite: matData.depthWrite !== undefined ? Boolean(matData.depthWrite) : true
         };
 
         object.material = new THREE.MeshStandardMaterial(materialParams);

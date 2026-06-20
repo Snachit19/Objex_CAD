@@ -10,19 +10,28 @@
 <body class="help-page">
 
   <header class="top-nav">
-    <div class="project-search-wrap">
+    <div class="project-search-wrap" data-page-search data-search-target=".help-search-item"
+      data-search-empty="#helpSearchEmpty">
       <span class="project-search-icon" aria-hidden="true">
         <svg viewBox="0 0 24 24" focusable="false">
           <circle cx="11" cy="11" r="7"></circle>
           <path d="m16.5 16.5 4 4"></path>
         </svg>
       </span>
-      <input class="search-box project-search-input" type="search" placeholder="Search help topics..." autocomplete="off">
+      <input class="search-box project-search-input" type="search" placeholder="Search help topics..."
+        autocomplete="off" data-page-search-input>
+      <button class="project-search-clear" type="button" aria-label="Clear help search" hidden
+        data-page-search-clear>
+        <svg viewBox="0 0 24 24" focusable="false" aria-hidden="true">
+          <path d="M7 7l10 10"></path>
+          <path d="M17 7L7 17"></path>
+        </svg>
+      </button>
     </div>
 
     <div class="top-user">
       <span class="top-icon">🔔</span>
-      <button class="create-project-btn" type="button" onclick="window.location.href='/dashboard'">+ New Project</button>
+      <button class="create-project-btn" type="button" onclick="window.location.href='/dashboard?newProject=1'">+ New Project</button>
       <button class="settings-top-btn" type="button" onclick="window.location.href='/settings'">⚙</button>
       <div class="user-avatar" id="avatar-initial">O</div>
       <span id="display-name">Loading…</span>
@@ -86,7 +95,6 @@
       </a>
     </nav>
 
-    <div class="version">V-1.00 • CAD 3D</div>
   </aside>
 
   <main class="help-page-layout">
@@ -102,8 +110,45 @@
       </div>
     </section>
 
+    <p id="helpSearchEmpty" class="page-search-empty" hidden>No help topics match your search.</p>
+
     <section class="help-section-grid">
-      <article class="help-card-panel">
+      <article class="help-card-panel help-wide-panel help-search-item">
+        <h2>Visual Guide</h2>
+        <div class="help-visual-grid">
+          <div class="help-visual-card">
+            <div class="help-picture-strip" aria-hidden="true">
+              <img src="/static/images/add-shape.svg" alt="">
+              <img src="/static/images/move-object.svg" alt="">
+              <img src="/static/images/resize-object.svg" alt="">
+            </div>
+            <strong>Build and Edit</strong>
+            <span>Add a shape, select it, then move or resize it from the workspace tools.</span>
+          </div>
+
+          <div class="help-visual-card">
+            <div class="help-picture-strip" aria-hidden="true">
+              <img src="/static/images/grid-object.svg" alt="">
+              <img src="/static/images/axes-object.svg" alt="">
+              <img src="/static/images/orbit-camera.svg" alt="">
+            </div>
+            <strong>View and Align</strong>
+            <span>Use grid, axes, pan and orbit controls to keep the 3D view easy to understand.</span>
+          </div>
+
+          <div class="help-visual-card">
+            <div class="help-picture-strip" aria-hidden="true">
+              <img src="/static/images/export-image.svg" alt="">
+              <img src="/static/images/export-model.svg" alt="">
+              <img src="/static/images/import-design.svg" alt="">
+            </div>
+            <strong>Import and Export</strong>
+            <span>Bring model files into projects, then export images or 3D models for submission.</span>
+          </div>
+        </div>
+      </article>
+
+      <article class="help-card-panel help-search-item">
         <h2>1. Getting Started</h2>
         <ol class="help-step-list">
           <li>Login to your Objex CAD account.</li>
@@ -114,7 +159,7 @@
         </ol>
       </article>
 
-      <article class="help-card-panel">
+      <article class="help-card-panel help-search-item">
         <h2>2. Project Management</h2>
         <p>The Projects page allows you to view all saved projects, open designs, rename projects, delete projects and import external model projects.</p>
         <ul class="help-list">
@@ -125,7 +170,7 @@
         </ul>
       </article>
 
-      <article class="help-card-panel help-wide-panel">
+      <article class="help-card-panel help-wide-panel help-search-item">
         <h2>3. CAD Workspace Tools</h2>
         <div class="help-tool-grid">
           <div class="help-tool-card"><strong>Add Shape</strong><span>Create cube, sphere, cylinder, cone, torus, pyramid or plane.</span></div>
@@ -143,7 +188,7 @@
         </div>
       </article>
 
-      <article class="help-card-panel">
+      <article class="help-card-panel help-search-item">
         <h2>4. Save and Export</h2>
         <p>Use <strong>Save Design</strong> to store the current CAD workspace in the database. Export your work as an image or 3D model file for presentation and submission.</p>
         <ul class="help-list">
@@ -153,7 +198,7 @@
         </ul>
       </article>
 
-      <article class="help-card-panel">
+      <article class="help-card-panel help-search-item">
         <h2>5. Useful Shortcuts</h2>
         <div class="shortcut-row"><span class="help-kbd">Ctrl</span><span class="help-kbd">Z</span><p>Undo last action</p></div>
         <div class="shortcut-row"><span class="help-kbd">Ctrl</span><span class="help-kbd">Y</span><p>Redo last action</p></div>
@@ -161,7 +206,7 @@
         <div class="shortcut-row"><span class="help-kbd">Drag Mouse</span><p>Orbit around model</p></div>
       </article>
 
-      <article class="help-card-panel help-wide-panel">
+      <article class="help-card-panel help-wide-panel help-search-item">
         <h2>6. Troubleshooting</h2>
         <div class="faq-item"><h3>Object is not moving?</h3><p>Select the object first, then open the Move Object tool.</p></div>
         <div class="faq-item"><h3>Saved project is empty?</h3><p>Make sure you click Save Design after adding or editing objects.</p></div>
@@ -171,6 +216,7 @@
     </section>
   </main>
 
+  <script src="/static/js/common/pageSearch.js"></script>
   <script>
     async function loadUser() {
       try {
