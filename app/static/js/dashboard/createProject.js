@@ -20,6 +20,26 @@ function isProjectsPage() {
   return document.body.classList.contains("projects-page");
 }
 
+function showProjectNotice(message) {
+  let container = document.getElementById("toastContainer");
+
+  if (!container) {
+    container = document.createElement("div");
+    container.id = "toastContainer";
+    container.className = "toast-container";
+    document.body.appendChild(container);
+  }
+
+  const toast = document.createElement("div");
+  toast.className = "toast";
+  toast.textContent = message;
+  container.appendChild(toast);
+
+  setTimeout(function () {
+    toast.remove();
+  }, 3200);
+}
+
 function openProjectModal() {
   projectModal.style.display = "flex";
   projectNameInput.value = "";
@@ -372,7 +392,7 @@ function openDeleteProjectModal(project) {
           return loadProjects();
         })
         .catch(function (error) {
-          window.alert(error.message || "Could not delete project.");
+          showProjectNotice(error.message || "Could not delete project.");
         });
     }
     return;

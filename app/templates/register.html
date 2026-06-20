@@ -115,24 +115,31 @@
     const password = document.getElementById("reg-password").value;
     const confirm = document.getElementById("confirm-password").value;
 
+    function showRegisterMessage(message, type) {
+      const isSuccess = type === "success";
+
+      errorEl.textContent = message;
+      errorEl.style.display = "block";
+      errorEl.style.background = isSuccess ? "rgba(34, 197, 94, 0.12)" : "rgba(239, 68, 68, 0.12)";
+      errorEl.style.borderColor = isSuccess ? "rgba(34, 197, 94, 0.35)" : "rgba(239, 68, 68, 0.35)";
+      errorEl.style.color = isSuccess ? "#4ade80" : "#f87171";
+    }
+
     errorEl.style.display = "none";
     errorEl.textContent = "";
 
     if (!fullname || !email || !password || !confirm) {
-      errorEl.textContent = "Please fill in all fields.";
-      errorEl.style.display = "block";
+      showRegisterMessage("Please fill in all fields.", "error");
       return;
     }
 
     if (password !== confirm) {
-      errorEl.textContent = "Passwords do not match.";
-      errorEl.style.display = "block";
+      showRegisterMessage("Passwords do not match.", "error");
       return;
     }
 
     if (password.length < 6) {
-      errorEl.textContent = "Password must be at least 6 characters.";
-      errorEl.style.display = "block";
+      showRegisterMessage("Password must be at least 6 characters.", "error");
       return;
     }
 
@@ -155,19 +162,19 @@
       const result = await response.json();
 
       if (!response.ok || !result.success) {
-        errorEl.textContent = result.message || "Registration failed.";
-        errorEl.style.display = "block";
+        showRegisterMessage(result.message || "Registration failed.", "error");
         btn.textContent = "✦ Sign Up";
         btn.disabled = false;
         return;
       }
 
-      alert("Account created successfully. Please sign in.");
-      window.location.href = "/";
+      showRegisterMessage("Account created successfully. Redirecting to sign in...", "success");
+      setTimeout(() => {
+        window.location.href = "/";
+      }, 900);
 
     } catch (error) {
-      errorEl.textContent = "Server error. Please try again.";
-      errorEl.style.display = "block";
+      showRegisterMessage("Server error. Please try again.", "error");
       btn.textContent = "✦ Sign Up";
       btn.disabled = false;
     }
