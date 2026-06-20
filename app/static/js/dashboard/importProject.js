@@ -32,6 +32,25 @@
         importProjectFileInput.accept = formatApi.getAcceptForModelFormat(format);
     }
 
+    function getFormatForFile(file) {
+        const formatApi = window.CADModelFormats;
+        const selectedFormat = getSelectedFormat();
+        const detectedFormat = formatApi && typeof formatApi.detectModelFormat === "function"
+            ? formatApi.detectModelFormat(file && file.name)
+            : "";
+
+        if (detectedFormat) {
+            if (importProjectFormatSelect) {
+                importProjectFormatSelect.value = detectedFormat;
+                updateFileAccept();
+            }
+
+            return detectedFormat;
+        }
+
+        return selectedFormat;
+    }
+
     function setImportMessage(message) {
         if (recentProjectsMeta) {
             recentProjectsMeta.textContent = message;
@@ -79,7 +98,7 @@
             return;
         }
 
-        const selectedFormat = getSelectedFormat();
+        const selectedFormat = getFormatForFile(file);
 
         if (importProjectBtn) {
             importProjectBtn.disabled = true;
@@ -106,6 +125,8 @@
                 return;
             }
 
+            const importedFormat = parsed.format || selectedFormat;
+
             setImportMessage("Creating imported project...");
 
             const response = await fetch("/api/projects/import", {
@@ -115,7 +136,7 @@
                 },
                 body: JSON.stringify({
                     name: projectName,
-                    description: "Imported " + selectedFormat.toUpperCase() + " model",
+                    description: "Imported " + importedFormat.toUpperCase() + " model",
                     design_data: parsed.objects
                 })
             });

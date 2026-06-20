@@ -1,3 +1,25 @@
+let cadDesignHasUnsavedChanges = false;
+
+
+function isSaveReminderEnabled() {
+    if (!window.ObjexCADSettings) {
+        return true;
+    }
+
+    return window.ObjexCADSettings.load().saveReminder !== false;
+}
+
+
+function markCADDesignDirty() {
+    cadDesignHasUnsavedChanges = true;
+}
+
+
+function markCADDesignSaved() {
+    cadDesignHasUnsavedChanges = false;
+}
+
+
 async function saveDesign() {
     const saveButton = document.getElementById("saveDesignBtn");
     const statusText = document.getElementById("cadStatusText");
@@ -54,6 +76,8 @@ async function saveDesign() {
                 "Design saved successfully. Objects saved: " + data.object_count;
         }
 
+        markCADDesignSaved();
+
     } catch (error) {
         console.error("Save design error:", error);
 
@@ -79,4 +103,19 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     saveButton.addEventListener("click", saveDesign);
+
+    window.addEventListener("cad:objectChanged", markCADDesignDirty);
+    window.addEventListener("cad:historyChanged", markCADDesignDirty);
+    window.addEventListener("beforeunload", function (event) {
+        if (!cadDesignHasUnsavedChanges || !isSaveReminderEnabled()) {
+            return;
+        }
+
+        event.preventDefault();
+        event.returnValue = "";
+    });
 });
+
+
+window.markCADDesignDirty = markCADDesignDirty;
+window.markCADDesignSaved = markCADDesignSaved;

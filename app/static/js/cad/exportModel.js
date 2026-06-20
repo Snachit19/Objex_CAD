@@ -4,6 +4,8 @@
   let exportModelInitialized = false;
   const SUPPORTED_EXPORT_SCOPES = ["all", "selected"];
   const SUPPORTED_EXPORT_FORMATS = ["glb", "gltf", "obj"];
+  const OBJEX_EXPORT_METADATA_KEY = "objexCadExport";
+  const OBJEX_OBJECT_METADATA_KEY = "objexCadObject";
 
   const exportModelOptions = {
     scope: "all",
@@ -355,6 +357,108 @@
     return material;
   }
 
+  function createFallbackObjectMetadata(object) {
+    return {
+      id: object && object.userData && object.userData.id ? object.userData.id : "",
+      name: object && object.name ? object.name : "CAD Object",
+      type: object && object.userData && object.userData.type ? object.userData.type : "unknown",
+      position: object && object.position ? {
+        x: object.position.x,
+        y: object.position.y,
+        z: object.position.z
+      } : { x: 0, y: 0, z: 0 },
+      rotation: object && object.rotation ? {
+        x: object.rotation.x,
+        y: object.rotation.y,
+        z: object.rotation.z
+      } : { x: 0, y: 0, z: 0 },
+      scale: object && object.scale ? {
+        x: object.scale.x,
+        y: object.scale.y,
+        z: object.scale.z
+      } : { x: 1, y: 1, z: 1 },
+      color: object && object.userData && object.userData.color
+        ? object.userData.color
+        : "#cccccc",
+      materialType: object && object.userData && object.userData.materialType
+        ? object.userData.materialType
+        : "default",
+      materialName: object && object.userData && object.userData.materialName
+        ? object.userData.materialName
+        : "Default",
+      materialDescription: object && object.userData && object.userData.materialDescription
+        ? object.userData.materialDescription
+        : "",
+      materialData: object && object.userData && object.userData.materialData
+        ? clonePlainValue(object.userData.materialData)
+        : null,
+      importFormat: null,
+      importPayload: null
+    };
+  }
+
+  function createExportObjectMetadata(object) {
+    let metadata = null;
+
+    if (
+      window.CADDesignData &&
+      typeof window.CADDesignData.serializeCADObject === "function"
+    ) {
+      metadata = window.CADDesignData.serializeCADObject(object);
+    } else {
+      metadata = createFallbackObjectMetadata(object);
+    }
+
+    metadata = clonePlainValue(metadata || createFallbackObjectMetadata(object));
+    metadata.importFormat = null;
+    metadata.importPayload = null;
+
+    return metadata;
+  }
+
+  function createExportMetadata(sourceObjects, selection) {
+    return {
+      format: "objex-cad-model",
+      version: "1.0",
+      application: "Objex CAD",
+      exportedAt: new Date().toISOString(),
+      scope: selection && selection.scope ? selection.scope : "all",
+      objectCount: (sourceObjects || []).length,
+      objects: (sourceObjects || []).map(createExportObjectMetadata)
+    };
+  }
+
+  function attachObjectMetadataToClone(objectClone, objectMetadata, index) {
+    if (!objectClone || !objectMetadata) {
+      return;
+    }
+
+    objectClone.userData = clonePlainValue(objectClone.userData || {});
+    delete objectClone.userData.importPayload;
+    delete objectClone.userData[OBJEX_EXPORT_METADATA_KEY];
+    objectClone.userData[OBJEX_OBJECT_METADATA_KEY] = clonePlainValue(objectMetadata);
+    objectClone.userData.objexCadExportIndex = index;
+
+    if (typeof objectClone.traverse === "function") {
+      objectClone.traverse(function (child) {
+        if (!child) {
+          return;
+        }
+
+        child.userData = clonePlainValue(child.userData || {});
+        delete child.userData.importPayload;
+        delete child.userData[OBJEX_EXPORT_METADATA_KEY];
+
+        if (!child.isMesh) {
+          return;
+        }
+
+        child.userData[OBJEX_OBJECT_METADATA_KEY] = clonePlainValue(objectMetadata);
+        child.userData.objexCadExportIndex = index;
+      });
+    }
+  }
+
   function prepareMeshCloneForExport(meshClone) {
     if (!meshClone || !meshClone.isMesh) {
       return;
@@ -381,7 +485,7 @@
     return objectClone;
   }
 
-  function cloneObjectForExport(object) {
+  function cloneObjectForExport(object, objectMetadata, index) {
     if (!object || typeof object.clone !== "function") {
       return null;
     }
@@ -394,7 +498,11 @@
       object.userData && object.userData.id ? object.userData.id : "";
     objectClone.userData.exportSourceName = object.name || "";
 
-    return prepareObjectCloneForExport(objectClone);
+    const preparedClone = prepareObjectCloneForExport(objectClone);
+
+    attachObjectMetadataToClone(preparedClone, objectMetadata, index);
+
+    return preparedClone;
   }
 
   function createTemporaryExportScene(name) {
@@ -416,6 +524,7 @@
     const selection = getExportModelSelection(options);
     const exportScene = createTemporaryExportScene();
     const clonedObjects = [];
+    const exportMetadata = createExportMetadata(selection.objects, selection);
 
     if (!exportScene) {
       return {
@@ -427,14 +536,17 @@
       };
     }
 
-    selection.objects.forEach(function (object) {
-      const objectClone = cloneObjectForExport(object);
+    selection.objects.forEach(function (object, index) {
+      const objectMetadata = exportMetadata.objects[index] || createExportObjectMetadata(object);
+      const objectClone = cloneObjectForExport(object, objectMetadata, index);
 
       if (objectClone) {
         exportScene.add(objectClone);
         clonedObjects.push(objectClone);
       }
     });
+
+    exportScene.userData[OBJEX_EXPORT_METADATA_KEY] = exportMetadata;
 
     return {
       scene: exportScene,
@@ -505,6 +617,46 @@
     setTimeout(function () {
       objectUrlApi.revokeObjectURL(downloadUrl);
     }, 1000);
+  }
+
+  function encodeTextToBase64(text) {
+    const source = String(text || "");
+
+    if (typeof TextEncoder === "function") {
+      const bytes = new TextEncoder().encode(source);
+      let binary = "";
+
+      bytes.forEach(function (byte) {
+        binary += String.fromCharCode(byte);
+      });
+
+      return btoa(binary);
+    }
+
+    return btoa(unescape(encodeURIComponent(source)));
+  }
+
+  function getExportSceneMetadata(exportScene) {
+    if (exportScene && exportScene.userData && exportScene.userData[OBJEX_EXPORT_METADATA_KEY]) {
+      return exportScene.userData[OBJEX_EXPORT_METADATA_KEY];
+    }
+
+    return null;
+  }
+
+  function prependOBJMetadata(objText, metadata) {
+    if (!metadata) {
+      return objText;
+    }
+
+    const encodedMetadata = encodeTextToBase64(JSON.stringify(metadata));
+    const header = [
+      "# Objex CAD model export",
+      "# objex-cad-metadata: " + encodedMetadata,
+      ""
+    ].join("\n");
+
+    return header + objText;
   }
 
   function parseGLBScene(exportScene) {
@@ -583,7 +735,7 @@
       throw new Error("OBJ export did not return text data.");
     }
 
-    return objText;
+    return prependOBJMetadata(objText, getExportSceneMetadata(exportScene));
   }
 
   async function exportGLBModel(exportBundle, filename) {

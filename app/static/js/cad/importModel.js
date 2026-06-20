@@ -1,6 +1,9 @@
 (function () {
     "use strict";
 
+    const OBJEX_EXPORT_METADATA_KEY = "objexCadExport";
+    const OBJEX_OBJECT_METADATA_KEY = "objexCadObject";
+
     function getFormatApi() {
         return window.CADModelFormats || {};
     }
@@ -59,6 +62,40 @@
         });
     }
 
+    function prepareMeshesForStandaloneUse(root, meshes) {
+        if (!root || !Array.isArray(meshes)) {
+            return;
+        }
+
+        if (typeof root.updateMatrixWorld === "function") {
+            root.updateMatrixWorld(true);
+        }
+
+        meshes.forEach(function (mesh) {
+            if (!mesh || !mesh.matrixWorld) {
+                return;
+            }
+
+            mesh.updateMatrixWorld(true);
+            mesh.matrixWorld.decompose(mesh.position, mesh.quaternion, mesh.scale);
+
+            if (mesh.parent) {
+                mesh.parent.remove(mesh);
+            }
+
+            mesh.updateMatrix();
+            mesh.updateMatrixWorld(true);
+        });
+    }
+
+    function hasObjexExportMetadata(exportMetadata) {
+        return Boolean(
+            exportMetadata &&
+            Array.isArray(exportMetadata.objects) &&
+            exportMetadata.objects.length > 0
+        );
+    }
+
     function centerMeshes(meshes) {
         if (!meshes.length) {
             return;
@@ -78,7 +115,60 @@
         });
     }
 
-    function meshToDesignObject(mesh, index, filename, importFormat, importPayload) {
+    function clonePlainValue(value) {
+        if (value === undefined || value === null) {
+            return value;
+        }
+
+        try {
+            return JSON.parse(JSON.stringify(value));
+        } catch (error) {
+            return value;
+        }
+    }
+
+    function isFiniteNumber(value) {
+        return Number.isFinite(Number(value));
+    }
+
+    function createImportedObjectId(index) {
+        return "obj-" + Date.now() + "-" + index + "-" + Math.floor(Math.random() * 1000);
+    }
+
+    function normalizeVector3(value, fallback) {
+        const defaults = fallback || { x: 0, y: 0, z: 0 };
+        const source = value && typeof value === "object" ? value : {};
+
+        return {
+            x: isFiniteNumber(source.x) ? Number(source.x) : defaults.x,
+            y: isFiniteNumber(source.y) ? Number(source.y) : defaults.y,
+            z: isFiniteNumber(source.z) ? Number(source.z) : defaults.z
+        };
+    }
+
+    function normalizeScale(value, fallback) {
+        const scale = normalizeVector3(value, fallback || { x: 1, y: 1, z: 1 });
+
+        return {
+            x: scale.x === 0 ? 1 : scale.x,
+            y: scale.y === 0 ? 1 : scale.y,
+            z: scale.z === 0 ? 1 : scale.z
+        };
+    }
+
+    function getMeshColor(mesh) {
+        if (mesh && mesh.material && mesh.material.color) {
+            return "#" + mesh.material.color.getHexString();
+        }
+
+        if (mesh && mesh.userData && mesh.userData.color) {
+            return mesh.userData.color;
+        }
+
+        return "#cccccc";
+    }
+
+    function createFallbackDesignObject(mesh, index, filename, importFormat, importPayload) {
         return {
             id: "obj-" + Date.now() + "-" + index + "-" + Math.floor(Math.random() * 1000),
             name: createImportedMeshName(filename, index),
@@ -98,9 +188,7 @@
                 y: mesh.scale.y,
                 z: mesh.scale.z
             },
-            color: mesh.material && mesh.material.color
-                ? "#" + mesh.material.color.getHexString()
-                : "#cccccc",
+            color: getMeshColor(mesh),
             materialType: "default",
             materialName: "Default",
             materialDescription: "",
@@ -108,6 +196,134 @@
             importFormat: importFormat,
             importPayload: index === 0 ? importPayload : null
         };
+    }
+
+    function getMetadataObjectFromUserData(userData) {
+        if (!userData || typeof userData !== "object") {
+            return null;
+        }
+
+        const metadata = userData[OBJEX_OBJECT_METADATA_KEY];
+
+        return metadata && typeof metadata === "object" ? metadata : null;
+    }
+
+    function getSceneExportMetadata(object) {
+        let metadata = null;
+
+        if (object && object.userData && object.userData[OBJEX_EXPORT_METADATA_KEY]) {
+            metadata = object.userData[OBJEX_EXPORT_METADATA_KEY];
+        }
+
+        if (!metadata && object && typeof object.traverse === "function") {
+            object.traverse(function (child) {
+                if (!metadata && child.userData && child.userData[OBJEX_EXPORT_METADATA_KEY]) {
+                    metadata = child.userData[OBJEX_EXPORT_METADATA_KEY];
+                }
+            });
+        }
+
+        return metadata && Array.isArray(metadata.objects) ? metadata : null;
+    }
+
+    function getExportedObjectMetadata(mesh, index, exportMetadata) {
+        let current = mesh;
+
+        while (current) {
+            const objectMetadata = getMetadataObjectFromUserData(current.userData);
+
+            if (objectMetadata) {
+                return objectMetadata;
+            }
+
+            current = current.parent;
+        }
+
+        if (exportMetadata && Array.isArray(exportMetadata.objects)) {
+            return exportMetadata.objects[index] || (exportMetadata.objects.length === 1
+                ? exportMetadata.objects[0]
+                : null);
+        }
+
+        return null;
+    }
+
+    function mergeExportedMetadata(fallback, exportedObject, importFormat, importPayload) {
+        if (!exportedObject || typeof exportedObject !== "object") {
+            return fallback;
+        }
+
+        const metadata = clonePlainValue(exportedObject) || {};
+
+        return {
+            id: fallback.id || createImportedObjectId(0),
+            name: typeof metadata.name === "string" && metadata.name.trim() !== ""
+                ? metadata.name.trim()
+                : fallback.name,
+            type: "imported",
+            position: normalizeVector3(metadata.position, fallback.position),
+            rotation: normalizeVector3(metadata.rotation, fallback.rotation),
+            scale: normalizeScale(metadata.scale, fallback.scale),
+            color: typeof metadata.color === "string" && metadata.color.trim() !== ""
+                ? metadata.color
+                : fallback.color,
+            materialType: typeof metadata.materialType === "string" && metadata.materialType.trim() !== ""
+                ? metadata.materialType
+                : fallback.materialType,
+            materialName: typeof metadata.materialName === "string" && metadata.materialName.trim() !== ""
+                ? metadata.materialName
+                : fallback.materialName,
+            materialDescription: typeof metadata.materialDescription === "string"
+                ? metadata.materialDescription
+                : fallback.materialDescription,
+            materialData: metadata.materialData && typeof metadata.materialData === "object"
+                ? metadata.materialData
+                : fallback.materialData,
+            importFormat: importFormat,
+            importPayload: fallback.importPayload || null
+        };
+    }
+
+    function meshToDesignObject(mesh, index, filename, importFormat, importPayload, exportMetadata) {
+        const fallback = createFallbackDesignObject(mesh, index, filename, importFormat, importPayload);
+        const exportedObject = getExportedObjectMetadata(mesh, index, exportMetadata);
+
+        return mergeExportedMetadata(fallback, exportedObject, importFormat, importPayload);
+    }
+
+    function decodeBase64Text(encoded) {
+        const binary = atob(encoded);
+
+        if (typeof TextDecoder === "function") {
+            const bytes = new Uint8Array(binary.length);
+
+            for (let index = 0; index < binary.length; index += 1) {
+                bytes[index] = binary.charCodeAt(index);
+            }
+
+            return new TextDecoder().decode(bytes);
+        }
+
+        return decodeURIComponent(escape(binary));
+    }
+
+    function extractOBJExportMetadata(text) {
+        if (typeof text !== "string") {
+            return null;
+        }
+
+        const match = text.match(/^#\s*objex-cad-metadata:\s*([A-Za-z0-9+/=]+)\s*$/m);
+
+        if (!match || !match[1]) {
+            return null;
+        }
+
+        try {
+            const metadata = JSON.parse(decodeBase64Text(match[1]));
+            return metadata && Array.isArray(metadata.objects) ? metadata : null;
+        } catch (error) {
+            return null;
+        }
     }
 
     function encodeImportPayload(data) {
@@ -122,28 +338,22 @@
         return "";
     }
 
-    function registerImportedMesh(mesh, filename, index, importFormat, importPayload) {
+    function registerImportedMesh(mesh, filename, index, importFormat, importPayload, exportMetadata) {
         if (!mesh) {
             return null;
         }
 
-        mesh.name = createImportedMeshName(filename, index);
-        mesh.userData = mesh.userData || {};
-        mesh.userData.id = "obj-" + Date.now() + "-" + Math.floor(Math.random() * 10000);
-        mesh.userData.type = "imported";
-        mesh.userData.selectable = true;
-        mesh.userData.materialType = "default";
-        mesh.userData.materialName = "Default";
-        mesh.userData.color = "#cccccc";
-        mesh.userData.importFormat = importFormat || "glb";
+        const designObject = meshToDesignObject(
+            mesh,
+            index,
+            filename,
+            importFormat || "glb",
+            importPayload,
+            exportMetadata
+        );
 
-        if (index === 0 && importPayload) {
-            mesh.userData.importPayload = importPayload;
-        }
-
-        if (mesh.material && mesh.material.color) {
-            mesh.userData.color = "#" + mesh.material.color.getHexString();
-        }
+        mesh.name = designObject.name || createImportedMeshName(filename, index);
+        applySavedTransforms(mesh, designObject);
 
         if (typeof window.addObjectToCADScene === "function") {
             window.addObjectToCADScene(mesh, {
@@ -166,19 +376,32 @@
             loader.parse(data, "", function (gltf) {
                 const meshes = [];
                 collectMeshesFromObject(gltf.scene, meshes);
+                const exportMetadata = getSceneExportMetadata(gltf.scene);
+                const preserveWorldSpace = hasObjexExportMetadata(exportMetadata);
 
                 if (!meshes.length) {
                     reject(new Error("No mesh geometry found in model file."));
                     return;
                 }
 
-                centerMeshes(meshes);
+                prepareMeshesForStandaloneUse(gltf.scene, meshes);
+
+                if (!preserveWorldSpace) {
+                    centerMeshes(meshes);
+                }
 
                 if (options && options.designDataOnly) {
                     const importFormat = normalizeFormat(options.format, filename);
                     const payload = options.importPayload || encodeImportPayload(data);
 
-                    resolve([meshToDesignObject(meshes[0], 0, filename, importFormat, payload)]);
+                    resolve([meshToDesignObject(
+                        meshes[0],
+                        0,
+                        filename,
+                        importFormat,
+                        payload,
+                        exportMetadata
+                    )]);
                     return;
                 }
 
@@ -188,7 +411,7 @@
                     : encodeImportPayload(data);
 
                 resolve(meshes.map(function (mesh, index) {
-                    return registerImportedMesh(mesh, filename, index, importFormat, payload);
+                    return registerImportedMesh(mesh, filename, index, importFormat, payload, exportMetadata);
                 }).filter(Boolean));
             }, function (error) {
                 reject(error || new Error("Could not parse GLTF/GLB file."));
@@ -204,8 +427,10 @@
             }
 
             const loader = new THREE.OBJLoader();
+            const exportMetadata = extractOBJExportMetadata(text);
             const object = loader.parse(text);
             const meshes = [];
+            const preserveWorldSpace = hasObjexExportMetadata(exportMetadata);
 
             collectMeshesFromObject(object, meshes);
 
@@ -214,17 +439,21 @@
                 return;
             }
 
-            centerMeshes(meshes);
+            prepareMeshesForStandaloneUse(object, meshes);
+
+            if (!preserveWorldSpace) {
+                centerMeshes(meshes);
+            }
 
             if (options && options.designDataOnly) {
-                resolve([meshToDesignObject(meshes[0], 0, filename, "obj", text)]);
+                resolve([meshToDesignObject(meshes[0], 0, filename, "obj", text, exportMetadata)]);
                 return;
             }
 
             const importPayload = options && options.importPayload ? options.importPayload : text;
 
             resolve(meshes.map(function (mesh, index) {
-                return registerImportedMesh(mesh, filename, index, "obj", importPayload);
+                return registerImportedMesh(mesh, filename, index, "obj", importPayload, exportMetadata);
             }).filter(Boolean));
         });
     }
@@ -262,18 +491,13 @@
             }
 
             const formatApi = getFormatApi();
-            const selectedFormat = normalizeFormat(options && options.format, file.name);
+            let selectedFormat = normalizeFormat(options && options.format, file.name);
             const detectedFormat = formatApi.detectModelFormat
                 ? formatApi.detectModelFormat(file.name)
                 : "";
 
             if (detectedFormat && detectedFormat !== selectedFormat) {
-                resolve({
-                    success: false,
-                    message: "Selected format is " + selectedFormat.toUpperCase() +
-                        " but file appears to be " + detectedFormat.toUpperCase() + "."
-                });
-                return;
+                selectedFormat = detectedFormat;
             }
 
             readModelFile(file, selectedFormat).then(function (fileData) {
