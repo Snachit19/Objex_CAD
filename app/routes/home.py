@@ -30,7 +30,10 @@ def projects_page():
 @login_required
 def help_page():
     return render_template("help.html")
-
+@home_bp.route("/settings")
+@login_required
+def settings_page():
+    return render_template("settings.html")
 @home_bp.route("/cad/<int:project_id>")
 @login_required
 def cad_page(project_id):
