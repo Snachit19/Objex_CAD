@@ -90,7 +90,9 @@
         showMsg("Login successful. Redirecting...", "success");
 
         setTimeout(() => {
-          window.location.href = "/dashboard";
+          window.location.href = window.ObjexCADSettings
+            ? window.ObjexCADSettings.landingPage()
+            : "/dashboard";
         }, 800);
       } else {
         showMsg(data.message || "Login failed.", "error");

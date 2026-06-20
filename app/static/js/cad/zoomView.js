@@ -221,6 +221,8 @@
     const zoomInBtn = document.getElementById("zoomInBtn");
     const zoomOutBtn = document.getElementById("zoomOutBtn");
     const zoomSlider = document.getElementById("zoomSlider");
+    const settings = window.ObjexCADSettings ? window.ObjexCADSettings.load() : {};
+    const defaultZoom = settings.zoomLevel || 100;
 
     if (zoomInBtn) {
       zoomInBtn.addEventListener("click", zoomInCADView);
@@ -237,7 +239,7 @@
     }
 
     connectControlChangeSync();
-    syncZoomControlsFromCamera();
+    setZoomPercent(defaultZoom, false);
   }
 
   window.zoomInCADView = zoomInCADView;

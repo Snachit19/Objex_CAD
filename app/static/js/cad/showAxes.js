@@ -22,13 +22,26 @@ function setAxesStatus(message) {
 
 function getAxesSize() {
     const input = document.getElementById("axesSizeInput");
-    const value = input ? Number(input.value) : 5;
+    const settingsValue = window.ObjexCADSettings
+        ? window.ObjexCADSettings.number("axesSize", 5, 1, 50)
+        : 5;
+    const value = input ? Number(input.value) : settingsValue;
 
     if (isNaN(value) || value < 1) {
-        return 5;
+        return settingsValue;
     }
 
     return value;
+}
+
+
+function applyAxesSettingsToControls() {
+    const settings = window.ObjexCADSettings ? window.ObjexCADSettings.load() : {};
+    const axesSizeInput = document.getElementById("axesSizeInput");
+
+    if (axesSizeInput) {
+        axesSizeInput.value = Number(settings.axesSize) || 5;
+    }
 }
 
 
@@ -174,8 +187,17 @@ function updateCADAxes() {
 function initShowAxesControls() {
     const toggleAxesBtn = document.getElementById("toggleAxesBtn");
     const updateAxesBtn = document.getElementById("updateAxesBtn");
+    const settings = window.ObjexCADSettings ? window.ObjexCADSettings.load() : {};
 
+    applyAxesSettingsToControls();
     getOrCreateCADAxesHelper();
+
+    const axesHelper = findCADAxesHelper();
+
+    if (axesHelper) {
+        axesHelper.visible = settings.showAxes !== false;
+    }
+
     updateAxesButtonText();
 
     if (toggleAxesBtn) {

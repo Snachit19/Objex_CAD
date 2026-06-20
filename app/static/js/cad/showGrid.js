@@ -22,10 +22,13 @@ function setGridStatus(message) {
 
 function getGridSize() {
     const input = document.getElementById("gridSizeInput");
-    const value = input ? Number(input.value) : 20;
+    const settingsValue = window.ObjexCADSettings
+        ? window.ObjexCADSettings.number("gridSize", 40, 5, 100)
+        : 40;
+    const value = input ? Number(input.value) : settingsValue;
 
     if (isNaN(value) || value < 5) {
-        return 20;
+        return settingsValue;
     }
 
     return value;
@@ -34,13 +37,31 @@ function getGridSize() {
 
 function getGridDivisions() {
     const input = document.getElementById("gridDivisionsInput");
-    const value = input ? Number(input.value) : 20;
+    const settingsValue = window.ObjexCADSettings
+        ? window.ObjexCADSettings.number("gridDivisions", 40, 2, 100)
+        : 40;
+    const value = input ? Number(input.value) : settingsValue;
 
     if (isNaN(value) || value < 2) {
-        return 20;
+        return settingsValue;
     }
 
     return value;
+}
+
+
+function applyGridSettingsToControls() {
+    const settings = window.ObjexCADSettings ? window.ObjexCADSettings.load() : {};
+    const sizeInput = document.getElementById("gridSizeInput");
+    const divisionsInput = document.getElementById("gridDivisionsInput");
+
+    if (sizeInput) {
+        sizeInput.value = Number(settings.gridSize) || 40;
+    }
+
+    if (divisionsInput) {
+        divisionsInput.value = Number(settings.gridDivisions) || 40;
+    }
 }
 
 
@@ -194,8 +215,17 @@ function updateCADGrid() {
 function initShowGridControls() {
     const toggleGridBtn = document.getElementById("toggleGridBtn");
     const updateGridBtn = document.getElementById("updateGridBtn");
+    const settings = window.ObjexCADSettings ? window.ObjexCADSettings.load() : {};
 
+    applyGridSettingsToControls();
     getOrCreateCADGridHelper();
+
+    const gridHelper = findCADGridHelper();
+
+    if (gridHelper) {
+        gridHelper.visible = settings.showGrid !== false;
+    }
+
     updateGridButtonText();
 
     if (toggleGridBtn) {

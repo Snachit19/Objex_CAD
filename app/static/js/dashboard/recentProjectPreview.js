@@ -14,8 +14,12 @@ const dashboardPreviewState = {
   controlsBound: false,
   isAnimating: false,
   raycaster: null,
-  pointer: null
+  pointer: null,
+  renderToken: 0
 };
+
+const OBJEX_EXPORT_METADATA_KEY = "objexCadExport";
+const OBJEX_OBJECT_METADATA_KEY = "objexCadObject";
 
 const DASHBOARD_MATERIAL_PRESETS = {
   default: {
@@ -108,6 +112,18 @@ function normaliseDashboardNumber(value, fallback) {
   const numberValue = Number(value);
 
   return Number.isFinite(numberValue) ? numberValue : fallback;
+}
+
+function cloneDashboardPlainValue(value) {
+  if (value === undefined || value === null) {
+    return value;
+  }
+
+  try {
+    return JSON.parse(JSON.stringify(value));
+  } catch (error) {
+    return value;
+  }
 }
 
 function formatDashboardNumber(value, fallback) {
@@ -362,6 +378,348 @@ function createDashboardMaterial(savedObject) {
   });
 }
 
+function collectDashboardPreviewMeshes(object, meshes) {
+  if (!object) {
+    return;
+  }
+
+  if (object.isMesh) {
+    meshes.push(object);
+    return;
+  }
+
+  if (typeof object.traverse === "function") {
+    object.traverse(function (child) {
+      if (child.isMesh) {
+        meshes.push(child);
+      }
+    });
+  }
+}
+
+function decodeDashboardBase64Payload(payload) {
+  const binary = atob(payload);
+  const bytes = new Uint8Array(binary.length);
+
+  for (let index = 0; index < binary.length; index += 1) {
+    bytes[index] = binary.charCodeAt(index);
+  }
+
+  return bytes.buffer;
+}
+
+function decodeDashboardBase64Text(payload) {
+  const binary = atob(payload);
+
+  if (typeof TextDecoder === "function") {
+    const bytes = new Uint8Array(binary.length);
+
+    for (let index = 0; index < binary.length; index += 1) {
+      bytes[index] = binary.charCodeAt(index);
+    }
+
+    return new TextDecoder().decode(bytes);
+  }
+
+  return decodeURIComponent(escape(binary));
+}
+
+function extractDashboardOBJExportMetadata(text) {
+  if (typeof text !== "string") {
+    return null;
+  }
+
+  const match = text.match(/^#\s*objex-cad-metadata:\s*([A-Za-z0-9+/=]+)\s*$/m);
+
+  if (!match || !match[1]) {
+    return null;
+  }
+
+  try {
+    const metadata = JSON.parse(decodeDashboardBase64Text(match[1]));
+    return metadata && Array.isArray(metadata.objects) ? metadata : null;
+  } catch (error) {
+    return null;
+  }
+}
+
+function getDashboardExportMetadataFromObject(object) {
+  let metadata = null;
+
+  if (object && object.userData && object.userData[OBJEX_EXPORT_METADATA_KEY]) {
+    metadata = object.userData[OBJEX_EXPORT_METADATA_KEY];
+  }
+
+  if (!metadata && object && typeof object.traverse === "function") {
+    object.traverse(function (child) {
+      if (!metadata && child.userData && child.userData[OBJEX_EXPORT_METADATA_KEY]) {
+        metadata = child.userData[OBJEX_EXPORT_METADATA_KEY];
+      }
+    });
+  }
+
+  return metadata && Array.isArray(metadata.objects) ? metadata : null;
+}
+
+function getDashboardObjectMetadataFromUserData(userData) {
+  if (!userData || typeof userData !== "object") {
+    return null;
+  }
+
+  const metadata = userData[OBJEX_OBJECT_METADATA_KEY];
+
+  return metadata && typeof metadata === "object" ? metadata : null;
+}
+
+function getDashboardExportedObjectMetadata(mesh, index, exportMetadata) {
+  let current = mesh;
+
+  while (current) {
+    const objectMetadata = getDashboardObjectMetadataFromUserData(current.userData);
+
+    if (objectMetadata) {
+      return objectMetadata;
+    }
+
+    current = current.parent;
+  }
+
+  if (exportMetadata && Array.isArray(exportMetadata.objects)) {
+    return exportMetadata.objects[index] || (exportMetadata.objects.length === 1
+      ? exportMetadata.objects[0]
+      : null);
+  }
+
+  return null;
+}
+
+function hasDashboardExportMetadata(exportMetadata) {
+  return Boolean(
+    exportMetadata &&
+    Array.isArray(exportMetadata.objects) &&
+    exportMetadata.objects.length > 0
+  );
+}
+
+function getDashboardBaseExportedObject(exportMetadata) {
+  return hasDashboardExportMetadata(exportMetadata)
+    ? exportMetadata.objects[0]
+    : null;
+}
+
+function mergeDashboardExportedObject(savedObject, metadata) {
+  if (!metadata || typeof metadata !== "object") {
+    return savedObject;
+  }
+
+  const exportedObject = cloneDashboardPlainValue(metadata) || {};
+
+  return Object.assign({}, savedObject || {}, {
+    id: typeof exportedObject.id === "string" && exportedObject.id.trim()
+      ? exportedObject.id
+      : (savedObject && savedObject.id ? savedObject.id : ""),
+    name: typeof exportedObject.name === "string" && exportedObject.name.trim()
+      ? exportedObject.name.trim()
+      : getDashboardObjectLabel(savedObject),
+    type: typeof exportedObject.type === "string" && exportedObject.type.trim()
+      ? exportedObject.type.trim()
+      : (savedObject && savedObject.type ? savedObject.type : "imported"),
+    position: exportedObject.position || (savedObject && savedObject.position) || { x: 0, y: 0, z: 0 },
+    rotation: exportedObject.rotation || (savedObject && savedObject.rotation) || { x: 0, y: 0, z: 0 },
+    scale: exportedObject.scale || (savedObject && savedObject.scale) || { x: 1, y: 1, z: 1 },
+    color: exportedObject.color || (savedObject && savedObject.color) || "#6366f1",
+    materialType: exportedObject.materialType || (savedObject && savedObject.materialType) || "default",
+    materialName: exportedObject.materialName || (savedObject && savedObject.materialName) || "Default",
+    materialDescription: typeof exportedObject.materialDescription === "string"
+      ? exportedObject.materialDescription
+      : ((savedObject && savedObject.materialDescription) || ""),
+    materialData: exportedObject.materialData || (savedObject && savedObject.materialData) || null,
+    importFormat: savedObject && savedObject.importFormat ? savedObject.importFormat : null,
+    importPayload: savedObject && savedObject.importPayload ? savedObject.importPayload : null
+  });
+}
+
+function getDashboardVector3(value, fallback) {
+  const defaults = fallback || { x: 0, y: 0, z: 0 };
+  const source = value && typeof value === "object" ? value : {};
+
+  return {
+    x: normaliseDashboardNumber(source.x, defaults.x),
+    y: normaliseDashboardNumber(source.y, defaults.y),
+    z: normaliseDashboardNumber(source.z, defaults.z)
+  };
+}
+
+function getDashboardScaleVector(value) {
+  const scale = getDashboardVector3(value, { x: 1, y: 1, z: 1 });
+
+  return {
+    x: scale.x === 0 ? 1 : scale.x,
+    y: scale.y === 0 ? 1 : scale.y,
+    z: scale.z === 0 ? 1 : scale.z
+  };
+}
+
+function applyDashboardImportedTransform(wrapper, savedObject, exportMetadata) {
+  const baseObject = getDashboardBaseExportedObject(exportMetadata);
+
+  if (!baseObject) {
+    applyDashboardMeshTransform(wrapper, savedObject);
+    return;
+  }
+
+  const savedPosition = getDashboardVector3(savedObject && savedObject.position, { x: 0, y: 0, z: 0 });
+  const basePosition = getDashboardVector3(baseObject.position, { x: 0, y: 0, z: 0 });
+  const savedRotation = getDashboardVector3(savedObject && savedObject.rotation, { x: 0, y: 0, z: 0 });
+  const baseRotation = getDashboardVector3(baseObject.rotation, { x: 0, y: 0, z: 0 });
+  const savedScale = getDashboardScaleVector(savedObject && savedObject.scale);
+  const baseScale = getDashboardScaleVector(baseObject.scale);
+
+  wrapper.position.set(
+    savedPosition.x - basePosition.x,
+    savedPosition.y - basePosition.y,
+    savedPosition.z - basePosition.z
+  );
+  wrapper.rotation.set(
+    savedRotation.x - baseRotation.x,
+    savedRotation.y - baseRotation.y,
+    savedRotation.z - baseRotation.z
+  );
+  wrapper.scale.set(
+    savedScale.x / baseScale.x,
+    savedScale.y / baseScale.y,
+    savedScale.z / baseScale.z
+  );
+}
+
+function normaliseDashboardImportFormat(savedObject) {
+  const format = savedObject && savedObject.importFormat
+    ? String(savedObject.importFormat).trim().toLowerCase()
+    : "";
+
+  if (format === "obj" || format === "gltf" || format === "glb") {
+    return format;
+  }
+
+  return "glb";
+}
+
+function applyDashboardImportedFallbackMaterials(root, savedObject, exportMetadata) {
+  const fallbackMaterial = createDashboardMaterial(savedObject);
+  const meshes = [];
+
+  collectDashboardPreviewMeshes(root, meshes);
+
+  meshes.forEach(function (mesh, meshIndex) {
+    const metadata = getDashboardExportedObjectMetadata(mesh, meshIndex, exportMetadata);
+    const meshSavedObject = mergeDashboardExportedObject(savedObject, metadata);
+
+    mesh.userData.savedObject = meshSavedObject;
+
+    if (metadata || !mesh.material) {
+      disposeDashboardMaterial(mesh.material);
+      mesh.material = metadata
+        ? createDashboardMaterial(meshSavedObject)
+        : fallbackMaterial.clone();
+    }
+  });
+
+  fallbackMaterial.dispose();
+}
+
+function prepareDashboardImportedObject(sourceObject, savedObject, index, exportMetadata) {
+  const wrapper = new THREE.Group();
+  const meshes = [];
+  const preserveWorldSpace = hasDashboardExportMetadata(exportMetadata);
+
+  wrapper.name = getDashboardObjectLabel(savedObject);
+  wrapper.userData.previewObjectIndex = index;
+  wrapper.userData.savedObject = savedObject;
+  wrapper.add(sourceObject);
+
+  const box = new THREE.Box3().setFromObject(wrapper);
+
+  if (!preserveWorldSpace && !box.isEmpty()) {
+    const center = box.getCenter(new THREE.Vector3());
+    sourceObject.position.sub(center);
+  }
+
+  collectDashboardPreviewMeshes(wrapper, meshes);
+
+  meshes.forEach(function (mesh) {
+    mesh.userData.previewObjectIndex = index;
+    mesh.userData.savedObject = savedObject;
+  });
+
+  applyDashboardImportedFallbackMaterials(wrapper, savedObject, exportMetadata);
+
+  if (meshes[0] && meshes[0].userData.savedObject) {
+    wrapper.userData.savedObject = meshes[0].userData.savedObject;
+  }
+
+  applyDashboardImportedTransform(wrapper, savedObject, exportMetadata);
+
+  return wrapper;
+}
+
+function loadDashboardImportedObject(savedObject, index) {
+  return new Promise(function (resolve) {
+    if (!savedObject || savedObject.type !== "imported" || !savedObject.importPayload) {
+      resolve(null);
+      return;
+    }
+
+    const format = normaliseDashboardImportFormat(savedObject);
+    const payload = savedObject.importPayload;
+    const filename = savedObject.name || "imported-model";
+
+    const onObjectLoaded = function (sourceObject, exportMetadata) {
+      if (!sourceObject) {
+        resolve(null);
+        return;
+      }
+
+      resolve(prepareDashboardImportedObject(sourceObject, savedObject, index, exportMetadata));
+    };
+
+    if (format === "obj") {
+      if (typeof THREE.OBJLoader !== "function") {
+        resolve(null);
+        return;
+      }
+
+      try {
+        onObjectLoaded(new THREE.OBJLoader().parse(payload), extractDashboardOBJExportMetadata(payload));
+      } catch (error) {
+        resolve(null);
+      }
+
+      return;
+    }
+
+    if (typeof THREE.GLTFLoader !== "function") {
+      resolve(null);
+      return;
+    }
+
+    const loader = new THREE.GLTFLoader();
+    let data = null;
+
+    try {
+      data = format === "glb" ? decodeDashboardBase64Payload(payload) : payload;
+    } catch (error) {
+      resolve(null);
+      return;
+    }
+
+    loader.parse(data, "", function (gltf) {
+      onObjectLoaded(gltf.scene, getDashboardExportMetadataFromObject(gltf.scene));
+    }, function () {
+      resolve(null);
+    });
+  });
+}
+
 function applyDashboardMeshTransform(mesh, savedObject) {
   const position = savedObject && savedObject.position ? savedObject.position : {};
   const rotation = savedObject && savedObject.rotation ? savedObject.rotation : {};
@@ -395,6 +753,20 @@ function disposeDashboardMaterial(material) {
   }
 }
 
+function disposeDashboardObject(object) {
+  if (!object || typeof object.traverse !== "function") {
+    return;
+  }
+
+  object.traverse(function (child) {
+    if (child.geometry && typeof child.geometry.dispose === "function") {
+      child.geometry.dispose();
+    }
+
+    disposeDashboardMaterial(child.material);
+  });
+}
+
 function clearDashboardPreviewMeshes() {
   const state = dashboardPreviewState;
 
@@ -407,14 +779,9 @@ function clearDashboardPreviewMeshes() {
     state.selectedHelper = null;
   }
 
-  state.objectGroup.children.slice().forEach(function (mesh) {
-    state.objectGroup.remove(mesh);
-
-    if (mesh.geometry && typeof mesh.geometry.dispose === "function") {
-      mesh.geometry.dispose();
-    }
-
-    disposeDashboardMaterial(mesh.material);
+  state.objectGroup.children.slice().forEach(function (previewObject) {
+    state.objectGroup.remove(previewObject);
+    disposeDashboardObject(previewObject);
   });
 
   state.meshes = [];
@@ -563,6 +930,16 @@ function createDashboardPreviewMesh(savedObject, index) {
   return mesh;
 }
 
+function createDashboardPreviewObject(savedObject, index) {
+  if (savedObject && savedObject.type === "imported" && savedObject.importPayload) {
+    return loadDashboardImportedObject(savedObject, index).then(function (importedObject) {
+      return importedObject || null;
+    });
+  }
+
+  return Promise.resolve(createDashboardPreviewMesh(savedObject, index));
+}
+
 function getDashboardPreviewBounds(targetObject) {
   const box = new THREE.Box3().setFromObject(targetObject);
 
@@ -654,6 +1031,9 @@ function renderDashboardPreviewObjects(projectDesignData) {
     return;
   }
 
+  const renderToken = dashboardPreviewState.renderToken + 1;
+  dashboardPreviewState.renderToken = renderToken;
+
   clearDashboardPreviewMessage();
   clearDashboardPreviewMeshes();
 
@@ -673,21 +1053,36 @@ function renderDashboardPreviewObjects(projectDesignData) {
     return;
   }
 
-  savedObjects.forEach(function (savedObject, index) {
-    const mesh = createDashboardPreviewMesh(savedObject, index);
+  Promise.all(savedObjects.map(createDashboardPreviewObject)).then(function (previewObjects) {
+    if (dashboardPreviewState.renderToken !== renderToken) {
+      previewObjects.forEach(disposeDashboardObject);
+      return;
+    }
 
-    dashboardPreviewState.meshes.push(mesh);
-    dashboardPreviewState.objectGroup.add(mesh);
+    previewObjects.forEach(function (previewObject) {
+      if (!previewObject) {
+        return;
+      }
+
+      dashboardPreviewState.meshes.push(previewObject);
+      dashboardPreviewState.objectGroup.add(previewObject);
+    });
+
+    if (dashboardPreviewState.meshes.length === 0) {
+      showDashboardPreviewMessage("Imported model preview could not be restored");
+      updateDashboardPreviewControlAvailability();
+      return;
+    }
+
+    fitDashboardPreviewView(null, true);
+    selectDashboardPreviewObject(0);
+    updateDashboardPreviewControlAvailability();
   });
-
-  fitDashboardPreviewView(null, true);
-  selectDashboardPreviewObject(0);
-  updateDashboardPreviewControlAvailability();
 }
 
-function selectDashboardPreviewObject(index) {
+function selectDashboardPreviewObject(index, targetObject) {
   const state = dashboardPreviewState;
-  const selectedMesh = state.meshes[index] || null;
+  const selectedMesh = targetObject || state.meshes[index] || null;
   const selectedObject = selectedMesh ? selectedMesh.userData.savedObject : null;
 
   if (state.selectedHelper) {
@@ -724,10 +1119,25 @@ function handleDashboardPreviewPointerDown(event) {
   state.pointer.y = -(((event.clientY - rect.top) / rect.height) * 2 - 1);
   state.raycaster.setFromCamera(state.pointer, state.camera);
 
-  const intersection = state.raycaster.intersectObjects(state.meshes, false)[0];
+  const intersection = state.raycaster.intersectObjects(state.meshes, true)[0];
 
   if (intersection && intersection.object) {
-    selectDashboardPreviewObject(intersection.object.userData.previewObjectIndex);
+    let previewObject = intersection.object;
+
+    while (
+      previewObject &&
+      previewObject.parent &&
+      typeof previewObject.userData.previewObjectIndex !== "number"
+    ) {
+      previewObject = previewObject.parent;
+    }
+
+    if (previewObject && typeof previewObject.userData.previewObjectIndex === "number") {
+      selectDashboardPreviewObject(
+        previewObject.userData.previewObjectIndex,
+        intersection.object.userData.savedObject ? intersection.object : previewObject
+      );
+    }
   }
 }
 

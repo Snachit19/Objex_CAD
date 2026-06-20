@@ -21,11 +21,17 @@ function isProjectsPage() {
 }
 
 function openProjectModal() {
+  const settings = window.ObjexCADSettings ? window.ObjexCADSettings.load() : {};
+
   projectModal.style.display = "flex";
   projectNameInput.value = "";
-  projectDescriptionInput.value = "";
+  projectDescriptionInput.value = settings.defaultProjectDescription || "";
   projectError.style.display = "none";
   projectError.textContent = "";
+
+  if (projectNameInput) {
+    projectNameInput.focus();
+  }
 }
 
 function closeProjectModal() {
@@ -364,6 +370,18 @@ function openDeleteProjectModal(project) {
   const deleteModal = document.getElementById("deleteProjectModal");
   const confirmText = document.getElementById("deleteProjectConfirmText");
   const errorBox = document.getElementById("deleteProjectError");
+  const settings = window.ObjexCADSettings ? window.ObjexCADSettings.load() : {};
+
+  if (settings.confirmDelete === false) {
+    deleteProject(project.id)
+      .then(function () {
+        return loadProjects();
+      })
+      .catch(function (error) {
+        window.alert(error.message || "Could not delete project.");
+      });
+    return;
+  }
 
   if (!deleteModal) {
     if (window.confirm("Delete \"" + (project.name || "this project") + "\"? This cannot be undone.")) {

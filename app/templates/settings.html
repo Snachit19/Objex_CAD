@@ -23,10 +23,15 @@
     </div>
 
     <div class="top-user">
-      <span class="top-icon">🔔</span>
       <button class="create-project-btn" type="button" onclick="window.location.href='/dashboard?newProject=1'">+ New Project</button>
       <button class="settings-top-btn active-settings-top-btn" type="button" onclick="window.location.href='/settings'">⚙</button>
-      <div class="user-avatar" id="avatar-initial">O</div>
+      <div class="profile-hover-card" tabindex="0" aria-label="User profile">
+        <div class="user-avatar" id="avatar-initial">O</div>
+        <div class="profile-hover-info" role="tooltip">
+          <strong id="profile-hover-name">Loading...</strong>
+          <span id="profile-hover-email">Loading...</span>
+        </div>
+      </div>
       <span id="display-name">Loading…</span>
       <button id="logoutBtn" class="logout-btn" type="button">Logout</button>
     </div>
@@ -213,35 +218,35 @@
 
   <script src="/static/js/common/pageSearch.js"></script>
   <script>
-    const SETTINGS_KEY = "objexCADSettings";
     let currentUserName = "";
 
-    const defaultSettings = {
-      compactDashboard: false,
-      recentPreview: true,
-      defaultLandingPage: "/dashboard",
-      showGrid: true,
-      showAxes: true,
-      gridSize: 40,
-      gridDivisions: 40,
-      axesSize: 5,
-      zoomLevel: "100",
-      defaultProjectDescription: "",
-      saveReminder: true,
-      confirmDelete: true
-    };
+    const defaultSettings = window.ObjexCADSettings
+      ? window.ObjexCADSettings.defaults
+      : {
+        compactDashboard: false,
+        recentPreview: true,
+        defaultLandingPage: "/dashboard",
+        showGrid: true,
+        showAxes: true,
+        gridSize: 40,
+        gridDivisions: 40,
+        axesSize: 5,
+        zoomLevel: "100",
+        defaultProjectDescription: "",
+        saveReminder: true,
+        confirmDelete: true
+      };
 
     function getEl(id) {
       return document.getElementById(id);
     }
 
     function loadStoredSettings() {
-      try {
-        const savedSettings = JSON.parse(localStorage.getItem(SETTINGS_KEY));
-        return savedSettings ? { ...defaultSettings, ...savedSettings } : { ...defaultSettings };
-      } catch {
-        return { ...defaultSettings };
+      if (window.ObjexCADSettings) {
+        return window.ObjexCADSettings.load();
       }
+
+      return { ...defaultSettings };
     }
 
     function applySettingsToForm(settings) {
@@ -294,6 +299,7 @@
       currentUserName = safeName;
       getEl("display-name").textContent = safeName;
       getEl("avatar-initial").textContent = safeName.charAt(0).toUpperCase();
+      getEl("profile-hover-name").textContent = safeName;
       getEl("settingsDisplayName").value = safeName;
     }
 
@@ -390,14 +396,30 @@
     }
 
     function saveSettings() {
-      localStorage.setItem(SETTINGS_KEY, JSON.stringify(readSettingsFromForm()));
+      const settings = readSettingsFromForm();
+
+      if (window.ObjexCADSettings) {
+        window.ObjexCADSettings.save(settings);
+        window.ObjexCADSettings.applyDocumentPreferences();
+      } else {
+        localStorage.setItem("objexCADSettings", JSON.stringify(settings));
+      }
+
       getEl("settingsSaveStatus").textContent = "Saved locally";
       showSettingsToast("Settings saved successfully.");
     }
 
     function resetSettings() {
-      localStorage.removeItem(SETTINGS_KEY);
-      applySettingsToForm(defaultSettings);
+      const settings = window.ObjexCADSettings
+        ? window.ObjexCADSettings.reset()
+        : defaultSettings;
+
+      applySettingsToForm(settings);
+
+      if (window.ObjexCADSettings) {
+        window.ObjexCADSettings.applyDocumentPreferences();
+      }
+
       getEl("settingsSaveStatus").textContent = "Reset to default";
       showSettingsToast("Settings reset to default.");
     }
@@ -416,6 +438,7 @@
 
         setProfileName(data.name || "User");
         getEl("settingsUserEmail").value = userEmail;
+        getEl("profile-hover-email").textContent = userEmail;
       } catch {
         window.location.href = "/";
       }
